@@ -76,10 +76,10 @@ public class SiteController {
         return new ResponseEntity<>(fetchSiteByRegion,HttpStatus.OK);
     }
 
-    @GetMapping("/fetch-site-by-region-test")
-    public String getAllSiteByRegionV2(){
-            return "jills";
-    }
+
+
+
+
     // @PostConstruct
     //     public void check() {
     //         System.out.println("SiteController loaded...");

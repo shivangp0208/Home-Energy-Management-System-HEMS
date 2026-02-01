@@ -18,7 +18,7 @@ public class DispatchEventProducer {
 
     private String dispatchEnergyTopic;
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, DispatchEvent> kafkaTemplate;
 
     public void sendDispatchCommands(DispatchEvent dispatchEvent) {
         log.info("sendDispatchCommands: sending dummy dispatch command to envoy");

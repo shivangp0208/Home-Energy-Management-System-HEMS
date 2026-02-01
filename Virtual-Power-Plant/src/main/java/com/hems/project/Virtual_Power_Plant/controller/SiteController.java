@@ -49,6 +49,8 @@ public class SiteController {
     public ResponseEntity<List<SiteResponseDto>> fetchAllSiteByRegion(@PathVariable String city){
         return service.fetchSitesByRegion(city);
     }
+
+    
     
     
 }
