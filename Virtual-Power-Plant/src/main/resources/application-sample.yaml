@@ -18,8 +18,9 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.trusted.packages: com.hems.project.Virtual_Power_Plant.entity
-        spring.json.value.default.type: com.hems.project.Virtual_Power_Plant.entity.Region
+        spring.json.trusted.packages: com.hems.project.Virtual_Power_Plant.entity.simulator
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.hems.project.Virtual_Power_Plant.entity.simulator.MeterSnapshot
     listener:
       ack-mode: MANUAL
 
@@ -27,11 +28,25 @@ eureka:
   instance:
     prefer-ip-address: true
   client:
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
       defaultZone: http://localhost:8091/eureka
 
 
 server:
   port: 8086
+
+
+
+property:
+  config:
+    kafka: 
+      raw-energy-group-id: raw-energy-readers-vpp
+      raw-energy-topic: RAW_ENERGY_READINGS
+      raw-energy-partition-count: 3
+      replica-count: 1
+
+logging:
+  level:
+    '[com.project.hems.envoy_manager_service]': debug

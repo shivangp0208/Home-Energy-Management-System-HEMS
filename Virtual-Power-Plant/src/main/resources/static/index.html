@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>Live Meter Data</h2>
+<pre id="output"></pre>
+<script>
+  const socket = new SockJS("http://localhost:8086/ws");
+  const stompClient = Stomp.over(socket);
+
+  const meters = {}; // store by meterId
+
+  stompClient.connect({}, function () {
+    stompClient.subscribe("/topic/meter", function (message) {
+      const data = JSON.parse(message.body);
+
+      // store/update meter by ID
+      meters[data.meterId] = data;
+
+      renderMeters();
+    });
+  });
+
+  function renderMeters() {
+    const output = document.getElementById("output");
+    output.textContent = "";
+
+    for (const id in meters) {
+      output.textContent += 
+        "Meter " + id + ":\n" +
+        JSON.stringify(meters[id], null, 2) +
+        "\n\n------------------------\n\n";
+    }
+  }
+</script>
+
+</body>
+</html>

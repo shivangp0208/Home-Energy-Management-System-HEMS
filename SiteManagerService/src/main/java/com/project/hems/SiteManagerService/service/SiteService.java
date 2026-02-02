@@ -10,6 +10,7 @@ import com.project.hems.SiteManagerService.repository.SiteRepo;
 import com.project.hems.SiteManagerService.util.ValueMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -126,5 +127,12 @@ public class SiteService {
     //
     // return CompletableFuture.completedFuture(dtoList);
     // }
+
+
+    public List<SiteResponseDto> fetchSiteByRegion(String city){
+        List<Site> sites=siteRepo.findByAddress_City(city);
+        List<SiteResponseDto> siteResponseDtos = sites.stream().map(valueMapper::siteModelToResponseDto).toList();
+        return siteResponseDtos;
+    }
 
 }

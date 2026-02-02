@@ -1,27 +1,39 @@
 package com.hems.project.Virtual_Power_Plant.controller;
 
-import com.hems.project.Virtual_Power_Plant.entity.Region;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
 
+import com.hems.project.Virtual_Power_Plant.entity.simulator.MeterSnapshot;
+
+@Slf4j
 @Component
 public class KafkaConsumer {
+private final SimpMessagingTemplate messagingTemplate;
 
-    @KafkaListener(topics = "my-topic", groupId = "my-new-group")
-    public void listen1(Region region, Acknowledgment ack) {
+    public KafkaConsumer(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
 
-        System.out.println("Received: " + region);
+    @KafkaListener(topics = "${property.config.kafka.raw-energy-topic}",
+                   groupId = "${property.config.kafka.raw-energy-group-id}")
+    public void consumeRawMeterReadings(MeterSnapshot meterSnapshot) {
 
-        if("surat".equals(region.getName())) {
-            System.out.println("❌ Simulating failure, NOT acknowledging");
-            throw new RuntimeException("Test failure");
-        }
+        log.info("Kafka received: {}", meterSnapshot);
 
-        ack.acknowledge();
+        messagingTemplate.convertAndSend(
+            "/topic/meter",
+            meterSnapshot
+        );
     }
 
 }
+
 
 
 
