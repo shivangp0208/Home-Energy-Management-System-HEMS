@@ -9,6 +9,6 @@ public class BatteryDto {
     private UUID id;
     private int quantity;
     private double capacityWh;
-    private double maxOutput;
+    private double maxOutputW;
     private UUID siteId;
 }

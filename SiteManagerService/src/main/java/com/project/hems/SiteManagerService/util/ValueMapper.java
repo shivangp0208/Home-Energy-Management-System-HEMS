@@ -64,7 +64,7 @@ public class ValueMapper {
         batteryDto.setId(battery.getId());
         batteryDto.setQuantity(battery.getQuantity());
         batteryDto.setCapacityWh(battery.getCapacityWh());
-        batteryDto.setMaxOutput(battery.getMaxOutputW());
+        batteryDto.setMaxOutputW(battery.getMaxOutputW());
         if (battery.getSite() != null) {
             batteryDto.setSiteId(battery.getSite().getId());
         }
@@ -76,7 +76,7 @@ public class ValueMapper {
         battery.setId(batteryDto.getId());
         battery.setQuantity(batteryDto.getQuantity());
         battery.setCapacityWh(batteryDto.getCapacityWh());
-        battery.setMaxOutputW(batteryDto.getMaxOutput());
+        battery.setMaxOutputW(batteryDto.getMaxOutputW());
         battery.setSite(site);
         return battery;
     }
