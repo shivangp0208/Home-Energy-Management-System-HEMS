@@ -1,11 +1,14 @@
 package com.project.hems.simulator_service.web.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MeterStatusNotFoudException.class)
@@ -39,10 +42,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MeterAlreadyDispatchedException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    @ResponseStatus(code = HttpStatus.CONFLICT)
     public CustomizedErrorResponse handleMeterAlreadyDispatchedException(MeterAlreadyDispatchedException ex) {
         return CustomizedErrorResponse.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(HttpStatus.CONFLICT.value())
                 .error("DUPLICATE_DISPATCH_COMMAND")
                 .message(ex.getMessage())
                 .build();

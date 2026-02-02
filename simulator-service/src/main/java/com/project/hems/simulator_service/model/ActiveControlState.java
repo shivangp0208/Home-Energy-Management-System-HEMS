@@ -9,7 +9,6 @@ import com.project.hems.simulator_service.model.envoy.EnergyPriority;
 import com.project.hems.simulator_service.model.envoy.GridControl;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -18,7 +17,6 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ActiveControlState {
 
     private UUID dispatchId;

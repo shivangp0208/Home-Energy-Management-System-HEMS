@@ -12,27 +12,28 @@ import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class RetrieveMessageErrorDecoder implements ErrorDecoder {
+public class SimulatorErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
-        log.info("RetrieveMessageErrorDecoder: decoding message using ErrorDecoder for exception handling");
+        log.info("decode: decoding message using ErrorDecoder for exception handling");
 
         HttpStatus status = HttpStatus.valueOf(response.status());
-        log.debug("RetrieveMessageErrorDecoder: Http status received = " + status);
+        log.debug("decode: Http status received = " + status);
 
         String responseBody = extractResponseBody(response);
-        log.debug("RetrieveMessageErrorDecoder: responseBody received = " + responseBody);
+        log.debug("decode: responseBody received = " + responseBody);
 
         String[] jsonKeyValue = responseBody.split("\\:");
         String errorMessage = jsonKeyValue[jsonKeyValue.length - 1].replaceAll("\"", "");
-        log.debug("RetrieveMessageErrorDecoder: error message = " + errorMessage);
+        log.debug("decode: error message = " + errorMessage);
 
         switch (status) {
-            case BAD_REQUEST:
+            case CONFLICT:
+                log.error("decode: " + responseBody);
                 return new MeterAlreadyDispatchedException(responseBody);
             default:
-                return new Exception("Unexpected error: " + errorMessage);
+                return new RuntimeException("Unexpected error: " + errorMessage);
         }
     }
 

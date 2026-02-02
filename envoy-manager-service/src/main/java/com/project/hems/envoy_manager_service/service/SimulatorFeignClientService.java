@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.project.hems.envoy_manager_service.config.SimulatorFeignConfig;
 import com.project.hems.envoy_manager_service.model.SiteControlCommand;
 import com.project.hems.envoy_manager_service.model.simulator.MeterSnapshot;
 
 import jakarta.validation.Valid;
 
-@FeignClient(name = "simulator-service", path = "/api/v1/simulation")
+@FeignClient(name = "simulator-service", path = "/api/v1/simulation", configuration = SimulatorFeignConfig.class)
 public interface SimulatorFeignClientService {
 
     @PostMapping("/activate-meter/{siteId}")
