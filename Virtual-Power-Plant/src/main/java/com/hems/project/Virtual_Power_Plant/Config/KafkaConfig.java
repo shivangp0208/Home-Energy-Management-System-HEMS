@@ -11,5 +11,10 @@ public class KafkaConfig {
     public NewTopic topic(){
         return new NewTopic("my-topic",1,(short)1);
     }
+
+    @Bean
+    public NewTopic topic2(){
+            return new NewTopic("VPP-REQUIREMENT", 1, (short)1);
+    }
 }
 

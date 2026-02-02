@@ -276,3 +276,20 @@ Shared module (like hems-api-contracts):
 Contains common DTOs/models
 
 Used by all services using implementation project(":module")
+
+
+
+
+-------
+ws flow:-
+Kafka topic
+   ↓
+@KafkaListener
+   ↓
+SimpMessagingTemplate.convertAndSend("/topic/meter", data)
+   ↓
+WebSocket (/ws)
+   ↓
+Browser subscribes to /topic/meter
+   ↓
+JSON shown live in HTML

@@ -6,7 +6,9 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2Res
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -42,6 +44,13 @@ public class SiteController {
     public String checkToken( @AuthenticationPrincipal Jwt jwt) {
         return jwt.toString();
     }
+
+    @GetMapping("/fetch-site-by-region/{city}")
+    public ResponseEntity<List<SiteResponseDto>> fetchAllSiteByRegion(@PathVariable String city){
+        return service.fetchSitesByRegion(city);
+    }
+
+    
     
     
 }

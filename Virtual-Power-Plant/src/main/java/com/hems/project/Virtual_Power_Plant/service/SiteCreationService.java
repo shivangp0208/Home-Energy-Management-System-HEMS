@@ -25,12 +25,8 @@ public class SiteCreationService {
         public ResponseEntity<List<OwnerDto>> fetchAllOnwer(){
           return service.getAllOwner();
         }
-        
 
-        
-      
-        
-
-
-    
+        public ResponseEntity<List<SiteResponseDto>> fetchSitesByRegion(String city){
+          return service.getAllSiteByRegion(city);
+        }  
 }

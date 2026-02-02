@@ -5,8 +5,10 @@ import com.project.hems.SiteManagerService.dto.SiteResponseDto;
 import com.project.hems.SiteManagerService.entity.Site;
 import com.project.hems.SiteManagerService.service.SiteService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -67,4 +69,21 @@ public class SiteController {
     // return siteService.fetchAllSites().thenApply(ResponseEntity::ok);
     // }
 
+    @GetMapping("/fetch-site-by-region/{city}")
+    public ResponseEntity<List<SiteResponseDto>> getAllSiteByRegion(@PathVariable String city){
+                log.info("/fetch-site-by-region api call");
+        List<SiteResponseDto> fetchSiteByRegion = siteService.fetchSiteByRegion(city);
+        return new ResponseEntity<>(fetchSiteByRegion,HttpStatus.OK);
+    }
+
+
+
+
+
+    // @PostConstruct
+    //     public void check() {
+    //         System.out.println("SiteController loaded...");
+    //     }
 }
+
+
