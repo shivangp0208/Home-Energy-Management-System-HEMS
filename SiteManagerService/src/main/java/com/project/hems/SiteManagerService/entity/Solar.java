@@ -19,18 +19,18 @@ public class Solar {
 
     @Positive(message = "panel capacity must be positive")
     @NotNull(message = "totalPanelCapacity cannot be null")
-    private double totalPanelCapacity;
+    private double totalPanelCapacityW;
 
     @NotNull(message = "inverterMaxCapacity cannot be null")
     @Positive(message = "inverter max capacity must be positive")
-    private double inverterMaxCapacity;
+    private double inverterMaxCapacityW;
 
     @NotBlank(message = "solar panel orientation cannot be blank")
     private String orientation;
 
     @ManyToOne
     @JoinColumn(name = "site_id")
-    @JsonBackReference//child side
+    @JsonBackReference // child side
     @NotNull(message = "site cannot be null")
     private Site site;
 

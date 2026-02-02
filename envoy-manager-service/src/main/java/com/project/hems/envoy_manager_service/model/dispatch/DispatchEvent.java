@@ -33,11 +33,11 @@ public class DispatchEvent {
 
     @NotNull(message = "powerReqW cannot be null")
     @Positive(message = "powerReqW must be greater than 0")
-    private Long powerReqW;
+    private long powerReqW;
 
     @NotNull(message = "durationSec cannot be null")
     @Positive(message = "durationSec must be greater than 0")
-    private Long durationSec;
+    private long durationSec;
 
     @NotEmpty(message = "energyPriority cannot be empty")
     private List<@NotNull EnergyPriority> energyPriority;

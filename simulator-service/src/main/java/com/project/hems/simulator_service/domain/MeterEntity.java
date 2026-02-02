@@ -67,28 +67,28 @@ public class MeterEntity {
     @JdbcTypeCode(Types.DECIMAL)
     @NotNull
     @PositiveOrZero(message = "totalSolarYieldKwh cannot be negative")
-    private Double totalSolarYieldKwh = 0.0;
+    private double totalSolarYieldKwh = 0.0;
 
     @Builder.Default
     @Column(precision = 15, scale = 4)
     @JdbcTypeCode(Types.DECIMAL)
     @NotNull
     @PositiveOrZero(message = "totalGridImportKwh cannot be negative")
-    private Double totalGridImportKwh = 0.0;
+    private double totalGridImportKwh = 0.0;
 
     @Builder.Default
     @Column(precision = 15, scale = 4)
     @JdbcTypeCode(Types.DECIMAL)
     @NotNull
     @PositiveOrZero(message = "totalGridExportKwh cannot be negative")
-    private Double totalGridExportKwh = 0.0;
+    private double totalGridExportKwh = 0.0;
 
     @Builder.Default
     @Column(precision = 15, scale = 4)
     @JdbcTypeCode(Types.DECIMAL)
     @NotNull
     @PositiveOrZero(message = "totalHomeUsageKwh cannot be negative")
-    private Double totalHomeUsageKwh = 0.0;
+    private double totalHomeUsageKwh = 0.0;
 
     // --- Battery Configuration & State ---
 
@@ -102,17 +102,17 @@ public class MeterEntity {
 
     @NotNull
     @Positive(message = "batteryCapacityWh must be greater than 0")
-    private Double batteryCapacityWh;
+    private double batteryCapacityWh;
 
     @NotNull
     @PositiveOrZero(message = "batteryRemainingWh cannot be negative")
-    private Double batteryRemainingWh;
+    private double batteryRemainingWh;
 
     // Derived value for quick DB queries, though usually calculated in the POJO
     @NotNull
     @Min(value = 0, message = "batterySoc cannot be less than 0")
     @Max(value = 100, message = "batterySoc cannot be greater than 100")
-    private Integer batterySoc;
+    private int batterySoc;
 
     // --- Audit Metadata ---
 

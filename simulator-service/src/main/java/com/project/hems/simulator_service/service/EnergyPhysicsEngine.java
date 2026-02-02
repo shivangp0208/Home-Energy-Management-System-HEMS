@@ -24,13 +24,13 @@ public class EnergyPhysicsEngine {
         private boolean isGridImportAllowed(ActiveControlState control) {
                 return control == null
                                 || control.getGridControl() == null
-                                || control.getGridControl().getAllowImport();
+                                || control.getGridControl().isAllowImport();
         }
 
         private boolean isGridExportAllowed(ActiveControlState control) {
                 return control == null
                                 || control.getGridControl() == null
-                                || control.getGridControl().getAllowExport();
+                                || control.getGridControl().isAllowExport();
         }
 
         public void processEnergyBalance(
@@ -242,9 +242,7 @@ public class EnergyPhysicsEngine {
                         return 0; // discharge forbidden
                 }
 
-                if (bc.getMaxDischargeW() != null) {
-                        defaultMax = bc.getMaxDischargeW();
-                }
+                defaultMax = bc.getMaxDischargeW();
 
                 if (meter.getBatterySoc() <= bc.getMinSocPercent()) {
                         return 0;
@@ -274,9 +272,7 @@ public class EnergyPhysicsEngine {
                         return 0; // charge forbidden
                 }
 
-                if (bc.getMaxChargeW() != null) {
-                        defaultMax = bc.getMaxChargeW();
-                }
+                defaultMax = bc.getMaxChargeW();
 
                 if (meter.getBatterySoc() >= bc.getMaxSocPercent()) {
                         return 0;

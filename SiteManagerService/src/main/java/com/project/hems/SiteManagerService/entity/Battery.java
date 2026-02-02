@@ -23,11 +23,11 @@ public class Battery {
 
     @NotNull(message = "battery capacity cannot be empty")
     @Positive(message = "capacity must be positive")
-    private double capacity;
+    private double capacityWh;
 
     @NotNull(message = "battery max output cannot be empty")
     @Positive(message = "maxOutput must be positive")
-    private double maxOutput;
+    private double maxOutputW;
 
     @OneToOne
     @JsonBackReference

@@ -78,7 +78,7 @@ public class SiteService {
         UUID id = savedSite.getId();
         SiteCreationEvent siteCreationEvent = SiteCreationEvent.builder()
                 .siteId(id)
-                .batteryCapacityW(savedSite.getBattery().getCapacity())
+                .batteryCapacityW(savedSite.getBattery().getCapacityWh())
                 .build();
         kafkaTemplate.send(siteCreationTopic, siteCreationEvent);
         log.info("kafka event send to site creation topic body is " + id);

@@ -1,6 +1,5 @@
 package com.project.hems.SiteManagerService.dto;
 
-import com.project.hems.SiteManagerService.entity.Owner;
 import lombok.Data;
 
 import java.util.List;

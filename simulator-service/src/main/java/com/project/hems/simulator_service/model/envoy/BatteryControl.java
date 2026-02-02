@@ -9,9 +9,9 @@ import lombok.ToString;
 @Data
 public class BatteryControl {
     private BatteryMode mode;
-    private Long targetPowerW;
-    private Long maxChargeW;
-    private Long maxDischargeW;
-    private Double minSocPercent;
-    private Double maxSocPercent;
+    private long targetPowerW;
+    private long maxChargeW;
+    private long maxDischargeW;
+    private double minSocPercent;
+    private double maxSocPercent;
 }

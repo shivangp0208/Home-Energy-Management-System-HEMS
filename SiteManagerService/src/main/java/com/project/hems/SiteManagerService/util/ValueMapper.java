@@ -16,24 +16,26 @@ public class ValueMapper {
     @Autowired
     private ModelMapper modelMapper;
 
-    public OwnerDto ownerModelToDto(Owner owner){
+    public OwnerDto ownerModelToDto(Owner owner) {
         OwnerDto ownerDto = new OwnerDto();
         ownerDto.setId(owner.getId());
         ownerDto.setOwnerName(owner.getOwnerName());
         ownerDto.setEmail(owner.getEmail());
         ownerDto.setPhoneNo(owner.getPhoneNo());
-        if(owner.getSites()!=null){
-            //change karvu Long -> UUID
-            List<UUID> sitesIds=new ArrayList<>();
-            //owner jode site ni list hase toh ek ek laisu and ownerDto ma set karine return karavsu
-            owner.getSites().forEach(ownerSite->{
+        if (owner.getSites() != null) {
+            // change karvu Long -> UUID
+            List<UUID> sitesIds = new ArrayList<>();
+            // owner jode site ni list hase toh ek ek laisu and ownerDto ma set karine
+            // return karavsu
+            owner.getSites().forEach(ownerSite -> {
                 sitesIds.add(ownerSite.getId());
             });
-           ownerDto.setSitesIds(sitesIds);
+            ownerDto.setSitesIds(sitesIds);
         }
         return ownerDto;
     }
-    public Owner ownerDtoToModel(OwnerDto ownerDto, List<Site> site){
+
+    public Owner ownerDtoToModel(OwnerDto ownerDto, List<Site> site) {
         Owner owner = new Owner();
         owner.setId(ownerDto.getId());
         owner.setOwnerName(ownerDto.getOwnerName());
@@ -44,7 +46,7 @@ public class ValueMapper {
 
     }
 
-    public Address addressDtoToModel(AddressDto addressDto,Site site){
+    public Address addressDtoToModel(AddressDto addressDto, Site site) {
         Address address = new Address();
         address.setId(addressDto.getId());
         address.setAddressLine1(addressDto.getAddressLine1());
@@ -56,43 +58,46 @@ public class ValueMapper {
         address.setSite(site);
         return address;
     }
-    public BatteryDto batteryModelToDto(Battery battery){
+
+    public BatteryDto batteryModelToDto(Battery battery) {
         BatteryDto batteryDto = new BatteryDto();
         batteryDto.setId(battery.getId());
         batteryDto.setQuantity(battery.getQuantity());
-        batteryDto.setCapacity(battery.getCapacity());
-        batteryDto.setMaxOutput(battery.getMaxOutput());
-        if(battery.getSite()!=null){
+        batteryDto.setCapacityWh(battery.getCapacityWh());
+        batteryDto.setMaxOutput(battery.getMaxOutputW());
+        if (battery.getSite() != null) {
             batteryDto.setSiteId(battery.getSite().getId());
         }
         return batteryDto;
     }
-    public Battery batteryDtoToModel(BatteryDto batteryDto,Site site){
+
+    public Battery batteryDtoToModel(BatteryDto batteryDto, Site site) {
         Battery battery = new Battery();
         battery.setId(batteryDto.getId());
         battery.setQuantity(batteryDto.getQuantity());
-        battery.setCapacity(batteryDto.getCapacity());
-        battery.setMaxOutput(batteryDto.getMaxOutput());
+        battery.setCapacityWh(batteryDto.getCapacityWh());
+        battery.setMaxOutputW(batteryDto.getMaxOutput());
         battery.setSite(site);
         return battery;
     }
 
-    public SolarDto solarModelToDto(Solar solar){
+    public SolarDto solarModelToDto(Solar solar) {
         SolarDto solarDto = new SolarDto();
         solarDto.setId(solar.getId());
-        solarDto.setTotalPanelCapacity(solar.getTotalPanelCapacity());
-        solarDto.setInverterMaxCapacity(solar.getInverterMaxCapacity());
+        solarDto.setTotalPanelCapacityW(solar.getTotalPanelCapacityW());
+        solarDto.setInverterMaxCapacityW(solar.getInverterMaxCapacityW());
         solarDto.setOrientation(solar.getOrientation());
-        if(solar.getSite()!=null){
+        if (solar.getSite() != null) {
             solarDto.setSiteId(solar.getSite().getId());
         }
         return solarDto;
     }
-    public Solar solarDtoToModel(SolarDto solarDto,Site site){
+
+    public Solar solarDtoToModel(SolarDto solarDto, Site site) {
         Solar solar = new Solar();
         solar.setId(solarDto.getId());
-        solar.setTotalPanelCapacity(solarDto.getTotalPanelCapacity());
-        solar.setInverterMaxCapacity(solarDto.getInverterMaxCapacity());
+        solar.setTotalPanelCapacityW(solarDto.getTotalPanelCapacityW());
+        solar.setInverterMaxCapacityW(solarDto.getInverterMaxCapacityW());
         solar.setOrientation(solarDto.getOrientation());
         solar.setSite(site);
         return solar;
@@ -137,11 +142,5 @@ public class ValueMapper {
 
         return dto;
     }
-
-
-
-
-
-
 
 }

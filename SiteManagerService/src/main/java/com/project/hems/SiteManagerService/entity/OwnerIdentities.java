@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-
 import java.util.UUID;
 
 @Entity
@@ -21,7 +19,7 @@ public class OwnerIdentities {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @ManyToOne
-    @JoinColumn(name = "owner_id",nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false)
     @JsonBackReference
     private Owner owner;
     @Column(name = "auth_sub", nullable = false, unique = true, updatable = false)

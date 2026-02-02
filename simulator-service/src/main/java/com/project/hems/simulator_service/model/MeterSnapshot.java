@@ -40,45 +40,45 @@ public class MeterSnapshot implements Serializable {
 
     @NotNull
     @PositiveOrZero(message = "solarProductionW cannot be negative")
-    private Double solarProductionW;
+    private double solarProductionW;
 
     @NotNull
     @PositiveOrZero(message = "homeConsumptionW cannot be negative")
-    private Double homeConsumptionW;
+    private double homeConsumptionW;
 
     @NotNull(message = "batteryPowerW cannot be null")
-    private Double batteryPowerW; // can be + or -
+    private double batteryPowerW; // can be + or -
 
     @NotNull(message = "gridPowerW cannot be null")
-    private Double gridPowerW; // can be + or -
+    private double gridPowerW; // can be + or -
 
     // --- 2. Energy Accumulators (kWh) ---
 
     @NotNull
     @PositiveOrZero(message = "totalSolarYieldKwh cannot be negative")
-    private Double totalSolarYieldKwh;
+    private double totalSolarYieldKwh;
 
     @NotNull
     @PositiveOrZero(message = "totalGridImportKwh cannot be negative")
-    private Double totalGridImportKwh;
+    private double totalGridImportKwh;
 
     @NotNull
     @PositiveOrZero(message = "totalGridExportKwh cannot be negative")
-    private Double totalGridExportKwh;
+    private double totalGridExportKwh;
 
     @NotNull
     @PositiveOrZero(message = "totalHomeUsageKwh cannot be negative")
-    private Double totalHomeUsageKwh;
+    private double totalHomeUsageKwh;
 
     // --- 3. Battery State ---
 
     @NotNull
     @Positive(message = "batteryCapacityWh must be greater than 0")
-    private Double batteryCapacityWh;
+    private double batteryCapacityWh;
 
     @NotNull
     @PositiveOrZero(message = "batteryRemainingWh cannot be negative")
-    private Double batteryRemainingWh;
+    private double batteryRemainingWh;
 
     @NotNull(message = "chargingStatus cannot be null")
     private ChargingStatus chargingStatus;
@@ -90,16 +90,16 @@ public class MeterSnapshot implements Serializable {
 
     @NotNull
     @Positive(message = "currentVoltage must be greater than 0")
-    private Double currentVoltage;
+    private double currentVoltage;
 
     @NotNull
     @PositiveOrZero(message = "currentAmps cannot be negative")
-    private Double currentAmps;
+    private double currentAmps;
 
     @NotNull
     @Min(value = 0, message = "batterySoc cannot be less than 0")
     @Max(value = 100, message = "batterySoc cannot be greater than 100")
-    private Integer batterySoc;
+    private int batterySoc;
 
     private List<EnergyPriority> energyPriorities;
 }

@@ -33,21 +33,21 @@ public class MeterHistory {
 
     // --- AVERAGES (For Power Graphs) ---
     // We store the AVERAGE Watts over the 15 minutes
-    private Double avgSolarW;
-    private Double avgConsumptionW;
-    private Double avgGridW;
-    private Double avgBatteryW;
+    private double avgSolarW;
+    private double avgConsumptionW;
+    private double avgGridW;
+    private double avgBatteryW;
 
     // --- ACCUMULATORS (For Billing/Bar Charts) ---
     // We store the MAX (Last) kWh value in this window.
     // Frontend calculates usage by doing: (Row B - Row A)
-    private Double endSolarKwh;
-    private Double endGridImportKwh;
-    private Double endGridExportKwh;
-    private Double endHomeUsageKwh;
+    private double endSolarKwh;
+    private double endGridImportKwh;
+    private double endGridExportKwh;
+    private double endHomeUsageKwh;
 
     // --- BATTERY HEALTH ---
-    private Double avgSoC; // Average State of Charge %
-    private Double minSoC; // Lowest point in this window
-    private Double maxSoC; // Highest point in this window
+    private double avgSoC; // Average State of Charge %
+    private double minSoC; // Lowest point in this window
+    private double maxSoC; // Highest point in this window
 }

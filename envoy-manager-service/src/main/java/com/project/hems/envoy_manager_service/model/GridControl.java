@@ -13,8 +13,8 @@ import lombok.ToString;
 @Builder
 public class GridControl {
 
-    private Boolean allowImport;
-    private Boolean allowExport;
-    private Double maxImportW;
-    private Double maxExportW;
+    private boolean allowImport;
+    private boolean allowExport;
+    private double maxImportW;
+    private double maxExportW;
 }

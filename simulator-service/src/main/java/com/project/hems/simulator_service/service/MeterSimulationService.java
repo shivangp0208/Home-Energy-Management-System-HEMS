@@ -119,8 +119,7 @@ public class MeterSimulationService {
                         // 3. Electrical Noise (Voltage/Amps for realism)
                         environmentSimulator.applyElectricalMetadata(meter);
 
-                        Boolean invalidCapacity = meter.getBatteryCapacityWh() == null
-                                        || meter.getBatteryCapacityWh() <= 0;
+                        boolean invalidCapacity = meter.getBatteryCapacityWh() <= 0;
 
                         if (invalidCapacity) {
                                 log.warn(

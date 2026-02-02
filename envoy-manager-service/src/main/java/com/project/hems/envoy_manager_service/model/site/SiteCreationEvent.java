@@ -16,5 +16,5 @@ import lombok.ToString;
 public class SiteCreationEvent {
 
     private UUID siteId;
-    private Double batteryCapacityW;
+    private double batteryCapacityW;
 }
