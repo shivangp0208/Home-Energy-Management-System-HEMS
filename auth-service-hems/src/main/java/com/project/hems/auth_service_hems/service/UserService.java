@@ -4,6 +4,9 @@ import com.project.hems.auth_service_hems.model.User;
 import com.project.hems.auth_service_hems.model.UserIdentitie;
 import com.project.hems.auth_service_hems.repository.UserIdentitieRepo;
 import com.project.hems.auth_service_hems.repository.UserRepo;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +15,7 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
+@Slf4j
 public class UserService {
     // @Autowired
     // private RedisTemplate<String,String> redisTemplate;//to talk with redis
@@ -70,6 +74,7 @@ public class UserService {
     @Transactional
     public User loginOrRegister(String email, String subject) {
         // first we check in user identit table
+        log.info("starting process for creating login/register");
 
         String[] parts = subject.split("\\|");
         String provider = parts[0];
@@ -82,6 +87,7 @@ public class UserService {
             user.setLastLogin(LocalDateTime.now());
             return userRepo.save(user);
         }
+        log.info("indentity find by request subject {}",identity );
 
         // user identity table ma present nai hoy it means e login haji first time thayo
         // che e method thi
@@ -91,17 +97,21 @@ public class UserService {
         long user_id = random.nextLong();
         long bound_id = Math.abs(user_id % 10000);// bound to 4 digit
 
+        log.info("random 4 digit user_id {}  generated for user {} " , bound_id , email);
         Optional<User> userOpt = userRepo.findByEmail(email);
         User user;
         if (userOpt.isPresent()) {
             user = userOpt.get();
+            log.info("user is present {} in database " ,user.getEmail());
         } else {
+            log.info("user is login first time. start creating user object bound id is {}",bound_id);
             user = User.builder()
                     .email(email)
                     .lastLogin(LocalDateTime.now())
                     .userId(bound_id)
                     .build();
             user = userRepo.save(user);
+            log.info("user {} is successfully save in database" ,user.getEmail());
         }
 
         UserIdentitie userIdentitie = UserIdentitie.builder()
@@ -110,7 +120,9 @@ public class UserService {
                 .provider(parts[0])
                 .user(user)
                 .build();
+        log.info("build a userIdentite object {}",userIdentitie.toString());
         userIdentitieRepo.save(userIdentitie);
+        log.info("userIdentiti {} is successfully add/update in database",userIdentitie.toString());
         return user;
     }
 

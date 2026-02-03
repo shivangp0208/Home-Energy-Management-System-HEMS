@@ -32,6 +32,7 @@ public class OwnerController {
     public ResponseEntity<OwnerDto> createOwner(
             @RequestBody Owner owner,
             @AuthenticationPrincipal Jwt jwt) {
+        log.info("Request received to create owner ownerId ={}", owner.getId());
         log.info("subject:- " + jwt.getSubject());
         log.info("claim:- " + jwt.getClaims());
         String email = jwt.getClaimAsString("http://hems.com/email");
@@ -42,6 +43,7 @@ public class OwnerController {
 
     @GetMapping("/fetch-owner-by-id/{ownerId}")
     public ResponseEntity<OwnerDto> getOwner(@PathVariable UUID ownerId) {
+        log.info("Request received to get owner and ownerId={}", ownerId);
         OwnerDto ownerDto = ownerService.getOwnerDetail(ownerId);
         return new ResponseEntity<>(ownerDto, HttpStatus.OK);
     }
@@ -49,18 +51,21 @@ public class OwnerController {
     @GetMapping("/fetch-all-owner")
     // @PreAuthorize("hasAuthority('SCOPE_site:read')")
     public ResponseEntity<List<OwnerDto>> getAllOwner() {
+        log.info("Request received to get all owner");
         List<OwnerDto> allOwner = ownerService.getAllOwnerDetail();
         return new ResponseEntity<>(allOwner, HttpStatus.OK);
     }
 
     @PutMapping("/update-owner")
     public ResponseEntity<OwnerDto> updateOwner(@RequestBody Owner owner) {
+        log.info("Request received to update owner and ownerId={}", owner.getId());
         OwnerDto updatedOwner = ownerService.updateOwnerDetail(owner);
         return new ResponseEntity<>(updatedOwner, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-owner-by-id/{ownerId}")
     public ResponseEntity<OwnerDto> deleteOwner(@PathVariable UUID ownerId) {
+        log.info("Request received to delete owner and ownerId={}", ownerId);
         ownerService.deleteOwner(ownerId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -18,7 +18,9 @@ import com.hems.project.hems_api_contracts.contract.site.OwnerDto;
 import com.hems.project.hems_api_contracts.contract.site.SiteResponseDto;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/vpp")
 @RestController
@@ -27,11 +29,13 @@ public class SiteController {
     
     @GetMapping("/fetch-all-site")
     public ResponseEntity<List<SiteResponseDto>> fetchAllSite(){
+        log.info("received request in VppService: fetch all site");
         return service.fetchAllSites();
     }
 
     @GetMapping("/fetch-all-owner")
     public ResponseEntity<List<OwnerDto>> fetchAllOwner(){
+        log.info("received request in VppService: fetch all owner");
         return service.fetchAllOnwer();
     }
 
@@ -47,6 +51,7 @@ public class SiteController {
 
     @GetMapping("/fetch-site-by-region/{city}")
     public ResponseEntity<List<SiteResponseDto>> fetchAllSiteByRegion(@PathVariable String city){
+        log.info("received request in VppService : fetch sites by region city={}", city);
         return service.fetchSitesByRegion(city);
     }
 

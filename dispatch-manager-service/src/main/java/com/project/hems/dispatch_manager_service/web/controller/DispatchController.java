@@ -23,7 +23,6 @@ public class DispatchController {
 
     @PostMapping("/send-command")
     public void sendDispatchCommand(@RequestBody @Valid DispatchEvent dispatchEvent) {
-
         log.info("sendDispatchCommand: sending post request to send the dispatch command");
         dispatchEventProducer.sendDispatchCommands(dispatchEvent);
     }

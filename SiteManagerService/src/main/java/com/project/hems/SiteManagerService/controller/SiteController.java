@@ -31,34 +31,39 @@ public class SiteController {
     public ResponseEntity<Site> createSite(
             @RequestBody SiteRequestDto siteRequestDto,
             @AuthenticationPrincipal Jwt jwt) {
+        log.info("Request received to create site for ownerId {}", siteRequestDto.getOwnerId());
         log.info("Authenticated Object:- " + jwt);
         log.info("Subject:- " + jwt.getSubject());
-        log.info("site is created successfully");
         String userSub = jwt.getSubject();
         String email = jwt.getClaim("https://hems.com/email");
         Site site = siteService.createSite(siteRequestDto, userSub);
+        log.info("site is created successfully");
         return new ResponseEntity<>(site, HttpStatus.CREATED);
     }
 
     @GetMapping("/fetch-site-by-id/{siteId}")
     public ResponseEntity<Site> getSite(@PathVariable UUID siteId) {
+        log.info("Request received for fetch site, site_id={}",siteId);
         Site site = siteService.fetchSiteById(siteId);
+        log.info("successfully fetch site for site_id={}",siteId);
         return new ResponseEntity<>(site, HttpStatus.OK);
     }
 
     @GetMapping("/fetch-all-site")
     // public ResponseEntity<List<Site>> getAllSites(@AuthenticationPrincipal Jwt jwt) {
     public ResponseEntity<List<Site>> getAllSites() {
+        log.info("Request received for fetch all site");
         List<Site> sites = siteService.fetchAllSite();
-        log.info("/fetch-all-site api call");
+        log.info("successfully fetch all site");
         // System.out.println("token is" + jwt.getTokenValue());
         return new ResponseEntity<>(sites, HttpStatus.OK);
     }
 
        @GetMapping("/fetch-all-site/v2")
     public ResponseEntity<List<SiteResponseDto>> getAllSitesV2() {
+        log.info("Request received for fetch all site /v2");
         List<SiteResponseDto> sites = siteService.fetchAllSiteV2();
-        log.info("/fetch-all-site/v2 api call");
+        log.info("successfully fetch all site /v2");
         // System.out.println("token is" + jwt.getTokenValue());
         return new ResponseEntity<>(sites, HttpStatus.OK);
     }
@@ -71,8 +76,9 @@ public class SiteController {
 
     @GetMapping("/fetch-site-by-region/{city}")
     public ResponseEntity<List<SiteResponseDto>> getAllSiteByRegion(@PathVariable String city){
-                log.info("/fetch-site-by-region api call");
+        log.info("Request received for fetch all site by region = {} ",city);
         List<SiteResponseDto> fetchSiteByRegion = siteService.fetchSiteByRegion(city);
+        log.info("successfully fetch all site  by region = {}", city);
         return new ResponseEntity<>(fetchSiteByRegion,HttpStatus.OK);
     }
 

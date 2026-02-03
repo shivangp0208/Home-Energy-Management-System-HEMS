@@ -3,11 +3,14 @@ package com.project.hems.auth_service_hems.controller;
 import com.project.hems.auth_service_hems.model.User;
 import com.project.hems.auth_service_hems.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
@@ -65,13 +68,11 @@ public class UserController {
     @GetMapping("/create-user")
     public String createUser(@AuthenticationPrincipal Jwt jwt) {
 
-        System.out.println("enter in create-user api");
-        System.out.println("jwt:- " + jwt);
         String email = jwt.getClaimAsString("http://hems.com/email");
-        System.out.println("email" + email);
+        log.info("recived create user request for email {} ",email);
 
         String subject = jwt.getSubject();
-        System.out.println("subject" + subject);
+        log.info("subject of the current request is {}", subject);
 
         User user = userService.loginOrRegister(email, subject);
 
@@ -84,6 +85,7 @@ public class UserController {
 
     @GetMapping("/checking")
     public String check() {
+        log.info("recived request for checking route");
         return "Working";
     }
 

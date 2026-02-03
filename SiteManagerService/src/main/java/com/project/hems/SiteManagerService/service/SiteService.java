@@ -36,6 +36,8 @@ public class SiteService {
 
         // in dto apde id store kariee chiee owner entity ni so apde ema thi fetch
         // karine obj banavsu
+    log.info("creating site start ownerId={} userSub={}", dto.getOwnerId(), userSub);
+        log.info("fetch owner is exists or not with ownerId = {}",dto.getOwnerId());
         Owner owner = ownerRepo.findById(dto.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Owner not found first add Owner then add Site"));
 
@@ -43,6 +45,7 @@ public class SiteService {
         Owner savedOwner = ownerRepo.save(owner);
 
         // now we create new Site obj and eni under badhu set karsu
+
         Site site = new Site();
         site.setOwner(savedOwner);
         site.setActive(true);
@@ -70,12 +73,20 @@ public class SiteService {
         if (dto.getAddress() != null) {
             Address address = valueMapper.addressDtoToModel(dto.getAddress(), site);
             site.setAddress(address);
+
         }
 
         Site savedSite = siteRepo.save(site);
-
+        log.info("Creating site success siteId={} ownerId={} solarCount={} batteryIncluded={} addressIncluded={}",
+            savedSite.getId(),
+            dto.getOwnerId(),
+            savedSite.getSolar() != null ? savedSite.getSolar().size() : 0,
+            savedSite.getBattery() != null,
+            savedSite.getAddress() != null
+        );
         // todo:-
         // site ni pan dto banavine work karvu siteResponseDto che toh e pass karvo
+        log.info("create kafka SiteCreationEvent");
         UUID id = savedSite.getId();
         SiteCreationEvent siteCreationEvent = SiteCreationEvent.builder()
                 .siteId(id)
@@ -89,6 +100,7 @@ public class SiteService {
 
     @Async
     public Site fetchSiteById(UUID siteId) {
+        log.info("fetching site by siteId = {} from database",siteId);
         Site site = siteRepo.findById(siteId)
                 .orElseThrow(() -> new ResourceNotFoundException("site is not found with site id :- " + siteId));
         System.out.println("running on thread :- " + Thread.currentThread());
@@ -111,7 +123,9 @@ public class SiteService {
     }
 
     public List<SiteResponseDto> fetchAllSiteV2() {
+        log.info("fetching all sites from database");
         List<Site> sites = siteRepo.findAll();
+        log.info("fetched {} sites from database", sites.size());
         List<SiteResponseDto> siteResponseDtos = sites.stream().map(valueMapper::siteModelToResponseDto).toList();
         return siteResponseDtos;
     }
@@ -130,7 +144,9 @@ public class SiteService {
 
 
     public List<SiteResponseDto> fetchSiteByRegion(String city){
+        log.info("fetching site by region = {} from database",city);
         List<Site> sites=siteRepo.findByAddress_City(city);
+        log.info("fetched {} sites by region from database", sites.size());
         List<SiteResponseDto> siteResponseDtos = sites.stream().map(valueMapper::siteModelToResponseDto).toList();
         return siteResponseDtos;
     }

@@ -13,7 +13,6 @@ public class VppReuirementConsumer {
 )   
  public void vppReuirement(SignalForImport signalForImport){
         System.out.println("consumer consumer :- " + signalForImport.getRegionName() + " " + signalForImport.getRequiredPower());
-
     }
 }
 
