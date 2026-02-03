@@ -7,7 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.project.hems.simulator_service.model.MeterSnapshot;
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
+
 
 @Configuration
 public class MeterReadingMap {

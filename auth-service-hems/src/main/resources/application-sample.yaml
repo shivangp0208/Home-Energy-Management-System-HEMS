@@ -2,7 +2,6 @@ spring:
   application:
     name: auth-service-hems
 
-
   security:
     oauth2:
       client:
@@ -18,14 +17,14 @@ spring:
 
         provider:
           auth0:
-            issuer-uri: 
-
+            issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
 
       resourceserver:
         jwt:
-          issuer-uri: 
+          issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
           audiences:
             - https://api.mfa01.com
+
   datasource:
     url: 
     username: 
@@ -38,8 +37,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+
   main:
     allow-bean-definition-overriding: true
+    
   data:
     redis:
       host: localhost

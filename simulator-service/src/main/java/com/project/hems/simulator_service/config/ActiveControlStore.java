@@ -8,8 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Component;
 
+import com.project.hems.hems_api_contracts.contract.EnergyPriority;
 import com.project.hems.simulator_service.model.ActiveControlState;
-import com.project.hems.simulator_service.model.envoy.EnergyPriority;
+
 import com.project.hems.simulator_service.web.exception.MeterAlreadyDispatchedException;
 
 import lombok.extern.slf4j.Slf4j;

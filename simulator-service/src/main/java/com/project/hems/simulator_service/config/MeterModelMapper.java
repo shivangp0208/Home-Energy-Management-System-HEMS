@@ -5,9 +5,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.project.hems.hems_api_contracts.contract.simulator.BatteryMode;
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 import com.project.hems.simulator_service.domain.MeterEntity;
-import com.project.hems.simulator_service.model.BatteryMode;
-import com.project.hems.simulator_service.model.MeterSnapshot;
 
 // TODO: minimize hardcoded mapping only hardcode needed variables
 @Configuration

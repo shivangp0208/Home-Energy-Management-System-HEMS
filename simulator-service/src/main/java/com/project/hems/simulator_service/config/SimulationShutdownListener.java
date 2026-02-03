@@ -9,8 +9,8 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 import com.project.hems.simulator_service.domain.MeterEntity;
-import com.project.hems.simulator_service.model.MeterSnapshot;
 import com.project.hems.simulator_service.repository.MeterRepository;
 
 import lombok.RequiredArgsConstructor;

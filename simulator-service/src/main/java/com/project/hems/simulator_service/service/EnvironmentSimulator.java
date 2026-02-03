@@ -2,7 +2,7 @@ package com.project.hems.simulator_service.service;
 
 import org.springframework.stereotype.Component;
 
-import com.project.hems.simulator_service.model.MeterSnapshot;
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hems.project.Virtual_Power_Plant.service.VppService;
-import com.hems.project.hems_api_contracts.contract.site.SignalForImport;
+import com.project.hems.hems_api_contracts.contract.site.SignalForImport;
 
 import lombok.RequiredArgsConstructor;
 

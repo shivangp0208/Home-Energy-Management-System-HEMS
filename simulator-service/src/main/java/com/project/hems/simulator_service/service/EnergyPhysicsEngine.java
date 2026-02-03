@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.project.hems.hems_api_contracts.contract.EnergyPriority;
+import com.project.hems.hems_api_contracts.contract.envoy.BatteryControl;
+import com.project.hems.hems_api_contracts.contract.simulator.BatteryMode;
+import com.project.hems.hems_api_contracts.contract.simulator.ChargingStatus;
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 import com.project.hems.simulator_service.model.ActiveControlState;
-import com.project.hems.simulator_service.model.BatteryMode;
-import com.project.hems.simulator_service.model.ChargingStatus;
-import com.project.hems.simulator_service.model.MeterSnapshot;
-import com.project.hems.simulator_service.model.envoy.BatteryControl;
-import com.project.hems.simulator_service.model.envoy.EnergyPriority;
 
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -238,7 +238,7 @@ public class EnergyPhysicsEngine {
 
                 BatteryControl bc = control.getBatteryControl();
 
-                if (bc.getMode() == BatteryMode.FORCE_CHARGE) {
+                if (bc.getMode().equals(BatteryMode.FORCE_CHARGE)) {
                         return 0; // discharge forbidden
                 }
 
@@ -268,7 +268,7 @@ public class EnergyPhysicsEngine {
 
                 BatteryControl bc = control.getBatteryControl();
 
-                if (bc.getMode() == BatteryMode.FORCE_DISCHARGE) {
+                if (bc.getMode().equals(BatteryMode.FORCE_DISCHARGE)) {
                         return 0; // charge forbidden
                 }
 

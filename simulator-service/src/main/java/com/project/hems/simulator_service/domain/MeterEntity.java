@@ -9,9 +9,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.project.hems.simulator_service.model.BatteryMode;
-import com.project.hems.simulator_service.model.ChargingStatus;
-import com.project.hems.simulator_service.model.envoy.EnergyPriority;
+import com.project.hems.hems_api_contracts.contract.EnergyPriority;
+import com.project.hems.hems_api_contracts.contract.simulator.BatteryMode;
+import com.project.hems.hems_api_contracts.contract.simulator.ChargingStatus;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;

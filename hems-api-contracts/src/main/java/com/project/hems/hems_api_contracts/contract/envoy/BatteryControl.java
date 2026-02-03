@@ -1,12 +1,19 @@
-package com.project.hems.simulator_service.model.envoy;
+package com.project.hems.hems_api_contracts.contract.envoy;
 
-import com.project.hems.simulator_service.model.BatteryMode;
 
+import com.project.hems.hems_api_contracts.contract.simulator.BatteryMode;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BatteryControl {
     private BatteryMode mode;
     private long targetPowerW;

@@ -3,7 +3,7 @@ package com.project.hems.envoy_manager_service.model.dispatch;
 import java.util.List;
 import java.util.UUID;
 
-import com.project.hems.envoy_manager_service.model.EnergyPriority;
+import com.project.hems.hems_api_contracts.contract.EnergyPriority;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

@@ -1,4 +1,4 @@
-package com.project.hems.envoy_manager_service.model;
+package com.project.hems.hems_api_contracts.contract;
 
 public enum EnergyPriority {
     SOLAR, GRID, BATTERY

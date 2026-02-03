@@ -1,4 +1,4 @@
-package com.hems.project.hems_api_contracts.contract.site.simulator;
+package com.project.hems.hems_api_contracts.contract.simulator;
 
 public enum ChargingStatus {
     FULL,

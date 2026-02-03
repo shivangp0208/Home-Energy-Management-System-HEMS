@@ -6,8 +6,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import com.hems.project.hems_api_contracts.contract.site.SiteResponseDto;
-import com.hems.project.hems_api_contracts.contract.site.OwnerDto;
+
+import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
+import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
 
 
 @FeignClient(name = "SITE-SERVICE-HEMS")

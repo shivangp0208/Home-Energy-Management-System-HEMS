@@ -1,4 +1,4 @@
-package com.project.hems.envoy_manager_service.model;
+package com.project.hems.hems_api_contracts.contract.envoy;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,9 +8,9 @@ import lombok.ToString;
 
 @ToString
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class GridControl {
 
     private boolean allowImport;

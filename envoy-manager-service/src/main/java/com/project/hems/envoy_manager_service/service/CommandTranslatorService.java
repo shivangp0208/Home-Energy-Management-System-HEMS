@@ -5,16 +5,16 @@ import java.time.Instant;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.project.hems.envoy_manager_service.model.BatteryControl;
-import com.project.hems.envoy_manager_service.model.GridControl;
-import com.project.hems.envoy_manager_service.model.GridControl.GridControlBuilder;
-import com.project.hems.envoy_manager_service.model.BatteryControl.BatteryControlBuilder;
-import com.project.hems.envoy_manager_service.model.SiteControlCommand;
-import com.project.hems.envoy_manager_service.model.SiteControlCommand.SiteControlCommandBuilder;
 import com.project.hems.envoy_manager_service.model.dispatch.DispatchEvent;
-import com.project.hems.envoy_manager_service.model.simulator.BatteryMode;
-import com.project.hems.envoy_manager_service.model.simulator.MeterSnapshot;
 import com.project.hems.envoy_manager_service.web.exception.MeterStatusNotFoudException;
+import com.project.hems.hems_api_contracts.contract.envoy.BatteryControl;
+import com.project.hems.hems_api_contracts.contract.envoy.DispatchCommand;
+import com.project.hems.hems_api_contracts.contract.envoy.GridControl;
+import com.project.hems.hems_api_contracts.contract.envoy.BatteryControl.BatteryControlBuilder;
+import com.project.hems.hems_api_contracts.contract.envoy.DispatchCommand.DispatchCommandBuilder;
+import com.project.hems.hems_api_contracts.contract.envoy.GridControl.GridControlBuilder;
+import com.project.hems.hems_api_contracts.contract.simulator.BatteryMode;
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class CommandTranslatorService {
 
     private final SimulatorFeignClientService simulatorFeignClientService;
 
-    public SiteControlCommand translateDispatchEvent(DispatchEvent dispatchEvent) {
+    public DispatchCommand translateDispatchEvent(DispatchEvent dispatchEvent) {
 
         log.info("Translating DispatchEvent. dispatchId={}, siteId={}, eventType={}, powerReqW={}",
                 dispatchEvent.getDispatchId(),
@@ -35,7 +35,7 @@ public class CommandTranslatorService {
                 dispatchEvent.getPowerReqW());
 
         // 1. Basic metadata mapping
-        SiteControlCommandBuilder commandBuilder = SiteControlCommand.builder();
+        DispatchCommandBuilder commandBuilder = DispatchCommand.builder();
         commandBuilder.dispatchId(dispatchEvent.getDispatchId());
         commandBuilder.siteId(dispatchEvent.getSiteId());
 
@@ -140,7 +140,7 @@ public class CommandTranslatorService {
         commandBuilder.batteryControl(batteryControlBuilder.build());
         commandBuilder.gridControl(gridControlBuilder.build());
 
-        SiteControlCommand command = commandBuilder.build();
+        DispatchCommand command = commandBuilder.build();
 
         log.info("Command translation completed. dispatchId={}, batteryMode={}, targetPowerW={}",
                 command.getDispatchId(),

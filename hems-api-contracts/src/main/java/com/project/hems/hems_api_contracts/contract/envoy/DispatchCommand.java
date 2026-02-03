@@ -1,10 +1,10 @@
-package com.project.hems.envoy_manager_service.model;
+package com.project.hems.hems_api_contracts.contract.envoy;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.project.hems.hems_api_contracts.contract.EnergyPriority;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -14,13 +14,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ToString
 @Data
-@Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class SiteControlCommand {
+@Builder
+public class DispatchCommand {
 
     @NotNull
     private UUID dispatchId;

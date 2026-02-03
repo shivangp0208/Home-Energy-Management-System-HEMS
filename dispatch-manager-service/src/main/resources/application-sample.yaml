@@ -37,4 +37,8 @@ property:
       dispatch-energy-topic: ENERGY_DISPATCH_COMMANDS
       dispatch-energy-partition-count: 1
 
+      vpp-service-group-id: vpp-requirement-group
+      vpp-service-topic: VPP-REQUIREMENT
+      vpp-service-partition-count: 3
+
       replica-count: 1

@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import com.project.hems.envoy_manager_service.domain.MeterHistory;
-import com.project.hems.envoy_manager_service.model.simulator.MeterSnapshot;
 import com.project.hems.envoy_manager_service.repository.MeterHistoryRepository;
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

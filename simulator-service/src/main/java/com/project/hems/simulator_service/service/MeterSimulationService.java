@@ -1,10 +1,10 @@
 package com.project.hems.simulator_service.service;
 
+import com.project.hems.hems_api_contracts.contract.EnergyPriority;
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 import com.project.hems.simulator_service.config.ActiveControlStore;
 import com.project.hems.simulator_service.domain.MeterEntity;
 import com.project.hems.simulator_service.model.ActiveControlState;
-import com.project.hems.simulator_service.model.MeterSnapshot;
-import com.project.hems.simulator_service.model.envoy.EnergyPriority;
 import com.project.hems.simulator_service.repository.MeterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

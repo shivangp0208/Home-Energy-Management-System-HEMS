@@ -4,9 +4,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import com.project.hems.simulator_service.model.envoy.BatteryControl;
-import com.project.hems.simulator_service.model.envoy.EnergyPriority;
-import com.project.hems.simulator_service.model.envoy.GridControl;
+import com.project.hems.hems_api_contracts.contract.EnergyPriority;
+import com.project.hems.hems_api_contracts.contract.envoy.BatteryControl;
+import com.project.hems.hems_api_contracts.contract.envoy.GridControl;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

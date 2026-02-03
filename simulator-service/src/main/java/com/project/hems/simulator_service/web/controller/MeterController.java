@@ -1,9 +1,9 @@
 package com.project.hems.simulator_service.web.controller;
 
+import com.project.hems.hems_api_contracts.contract.envoy.DispatchCommand;
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 import com.project.hems.simulator_service.config.ActiveControlStore;
 import com.project.hems.simulator_service.model.ActiveControlState;
-import com.project.hems.simulator_service.model.MeterSnapshot;
-import com.project.hems.simulator_service.model.envoy.DispatchCommand;
 import com.project.hems.simulator_service.service.MeterManagementService;
 import com.project.hems.simulator_service.web.exception.MeterStatusNotFoudException;
 

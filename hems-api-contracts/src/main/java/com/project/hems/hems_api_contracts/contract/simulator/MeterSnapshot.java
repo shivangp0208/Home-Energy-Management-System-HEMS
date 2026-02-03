@@ -1,10 +1,10 @@
-package com.hems.project.hems_api_contracts.contract.site.simulator;
+package com.project.hems.hems_api_contracts.contract.simulator;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.project.hems.hems_api_contracts.contract.EnergyPriority;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +16,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class MeterSnapshot  {
 
     private Long meterId;

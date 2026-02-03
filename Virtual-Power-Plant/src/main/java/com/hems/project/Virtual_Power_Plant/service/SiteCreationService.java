@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.hems.project.Virtual_Power_Plant.external.SiteFeignClientService;
-import com.hems.project.hems_api_contracts.contract.site.OwnerDto;
-import com.hems.project.hems_api_contracts.contract.site.SiteResponseDto;
+import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
+import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
