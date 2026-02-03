@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -36,13 +37,16 @@ public class OwnerService {
         String sub = userSub;// auth0|695781256ccfb90819e1df58
         String[] parts = sub.split("\\|");// [auth0,695781256ccfb90819e1df58]
         String provider = parts[0];
-
+        log.info("owner request provider = {} and sub = {}",provider,sub);
+        
         Owner savedOwner = ownerRepo.findByEmail(email).orElseGet(() -> {
             log.info("createOwner: Owner not found with email={}, creating new owner", email);
             owner.setEmail(email);
             return ownerRepo.save(owner);
         });
 
+
+    
         if (!ownerIdentityRepo.existsByAuthSub(userSub)) {
             log.info("createOwner: Linking auth identity to ownerId={}, provider={}", savedOwner.getId(), provider);
 
@@ -86,18 +90,22 @@ public class OwnerService {
         Optional.ofNullable(owner.getOwnerName()).ifPresent(existingOwner::setOwnerName);
         Optional.ofNullable(owner.getSites()).ifPresent(existingOwner::setSites);
         Optional.ofNullable(owner.getPhoneNo()).ifPresent(existingOwner::setPhoneNo);
+        ownerRepo.save(existingOwner);
+
+        log.debug("complete update owner details ownerId={} ",owner.getId());
+        OwnerDto existingOwnerDto = valueMapper.ownerModelToDto(existingOwner);
 
         ownerRepo.save(existingOwner);
-        log.info("updateOwnerDetail: Owner updated successfully for ownerId={}", existingOwner.getId());
+        log.debug("updateOwnerDetail: Owner updated successfully for ownerId={}", existingOwner.getId());
 
-        OwnerDto existingOwnerDto = valueMapper.ownerModelToDto(existingOwner);
         return existingOwnerDto;
     }
 
     @Transactional
     public void deleteOwner(UUID ownerId) {
-        log.info("deleteOwner: Deleting owner with ownerId={}", ownerId);
-
+        log.info("deleteOwner: start deleting owner and ownerId ={}",ownerId);
+        
+        log.debug("deleteOwner: fetch owner detail ownerId ={}",ownerId);
         Owner owner = ownerRepo.findById(ownerId)
                 .orElseThrow(() -> {
                     log.warn("deleteOwner: Owner not found while deleting ownerId={}", ownerId);
@@ -116,6 +124,7 @@ public class OwnerService {
         log.info("getAllOwnerDetail: Fetching all owner details");
 
         List<Owner> allOwner = ownerRepo.findAll();
+        log.info("convert owner Model to ownerDto");
         List<OwnerDto> allOwnerDto = allOwner.stream()
                 .map(owner -> {
                     OwnerDto ownerDto = valueMapper.ownerModelToDto(owner);

@@ -76,14 +76,11 @@ public class UserController {
     @GetMapping("/create-user")
     public String createUser(@AuthenticationPrincipal Jwt jwt) {
 
-        log.debug("createUser: Entered create-user API");
-        log.debug("createUser: JWT received={}", jwt);
-
         String email = jwt.getClaimAsString("http://hems.com/email");
-        log.debug("createUser: Extracted email={}", email);
+        log.info("recived create user request for email {} ",email);
 
         String subject = jwt.getSubject();
-        log.debug("createUser: Extracted subject={}", subject);
+        log.info("subject of the current request is {}", subject);
 
         User user = userService.loginOrRegister(email, subject);
         log.info("createUser: loginOrRegister executed for email={}, userId={}",
@@ -100,7 +97,7 @@ public class UserController {
 
     @GetMapping("/checking")
     public String check() {
-        log.info("check: Health check endpoint called");
+        log.info("recived request for checking route");
         return "Working";
     }
 

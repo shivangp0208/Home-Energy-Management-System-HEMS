@@ -37,6 +37,8 @@ public class SiteService {
 
         // in dto apde id store kariee chiee owner entity ni so apde ema thi fetch
         // karine obj banavsu
+    log.info("creating site start ownerId={} userSub={}", dto.getOwnerId(), userSub);
+        log.info("fetch owner is exists or not with ownerId = {}",dto.getOwnerId());
         Owner owner = ownerRepo.findById(dto.getOwnerId())
                 .orElseThrow(() -> {
                     log.warn("createSite: Owner not found, ownerId={}", dto.getOwnerId());
@@ -48,6 +50,7 @@ public class SiteService {
         log.debug("createSite: Owner fetched and saved, ownerId={}", savedOwner.getId());
 
         // now we create new Site obj and eni under badhu set karsu
+
         Site site = new Site();
         site.setOwner(savedOwner);
         site.setActive(true);
@@ -78,13 +81,20 @@ public class SiteService {
             log.debug("createSite: Mapping address details");
             Address address = valueMapper.addressDtoToModel(dto.getAddress(), site);
             site.setAddress(address);
+
         }
 
         Site savedSite = siteRepo.save(site);
-        log.info("createSite: Site created successfully, siteId={}", savedSite.getId());
-
+        log.info("Creating site success siteId={} ownerId={} solarCount={} batteryIncluded={} addressIncluded={}",
+            savedSite.getId(),
+            dto.getOwnerId(),
+            savedSite.getSolar() != null ? savedSite.getSolar().size() : 0,
+            savedSite.getBattery() != null,
+            savedSite.getAddress() != null
+        );
         // todo:-
         // site ni pan dto banavine work karvu siteResponseDto che toh e pass karvo
+        log.info("create kafka SiteCreationEvent");
         UUID id = savedSite.getId();
         SiteCreationEvent siteCreationEvent = SiteCreationEvent.builder()
                 .siteId(id)

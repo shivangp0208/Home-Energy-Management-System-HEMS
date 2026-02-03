@@ -14,27 +14,32 @@ import org.springframework.web.servlet.ModelAndView;
 public class RequestLoggingInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        log.info("preHandle start method={} uri={}", request.getMethod(), request.getRequestURI());
         try{
             Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
-            if(authentication instanceof Jwt){
-                log.debug("preHandle: pre filter is execute : - " +((Jwt) authentication).getSubject());
+            if(authentication instanceof Jwt jwt){
+                log.info("authenticated sub={} issuer={}", jwt.getSubject(), jwt.getIssuer());
+            }else{
+                log.info("no authentication found");
             }
-            log.debug("preHandle: Method type is"+request.getMethod());
-
+            log.info("method type is {} ",request.getMethod());
         }catch (Exception e){
+            log.error("Error in RequestLoggingInterceptor preHandle", e);
             e.printStackTrace();
             return false;
         }
+        log.info("pre-filter is end");
         return true;
+
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        log.debug("postHandle: after the com");
+        log.info("post handle filter is run");
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+        log.info("request completion filter is run");
     }
 }

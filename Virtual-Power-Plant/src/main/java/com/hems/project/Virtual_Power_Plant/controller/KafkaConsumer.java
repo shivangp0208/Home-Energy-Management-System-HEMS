@@ -21,12 +21,12 @@ private final SimpMessagingTemplate messagingTemplate;
                    groupId = "${property.config.kafka.raw-energy-group-id}")
     public void consumeRawMeterReadings(MeterSnapshot meterSnapshot) {
 
-        log.info("Kafka received: {}", meterSnapshot);
-
+        log.info("Kafka topic = {} consume message : {}","${property.config.kafka.raw-energy-topic}",meterSnapshot);
         messagingTemplate.convertAndSend(
             "/topic/meter",
             meterSnapshot
         );
+        log.info("send kafka message to web socker broker = {} ","topic/meter");
     }
 
 }
