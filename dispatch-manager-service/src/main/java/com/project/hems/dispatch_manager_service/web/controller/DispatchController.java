@@ -3,8 +3,8 @@ package com.project.hems.dispatch_manager_service.web.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.hems.dispatch_manager_service.model.DispatchEvent;
 import com.project.hems.dispatch_manager_service.service.DispatchEventProducer;
+import com.project.hems.hems_api_contracts.contract.dispatch.DispatchEvent;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -8,7 +8,6 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 @Slf4j
 public class FeignAuthInterceptor implements RequestInterceptor {

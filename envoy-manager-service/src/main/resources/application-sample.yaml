@@ -58,7 +58,6 @@ spring:
       spring.json.trusted.packages: "com.project.hems.*"
       # External defining package mapping 
       spring.json.type.mapping: >
-        com.project.hems.dispatch_manager_service.model.DispatchEvent:com.project.hems.envoy_manager_service.model.dispatch.DispatchEvent,
         com.project.hems.SiteManagerService.dto.SiteCreationEvent:com.project.hems.envoy_manager_service.model.site.SiteCreationEvent
 
 eureka:

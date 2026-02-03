@@ -1,4 +1,4 @@
-package com.project.hems.envoy_manager_service.model.dispatch;
+package com.project.hems.hems_api_contracts.contract.dispatch;
 
 public enum DispatchEventType {
     EXPORT_POWER, IMPORT_POWER, PEAK_SAVING

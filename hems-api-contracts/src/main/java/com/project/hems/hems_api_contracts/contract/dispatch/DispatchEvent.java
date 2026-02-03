@@ -1,7 +1,9 @@
-package com.project.hems.dispatch_manager_service.model;
+package com.project.hems.hems_api_contracts.contract.dispatch;
 
 import java.util.List;
 import java.util.UUID;
+
+import com.project.hems.hems_api_contracts.contract.EnergyPriority;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
