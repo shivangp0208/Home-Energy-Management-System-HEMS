@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import com.hems.project.hems_api_contracts.contract.site.SignalForImport;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VppService {
@@ -18,7 +20,7 @@ public class VppService {
 
     public String importPower(SignalForImport signalForImport){
         kafkaTemplate.send(vppRequirement, signalForImport);
-        System.out.println("vpp requirement is send to dispatch manager and required power is :- "+signalForImport.getRequiredPower());
+        log.debug("importPower: vpp requirement is send to dispatch manager and required power is :- "+signalForImport.getRequiredPower());
         return "successfull";
 
     }

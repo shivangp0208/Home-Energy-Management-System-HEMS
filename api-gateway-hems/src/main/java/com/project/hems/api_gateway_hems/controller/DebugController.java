@@ -5,8 +5,11 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @RestController
 public class DebugController {
     private final ReactiveOAuth2AuthorizedClientService service;
@@ -15,9 +18,10 @@ public class DebugController {
         this.service = service;
     }
 
+
     @GetMapping("/debug/token")
     public Mono<String> token(@AuthenticationPrincipal OidcUser user) {
-
+        log.info("token: GET req to fetch the token generated for logged in user");
         return service
                 .loadAuthorizedClient("auth0", user.getName())
                 .map(client -> client.getAccessToken().getTokenValue());

@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,18 +28,24 @@ public class SiteService {
     private final OwnerRepo ownerRepo;
     private final ValueMapper valueMapper;
     private final KafkaTemplate<String, SiteCreationEvent> kafkaTemplate;
+
     @Value("${property.config.kafka.site-creation-topic}")
     public String siteCreationTopic;
 
     public Site createSite(SiteRequestDto dto, String userSub) {
+        log.info("createSite: Creating site for ownerId={} by userSub={}", dto.getOwnerId(), userSub);
 
         // in dto apde id store kariee chiee owner entity ni so apde ema thi fetch
         // karine obj banavsu
         Owner owner = ownerRepo.findById(dto.getOwnerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Owner not found first add Owner then add Site"));
+                .orElseThrow(() -> {
+                    log.warn("createSite: Owner not found, ownerId={}", dto.getOwnerId());
+                    return new ResourceNotFoundException("Owner not found first add Owner then add Site");
+                });
 
         // Save owner first in new created site
         Owner savedOwner = ownerRepo.save(owner);
+        log.debug("createSite: Owner fetched and saved, ownerId={}", savedOwner.getId());
 
         // now we create new Site obj and eni under badhu set karsu
         Site site = new Site();
@@ -52,6 +57,7 @@ public class SiteService {
         // karsu
         // solar
         if (dto.getSolars() != null) {
+            log.debug("createSite: Mapping {} solar units", dto.getSolars().size());
             List<Solar> solarList = dto.getSolars().stream()
                     .map(solarDto -> {
                         Solar solar = valueMapper.solarDtoToModel(solarDto, site);
@@ -62,17 +68,20 @@ public class SiteService {
 
         // battery
         if (dto.getBattery() != null) {
+            log.debug("createSite: Mapping battery details");
             Battery battery = valueMapper.batteryDtoToModel(dto.getBattery(), site);
             site.setBattery(battery);
         }
 
         // address
         if (dto.getAddress() != null) {
+            log.debug("createSite: Mapping address details");
             Address address = valueMapper.addressDtoToModel(dto.getAddress(), site);
             site.setAddress(address);
         }
 
         Site savedSite = siteRepo.save(site);
+        log.info("createSite: Site created successfully, siteId={}", savedSite.getId());
 
         // todo:-
         // site ni pan dto banavine work karvu siteResponseDto che toh e pass karvo
@@ -81,38 +90,58 @@ public class SiteService {
                 .siteId(id)
                 .batteryCapacityW(savedSite.getBattery().getCapacityWh())
                 .build();
-        kafkaTemplate.send(siteCreationTopic, siteCreationEvent);
-        log.info("kafka event send to site creation topic body is " + id);
-        return savedSite;
 
+        kafkaTemplate.send(siteCreationTopic, siteCreationEvent);
+        log.info("createSite: Kafka event sent, topic={}, siteId={}", siteCreationTopic, id);
+
+        return savedSite;
     }
 
     @Async
     public Site fetchSiteById(UUID siteId) {
-        Site site = siteRepo.findById(siteId)
-                .orElseThrow(() -> new ResourceNotFoundException("site is not found with site id :- " + siteId));
-        System.out.println("running on thread :- " + Thread.currentThread());
-        return site;
+        log.info("fetchSiteById: Fetching site asynchronously, siteId={}", siteId);
 
+        Site site = siteRepo.findById(siteId)
+                .orElseThrow(() -> {
+                    log.warn("fetchSiteById: Site not found, siteId={}", siteId);
+                    return new ResourceNotFoundException("site is not found with site id :- " + siteId);
+                });
+
+        log.trace("fetchSiteById: running on thread :- " + Thread.currentThread());
+        log.debug("fetchSiteById: Running on thread={}", Thread.currentThread());
+
+        return site;
     }
 
     //
     public List<Site> fetchAllSite() {
-        List<Site> sites = siteRepo.findAll();
-        System.out.println("running on thread :- " + Thread.currentThread());
-        CompletableFuture<Integer> firstTask = CompletableFuture.supplyAsync(() -> {
-            return 42;
-        });
+        log.info("fetchAllSite: Fetching all sites");
 
-        CompletableFuture<String> secondTask = firstTask.thenApply(result -> {
-            return "Result based on Task 1: " + result;
-        });
+        List<Site> sites = siteRepo.findAll();
+        log.trace("fetchAllSite: running on thread :- " + Thread.currentThread());
+        log.debug("fetchAllSite: Running on thread={}", Thread.currentThread());
+
+        // CompletableFuture<Integer> firstTask = CompletableFuture.supplyAsync(() -> {
+        //     return 42;
+        // });
+
+        // CompletableFuture<String> secondTask = firstTask.thenApply(result -> {
+        //     return "Result based on Task 1: " + result;
+        // });
+
+        log.debug("fetchAllSite: Dummy async tasks triggered");
         return sites;
     }
 
     public List<SiteResponseDto> fetchAllSiteV2() {
+        log.info("fetchAllSiteV2: Fetching all sites as response DTO");
+
         List<Site> sites = siteRepo.findAll();
-        List<SiteResponseDto> siteResponseDtos = sites.stream().map(valueMapper::siteModelToResponseDto).toList();
+        List<SiteResponseDto> siteResponseDtos = sites.stream()
+                .map(valueMapper::siteModelToResponseDto)
+                .toList();
+
+        log.debug("fetchAllSiteV2: Total sites fetched={}", siteResponseDtos.size());
         return siteResponseDtos;
     }
 
@@ -128,11 +157,15 @@ public class SiteService {
     // return CompletableFuture.completedFuture(dtoList);
     // }
 
+    public List<SiteResponseDto> fetchSiteByRegion(String city) {
+        log.info("fetchSiteByRegion: Fetching sites for city={}", city);
 
-    public List<SiteResponseDto> fetchSiteByRegion(String city){
-        List<Site> sites=siteRepo.findByAddress_City(city);
-        List<SiteResponseDto> siteResponseDtos = sites.stream().map(valueMapper::siteModelToResponseDto).toList();
+        List<Site> sites = siteRepo.findByAddress_City(city);
+        List<SiteResponseDto> siteResponseDtos = sites.stream()
+                .map(valueMapper::siteModelToResponseDto)
+                .toList();
+
+        log.debug("fetchSiteByRegion: Found {} sites for city={}", siteResponseDtos.size(), city);
         return siteResponseDtos;
     }
-
 }

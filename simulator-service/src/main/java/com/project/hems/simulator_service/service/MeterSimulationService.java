@@ -101,7 +101,6 @@ public class MeterSimulationService {
                         List<EnergyPriority> priorities = activeControl.map(ActiveControlState::getEnergyPriorities)
                                         .orElse(ActiveControlStore.energyPriorities);
                         meter.setEnergyPriorities(priorities);
-                        priorities.forEach(p -> System.out.println("priority values for simulation = " + p));
 
                         energyPhysicsEngine.processEnergyBalance(
                                         meter,

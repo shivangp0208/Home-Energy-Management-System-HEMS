@@ -2,21 +2,24 @@ package com.project.hems.SiteManagerService.Interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+@Slf4j
 public class RequestLoggingInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         try{
             Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
             if(authentication instanceof Jwt){
-                System.out.println("pre filter is execute : - " +((Jwt) authentication).getSubject());
+                log.debug("preHandle: pre filter is execute : - " +((Jwt) authentication).getSubject());
             }
-            System.out.println("Method type is"+request.getMethod());
+            log.debug("preHandle: Method type is"+request.getMethod());
 
         }catch (Exception e){
             e.printStackTrace();
@@ -27,7 +30,7 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        System.out.println("after the com");
+        log.debug("postHandle: after the com");
     }
 
     @Override

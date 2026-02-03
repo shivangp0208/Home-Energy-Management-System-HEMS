@@ -27,7 +27,7 @@ public class KafkaConsumerService {
 
         private final CommandTranslatorService commandTranslatorService;
         private final DispatchCommandService dispatchCommandService;
-        private final MeterCreationService meterCreationService;
+        private final SimulatorFeignClientService simulatorFeignClientService;
 
         @KafkaListener(topics = "${property.config.kafka.raw-energy-topic}", groupId = "${property.config.kafka.raw-energy-group-id}")
         public void consumeRawMeterReadings(MeterSnapshot meterSnapshot) {
@@ -101,7 +101,9 @@ public class KafkaConsumerService {
                                 "consumeSiteCreationEvents: payload={}",
                                 siteCreationEvent);
 
-                meterCreationService.createMeter(
+                log.debug("consumeSiteCreationEvents: calling external service using feign client to create new meter with siteId = {} and batteryCapacity = {}",
+                                siteCreationEvent.getSiteId(), siteCreationEvent.getBatteryCapacityW());
+                simulatorFeignClientService.activateMeterData(
                                 siteCreationEvent.getSiteId(),
                                 siteCreationEvent.getBatteryCapacityW());
 

@@ -32,36 +32,50 @@ public class OwnerController {
     public ResponseEntity<OwnerDto> createOwner(
             @RequestBody Owner owner,
             @AuthenticationPrincipal Jwt jwt) {
-        log.info("subject:- " + jwt.getSubject());
-        log.info("claim:- " + jwt.getClaims());
+        log.info("createOwner: POST req to create owner with owner detail = {}", owner);
+
         String email = jwt.getClaimAsString("http://hems.com/email");
-        log.info("email:- " + email);
+        log.debug("createOwner: retrieved subject = {} and email = {}", jwt.getSubject(), email);
+
         OwnerDto savedOwner = ownerService.createOwner(owner, jwt.getSubject(), email);
+
         return new ResponseEntity<>(savedOwner, HttpStatus.CREATED);
     }
 
     @GetMapping("/fetch-owner-by-id/{ownerId}")
     public ResponseEntity<OwnerDto> getOwner(@PathVariable UUID ownerId) {
+        log.info("getOwner: GET req to fetch the owner detail with given owner id = {}", ownerId);
+
         OwnerDto ownerDto = ownerService.getOwnerDetail(ownerId);
+
         return new ResponseEntity<>(ownerDto, HttpStatus.OK);
     }
 
     @GetMapping("/fetch-all-owner")
     // @PreAuthorize("hasAuthority('SCOPE_site:read')")
     public ResponseEntity<List<OwnerDto>> getAllOwner() {
+        log.info("getAllOwner: GET req to fetch all owners list available in DB");
+
         List<OwnerDto> allOwner = ownerService.getAllOwnerDetail();
+
         return new ResponseEntity<>(allOwner, HttpStatus.OK);
     }
 
     @PutMapping("/update-owner")
     public ResponseEntity<OwnerDto> updateOwner(@RequestBody Owner owner) {
+        log.info("updateOwner: PUT req to update owner details with given detail = {}", owner);
+
         OwnerDto updatedOwner = ownerService.updateOwnerDetail(owner);
+
         return new ResponseEntity<>(updatedOwner, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-owner-by-id/{ownerId}")
     public ResponseEntity<OwnerDto> deleteOwner(@PathVariable UUID ownerId) {
+        log.info("deleteOwner: DELETE req to delete the owner with given owner id = {}", ownerId);
+
         ownerService.deleteOwner(ownerId);
+        
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

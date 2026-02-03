@@ -13,8 +13,11 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.net.URI;
 
+@Slf4j
 @Configuration
 public class SecurityConfig {
 
@@ -28,7 +31,7 @@ public class SecurityConfig {
                 (webFilterExchange, authentication) -> {
 
                     OidcUser user = (OidcUser) authentication.getPrincipal();
-                    System.out.println("LOGIN SUCCESS: " + user.getEmail());
+                    log.debug("successHandler: LOGIN SUCCESS: " + user.getEmail());
 
                     webFilterExchange.getExchange().getResponse()
                             .setStatusCode(HttpStatus.FOUND);
@@ -42,7 +45,7 @@ public class SecurityConfig {
         ServerAuthenticationFailureHandler failureHandler =
                 (webFilterExchange, exception) -> {
 
-                    System.out.println("LOGIN FAILED: " + exception.getMessage());
+                    log.error("failureHandler: LOGIN FAILED: " + exception.getMessage());
 
                     webFilterExchange.getExchange().getResponse()
                             .setStatusCode(HttpStatus.FOUND);

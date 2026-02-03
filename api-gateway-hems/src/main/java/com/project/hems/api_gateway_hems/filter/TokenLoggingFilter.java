@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 public class TokenLoggingFilter {
 
@@ -31,8 +34,8 @@ public class TokenLoggingFilter {
                                 auth.getAuthorizedClientRegistrationId(),
                                 auth.getName())
                         .doOnNext(client -> {
-                            System.out.println("Access token:");
-                            System.out.println(client.getAccessToken().getTokenValue());
+                            log.debug("logAccessTokenFilter: Access token = {}",
+                                    client.getAccessToken().getTokenValue());
                         })
                         .then(chain.filter(exchange)));
     }

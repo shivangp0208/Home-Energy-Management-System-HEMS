@@ -28,27 +28,46 @@ public class CommandTranslatorService {
 
     public SiteControlCommand translateDispatchEvent(DispatchEvent dispatchEvent) {
 
+        log.info("Translating DispatchEvent. dispatchId={}, siteId={}, eventType={}, powerReqW={}",
+                dispatchEvent.getDispatchId(),
+                dispatchEvent.getSiteId(),
+                dispatchEvent.getEventType(),
+                dispatchEvent.getPowerReqW());
+
         // 1. Basic metadata mapping
         SiteControlCommandBuilder commandBuilder = SiteControlCommand.builder();
         commandBuilder.dispatchId(dispatchEvent.getDispatchId());
         commandBuilder.siteId(dispatchEvent.getSiteId());
 
         // 2. Retrieve the meterId from received siteId
+        log.debug("Fetching meter data for siteId={}", dispatchEvent.getSiteId());
         ResponseEntity<MeterSnapshot> meterData = simulatorFeignClientService.getMeterData(dispatchEvent.getSiteId());
+
         if (meterData.getBody() == null) {
-            log.error("Unable to get the meterId with given siieId " + dispatchEvent.getSiteId());
+            log.error("Meter data not found for siteId={}", dispatchEvent.getSiteId());
             throw new MeterStatusNotFoudException(
                     "unable to find the meter detail with given site id " + dispatchEvent.getSiteId());
         }
+
+        log.debug("Meter data found. meterId={}", meterData.getBody().getMeterId());
         commandBuilder.meterId(meterData.getBody().getMeterId());
 
         // 3. Calculate Expiry (validUntil = Now + durationSec)
-        commandBuilder.timestamp(Instant.now());
-        commandBuilder.validUntil(Instant.now().plusSeconds(dispatchEvent.getDurationSec()));
+        Instant now = Instant.now();
+        Instant validUntil = now.plusSeconds(dispatchEvent.getDurationSec());
+
+        commandBuilder.timestamp(now);
+        commandBuilder.validUntil(validUntil);
+
+        log.debug("Command validity set. timestamp={}, validUntil={}", now, validUntil);
 
         // 4. Map Priorities directly
         commandBuilder.energyPriority(dispatchEvent.getEnergyPriority());
         commandBuilder.reason(dispatchEvent.getReason());
+
+        log.debug("Energy priority={}, reason={}",
+                dispatchEvent.getEnergyPriority(),
+                dispatchEvent.getReason());
 
         // 5. Initialize Default Controls (Safety First!)
         BatteryControlBuilder batteryControlBuilder = BatteryControl.builder();
@@ -59,43 +78,56 @@ public class CommandTranslatorService {
         batteryControlBuilder.maxSocPercent(100.0);
         gridControlBuilder.allowImport(true);
 
-        // 5. THE LOGIC SWITCH (The "Brain" of the translation)
+        log.debug("Initialized default controls: minSoc=20%, maxSoc=100%, gridImportAllowed=true");
+
+        // 6. THE LOGIC SWITCH (The "Brain" of the translation)
         switch (dispatchEvent.getEventType()) {
 
             case EXPORT_POWER:
-                // Logic: Force battery to dump energy, allow grid to take it
-                batteryControlBuilder.mode(BatteryMode.FORCE_DISCHARGE);
+                log.info("Processing EXPORT_POWER event");
 
-                // Limit the discharge to exactly what was requested
+                batteryControlBuilder.mode(BatteryMode.FORCE_DISCHARGE);
                 batteryControlBuilder.maxDischargeW(dispatchEvent.getPowerReqW());
-                batteryControlBuilder.maxChargeW(0l); // Don't charge while exporting!
+                batteryControlBuilder.maxChargeW(0L);
 
                 gridControlBuilder.allowExport(true);
                 gridControlBuilder.maxExportW(dispatchEvent.getPowerReqW() * 1.1);
-                gridControlBuilder.maxImportW(10000.00); // Standard limit
+                gridControlBuilder.maxImportW(10000.00);
+
+                log.debug("EXPORT_POWER config: maxDischargeW={}, maxExportW={}",
+                        dispatchEvent.getPowerReqW(),
+                        dispatchEvent.getPowerReqW() * 1.1);
                 break;
 
-            case IMPORT_POWER: // e.g. Charge before a storm
-                // Logic: Force charge, block exporting
+            case IMPORT_POWER:
+                log.info("Processing IMPORT_POWER event");
+
                 batteryControlBuilder.mode(BatteryMode.FORCE_CHARGE);
                 batteryControlBuilder.maxChargeW(dispatchEvent.getPowerReqW());
 
-                gridControlBuilder.allowExport(false); // Don't sell energy now
+                gridControlBuilder.allowExport(false);
                 gridControlBuilder.maxImportW(dispatchEvent.getPowerReqW() * 1.1);
+
+                log.debug("IMPORT_POWER config: maxChargeW={}, maxImportW={}",
+                        dispatchEvent.getPowerReqW(),
+                        dispatchEvent.getPowerReqW() * 1.1);
                 break;
 
-            case PEAK_SAVING: // Reduce grid usage during expensive hours
-                // Logic: Use battery to cover home load, but don't force dump
-                batteryControlBuilder.mode(BatteryMode.AUTO); // Or "SELF_CONSUMPTION"
+            case PEAK_SAVING:
+                log.info("Processing PEAK_SAVING event");
 
-                // Usually Peak Shaving means "Don't buy from grid if possible"
-                // But here we might just cap the Grid Import
+                batteryControlBuilder.mode(BatteryMode.AUTO);
+
                 gridControlBuilder.allowExport(true);
-                gridControlBuilder.maxImportW(100.0); // Try to stay near 0 import
+                gridControlBuilder.maxImportW(100.0);
+
+                log.debug("PEAK_SAVING config: grid maxImportW=100");
                 break;
 
             default:
-                // Fallback to "Business as Usual"
+                log.warn("Unknown eventType={}, falling back to AUTO mode",
+                        dispatchEvent.getEventType());
+
                 batteryControlBuilder.mode(BatteryMode.AUTO);
                 gridControlBuilder.allowExport(true);
                 gridControlBuilder.maxExportW(5000.00);
@@ -104,9 +136,17 @@ public class CommandTranslatorService {
         }
 
         batteryControlBuilder.targetPowerW(dispatchEvent.getPowerReqW());
+
         commandBuilder.batteryControl(batteryControlBuilder.build());
         commandBuilder.gridControl(gridControlBuilder.build());
 
-        return commandBuilder.build();
+        SiteControlCommand command = commandBuilder.build();
+
+        log.info("Command translation completed. dispatchId={}, batteryMode={}, targetPowerW={}",
+                command.getDispatchId(),
+                command.getBatteryControl().getMode(),
+                command.getBatteryControl().getTargetPowerW());
+
+        return command;
     }
 }

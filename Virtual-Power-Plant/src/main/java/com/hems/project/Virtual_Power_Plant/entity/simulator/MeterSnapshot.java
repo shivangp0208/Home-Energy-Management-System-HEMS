@@ -1,6 +1,5 @@
 package com.hems.project.Virtual_Power_Plant.entity.simulator;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;

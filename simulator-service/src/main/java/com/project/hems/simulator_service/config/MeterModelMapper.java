@@ -9,6 +9,7 @@ import com.project.hems.simulator_service.domain.MeterEntity;
 import com.project.hems.simulator_service.model.BatteryMode;
 import com.project.hems.simulator_service.model.MeterSnapshot;
 
+// TODO: minimize hardcoded mapping only hardcode needed variables
 @Configuration
 public class MeterModelMapper {
 
