@@ -29,4 +29,9 @@ public class SiteCreationService {
         public ResponseEntity<List<SiteResponseDto>> fetchSitesByRegion(String city){
           return service.getAllSiteByRegion(city);
         }  
+
+        public ResponseEntity<List<String>> fetchAllRegion(){
+          return service.fethcAllAvailableRegion();
+        }
+        
 }

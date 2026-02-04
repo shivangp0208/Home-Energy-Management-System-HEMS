@@ -22,4 +22,8 @@ public interface SiteFeignClientService {
 
           @GetMapping("api/v1/site/fetch-site-by-region/{city}")
     public ResponseEntity<List<SiteResponseDto>> getAllSiteByRegion(@PathVariable String city);
+
+     @GetMapping("api/v1/site/fetch-all-region")
+    public ResponseEntity<List<String>> fethcAllAvailableRegion();
+
 }
