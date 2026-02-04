@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: program-enrollment-manager
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/program_manager
+    username: 
+    password: 
+
+server:
+  port: 8085
