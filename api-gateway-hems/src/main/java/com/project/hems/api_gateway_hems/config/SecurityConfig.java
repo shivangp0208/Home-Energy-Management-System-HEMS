@@ -13,11 +13,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.net.URI;
 
-@Slf4j
 @Configuration
 public class SecurityConfig {
 
@@ -31,7 +28,7 @@ public class SecurityConfig {
                 (webFilterExchange, authentication) -> {
 
                     OidcUser user = (OidcUser) authentication.getPrincipal();
-                    log.debug("successHandler: LOGIN SUCCESS: " + user.getEmail());
+                    System.out.println("LOGIN SUCCESS: " + user.getEmail());
 
                     webFilterExchange.getExchange().getResponse()
                             .setStatusCode(HttpStatus.FOUND);
@@ -45,7 +42,7 @@ public class SecurityConfig {
         ServerAuthenticationFailureHandler failureHandler =
                 (webFilterExchange, exception) -> {
 
-                    log.error("failureHandler: LOGIN FAILED: " + exception.getMessage());
+                    System.out.println("LOGIN FAILED: " + exception.getMessage());
 
                     webFilterExchange.getExchange().getResponse()
                             .setStatusCode(HttpStatus.FOUND);
@@ -60,9 +57,17 @@ public class SecurityConfig {
                 authorizationRequestResolver(clientRegistrationRepository);
 
         http
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/login", "/debug/token").permitAll()
-                        .anyExchange().authenticated()
+            .authorizeExchange(exchanges -> exchanges
+                .pathMatchers(
+                     "/login",
+                                "/auth/start-login",
+                                "/debug/token",
+                                "/password-setup",
+                                "/auth/debug-c3",
+                                "/auth/send-password-setup-email",
+                                "/auth/check-email-and-handle"
+                ).permitAll()
+                .anyExchange().authenticated()
                 )
 
                 .oauth2Login(oauth2 -> oauth2
