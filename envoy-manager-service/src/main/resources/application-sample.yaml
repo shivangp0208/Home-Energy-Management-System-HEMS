@@ -43,7 +43,6 @@ spring:
     consumer:
       bootstrap-servers:
       - localhost:9092
-      group-id: raw-energy-readers
       auto-offset-reset: earliest
 
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
