@@ -1,8 +1,9 @@
 package com.project.hems.SiteManagerService.controller;
 
-import com.project.hems.SiteManagerService.dto.OwnerDto;
 import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.service.OwnerService;
+import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Owner APIs", description = "Create, Update, Delete Owner")
-// todo:-
-// badha ma log lagava
 public class OwnerController {
 
     private final OwnerService ownerService;

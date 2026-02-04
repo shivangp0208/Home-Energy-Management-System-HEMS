@@ -5,6 +5,10 @@ import lombok.Data;
 import java.util.List;
 import java.util.UUID;
 
+import com.project.hems.hems_api_contracts.contract.site.AddressDto;
+import com.project.hems.hems_api_contracts.contract.site.BatteryDto;
+import com.project.hems.hems_api_contracts.contract.site.SolarDto;
+
 @Data
 public class SiteRequestDto {
     private UUID ownerId;

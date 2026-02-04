@@ -6,7 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
-import com.hems.project.Virtual_Power_Plant.entity.simulator.MeterSnapshot;
+
+import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 
 @Slf4j
 @Component

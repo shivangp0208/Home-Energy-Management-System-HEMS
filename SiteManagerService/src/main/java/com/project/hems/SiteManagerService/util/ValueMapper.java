@@ -1,7 +1,12 @@
 package com.project.hems.SiteManagerService.util;
 
-import com.project.hems.SiteManagerService.dto.*;
 import com.project.hems.SiteManagerService.entity.*;
+import com.project.hems.hems_api_contracts.contract.site.AddressDto;
+import com.project.hems.hems_api_contracts.contract.site.BatteryDto;
+import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
+import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
+import com.project.hems.hems_api_contracts.contract.site.SolarDto;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

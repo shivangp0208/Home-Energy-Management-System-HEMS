@@ -6,8 +6,8 @@ import java.util.UUID;
 @Data
 public class SolarDto {
     private UUID id;
-    private double totalPanelCapacity;
-    private double inverterMaxCapacity;
+    private double totalPanelCapacityW;
+    private double inverterMaxCapacityW;
     private String orientation;
     private UUID siteId;
 }

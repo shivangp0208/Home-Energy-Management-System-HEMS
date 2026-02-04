@@ -6,7 +6,7 @@ import java.util.UUID;
 public class BatteryDto {
     private UUID id;
     private int quantity;
-    private double capacity;
-    private double maxOutput;
+    private double capacityWh;
+    private double maxOutputW;
     private UUID siteId;
 }

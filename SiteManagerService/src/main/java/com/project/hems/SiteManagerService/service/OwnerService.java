@@ -1,6 +1,5 @@
 package com.project.hems.SiteManagerService.service;
 
-import com.project.hems.SiteManagerService.dto.OwnerDto;
 import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.entity.OwnerIdentities;
 import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
@@ -8,6 +7,8 @@ import com.project.hems.SiteManagerService.repository.OwnerIdentityRepo;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
 import com.project.hems.SiteManagerService.util.ValueMapper;
+import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

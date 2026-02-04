@@ -1,13 +1,14 @@
 package com.project.hems.SiteManagerService.service;
 
-import com.project.hems.SiteManagerService.dto.SiteCreationEvent;
 import com.project.hems.SiteManagerService.dto.SiteRequestDto;
-import com.project.hems.SiteManagerService.dto.SiteResponseDto;
 import com.project.hems.SiteManagerService.entity.*;
 import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
 import com.project.hems.SiteManagerService.util.ValueMapper;
+import com.project.hems.hems_api_contracts.contract.site.SiteCreationEvent;
+import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
