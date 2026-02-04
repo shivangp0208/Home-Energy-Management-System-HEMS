@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
+
 import java.util.Map;
 
 @RestController
@@ -17,21 +18,24 @@ public class PasswordSetupController {
     private static final Logger log = LoggerFactory.getLogger(PasswordSetupController.class);
 
     private final WebClient webClient;
-    private final Auth0ManagementService mgmt;
 
-    @Value("${auth0.domain}")       // hostname only
+    @Value("${auth0.domain}")       // hostname only (e.g. dev-xxxx.us.auth0.com)
     private String auth0Domain;
 
-    @Value("${auth0.client-id}")    // regular app client_id (works for change_password)
+    @Value("${auth0.client-id}")    // regular Application client_id (NOT mgmt client)
     private String clientId;
 
-    public PasswordSetupController(WebClient.Builder builder, Auth0ManagementService mgmt) {
+    public PasswordSetupController(WebClient.Builder builder) {
         this.webClient = builder.build();
-        this.mgmt = mgmt;
     }
 
+    /**
+     * Sends password reset/setup email for DB connection users only.
+     * NOTE: This will NOT work for Google/Github-only users unless they already have a DB identity.
+     */
     @PostMapping("/send-password-setup-email")
     public Mono<String> send(@RequestBody Map<String, String> body) {
+
         String email = body.get("email");
         if (email == null || email.isBlank()) {
             return Mono.error(new IllegalArgumentException("email is required"));
@@ -39,23 +43,20 @@ public class PasswordSetupController {
 
         String url = "https://" + auth0Domain + "/dbconnections/change_password";
 
-        return mgmt.ensureDbUserExists(email)
-                .then(Mono.defer(() -> {
-                    log.info("Calling Auth0 change_password. url={}, email={}", url, email);
+        log.info("Calling Auth0 change_password. url={}, email={}", url, email);
 
-                    return webClient.post()
-                            .uri(url)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .bodyValue(Map.of(
-                                    "client_id", clientId,
-                                    "email", email,
-                                    "connection", "Username-Password-Authentication"
-                            ))
-                            .retrieve()
-                            .bodyToMono(String.class)
-                            .doOnNext(resp -> log.info("Auth0 change_password response body: {}", resp))
-                            .map(x -> "Password reset email requested for " + email);
-                }))
+        return webClient.post()
+                .uri(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of(
+                        "client_id", clientId,
+                        "email", email,
+                        "connection", "Username-Password-Authentication"
+                ))
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(resp -> log.info("Auth0 change_password response body: {}", resp))
+                .thenReturn("Password reset email requested for " + email)
                 .doOnError(err -> log.error("Password setup email flow failed", err));
     }
 }
