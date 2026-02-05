@@ -1,24 +1,16 @@
 spring:
 
   application:
-    name: simulator-service
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
-          scope:
-            - email
+    name: simulator-service-testing
 
   datasource:
     url: jdbc:mysql://localhost:3306/simulator_service
-    username: 
-    password: 
+    username: not desclosed
+    password: not desclosed
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
 
   kafka:
@@ -28,6 +20,13 @@ spring:
       - localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer  
+
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
 
 eureka:
   instance:

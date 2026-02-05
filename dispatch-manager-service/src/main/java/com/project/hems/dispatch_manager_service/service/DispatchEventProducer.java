@@ -1,5 +1,7 @@
 package com.project.hems.dispatch_manager_service.service;
 
+import java.util.UUID;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,6 @@ public class DispatchEventProducer {
     public void sendDispatchCommands(DispatchEvent dispatchEvent) {
         log.info("sendDispatchCommands: sending dummy dispatch command to envoy");
         log.debug("sendDispatchCommands: command value = " + dispatchEvent);
-
         kafkaTemplate.send(dispatchEnergyTopic, dispatchEvent);
         log.debug("sendDispatchCommands: sent command successfully over kafka topic = " + dispatchEnergyTopic);
     }
