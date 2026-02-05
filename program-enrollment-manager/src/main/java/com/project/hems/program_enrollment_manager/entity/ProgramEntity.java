@@ -1,0 +1,37 @@
+package com.project.hems.program_enrollment_manager.entity;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import com.project.hems.program_enrollment_manager.model.ProgramType;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Data;
+
+@Entity
+@Table(name = "programs")
+@Data
+public class ProgramEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false, updatable = false, unique = true)
+    private UUID programId;
+    
+    @Column(name = "name", nullable = false, updatable = true)
+    private String programName;
+    
+    @Column(name = "start_time", nullable = false, updatable = true)
+    private LocalDateTime startDateTime;
+
+    @Column(name = "end_time", nullable = false, updatable = true)
+    private LocalDateTime endDateTime;
+    
+    @Column(name = "type", nullable = false, updatable = true)
+    private ProgramType programType;
+}
