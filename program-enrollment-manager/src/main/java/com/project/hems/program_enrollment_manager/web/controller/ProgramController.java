@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.project.hems.program_enrollment_manager.model.Program;
 import com.project.hems.program_enrollment_manager.service.ProgramService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,7 +51,7 @@ public class ProgramController {
 
     @PostMapping("/create-program")
     @ResponseStatus(HttpStatus.CREATED)
-    public Program createNewProgram(@RequestBody Program program) {
+    public Program createNewProgram(@RequestBody @Valid Program program) {
         return programService.saveNewProgram(program);
     }
 
