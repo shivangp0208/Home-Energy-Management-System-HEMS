@@ -22,15 +22,13 @@ public class EnergyPhysicsEngine {
         private static final double SECONDS_TO_HOURS = 1.0 / 3600.0;
 
         private boolean isGridImportAllowed(ActiveControlState control) {
-                return control == null
-                                || control.getGridControl() == null
-                                || control.getGridControl().isAllowImport();
+                return control == null ? true
+                                : control.getGridControl() == null ? true : control.getGridControl().isAllowImport();
         }
 
         private boolean isGridExportAllowed(ActiveControlState control) {
-                return control == null
-                                || control.getGridControl() == null
-                                || control.getGridControl().isAllowExport();
+                return control == null ? false
+                                : control.getGridControl() == null ? false : control.getGridControl().isAllowExport();
         }
 
         public void processEnergyBalance(
@@ -253,18 +251,18 @@ public class EnergyPhysicsEngine {
 
         private double getMaxChargeW(MeterSnapshot meter, ActiveControlState control) {
 
+                double defaultMax = 3000.0;
+
+                if (control == null || control.getBatteryControl() == null) {
+                        return defaultMax;
+                }
+
                 log.debug(
                                 "MaxCharge check | mode={} maxChargeW={} SOC={} maxSOC={}",
                                 control.getBatteryControl().getMode(),
                                 control.getBatteryControl().getMaxChargeW(),
                                 meter.getBatterySoc(),
                                 control.getBatteryControl().getMaxSocPercent());
-
-                double defaultMax = 3000.0;
-
-                if (control == null || control.getBatteryControl() == null) {
-                        return defaultMax;
-                }
 
                 BatteryControl bc = control.getBatteryControl();
 

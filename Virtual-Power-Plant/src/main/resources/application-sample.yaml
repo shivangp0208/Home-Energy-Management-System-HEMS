@@ -14,7 +14,7 @@ spring:
       bootstrap-servers:
         - localhost:9092
       enable-auto-commit: false
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -22,7 +22,17 @@ spring:
         spring.json.use.type.headers: false
         spring.json.value.default.type: com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot
   
-      ack-mode: MANUAL
+    
+    properties:
+      # Accept only if headers available from kafka producer
+      spring.json.use.type.headers: true
+      spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+      spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+      # Ensure the package is trusted
+      spring.json.trusted.packages: "com.project.hems.*"
+      
+    listner:
+      ack-mode:MANUAL
 
 eureka:
   instance:
