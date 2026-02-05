@@ -6,26 +6,26 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
+          issuer-uri: not declosed
           scope:
             - email
       
       client:
         registration:
           auth0:
-            client-id: 
-            client-secret: 
+            client-id: not declosed
+            client-secret: not declosed-mHLXuiyS
             authorization-grant-type: client_credentials
 
         provider:
           auth0:
-            token-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/oauth/token
-            issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
+            token-uri: not declosed
+            issuer-uri: not declosed
 
   datasource:
     url: jdbc:mysql://localhost:3306/envoy_service
-    username: 
-    password: 
+    username: not declosed
+    password: not declosed
 
   jpa:
     hibernate:

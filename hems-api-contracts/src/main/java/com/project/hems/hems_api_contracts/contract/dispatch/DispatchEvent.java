@@ -22,7 +22,7 @@ import lombok.ToString;
 @Builder
 public class DispatchEvent {
 
-    @NotNull(message = "dispatchId cannot be null")
+    // @NotNull(message = "dispatchId cannot be null")
     private UUID dispatchId;
 
     @NotNull(message = "siteId cannot be null")
@@ -44,4 +44,6 @@ public class DispatchEvent {
 
     @Size(min = 1, max = 255, message = "reason must be at most 255 characters")
     private String reason;
+
+
 }

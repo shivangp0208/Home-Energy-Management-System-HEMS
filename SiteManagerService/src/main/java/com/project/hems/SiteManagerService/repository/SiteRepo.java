@@ -2,7 +2,11 @@ package com.project.hems.SiteManagerService.repository;
 
 import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.entity.Site;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,4 +17,15 @@ public interface SiteRepo extends JpaRepository<Site, UUID> {
     void deleteByOwner(Owner owner);
 
     List<Site> findByAddress_City(String city);
+
+    @Query("SELECT DISTINCT a.city FROM Address a")
+    List<String> findAllRegion();
+
+
+    @Query("""
+            SELECT s FROM Site s
+            WHERE (:cursor IS NULL OR s.id> :cursor)
+            ORDER BY s.id ASC
+            """)
+    public List<Site> fetchNextPage(@Param("cursor") UUID cursor,Pageable pagable);
 }

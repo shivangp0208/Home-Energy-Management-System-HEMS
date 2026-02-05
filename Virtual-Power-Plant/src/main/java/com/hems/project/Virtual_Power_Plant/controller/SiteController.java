@@ -31,6 +31,9 @@ public class SiteController {
         log.info("received request in VppService: fetch all site");
         return service.fetchAllSites();
     }
+    //todo:-
+    //pagination and sorting apply karvu site service ma controller che j only use karvu ahiya
+
 
     @GetMapping("/fetch-all-owner")
     public ResponseEntity<List<OwnerDto>> fetchAllOwner(){
@@ -53,6 +56,15 @@ public class SiteController {
         log.info("received request in VppService : fetch sites by region city={}", city);
         return service.fetchSitesByRegion(city);
     }
+
+    @GetMapping("/fetch-all-region")
+    public ResponseEntity<List<String>> fetchAllRegion(){
+        log.info("received request in VppService : fetch all regoin");
+       return service.fetchAllRegion();
+    }
+    
+
+
 
     
     

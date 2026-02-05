@@ -1,5 +1,6 @@
 package com.project.hems.SiteManagerService.controller;
 
+import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.SiteManagerService.dto.SiteRequestDto;
 import com.project.hems.SiteManagerService.entity.Site;
 import com.project.hems.SiteManagerService.service.SiteService;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -88,6 +90,51 @@ public class SiteController {
         return new ResponseEntity<>(sites, HttpStatus.OK);
     }
 
+    //this is normal offset based pagination
+    @GetMapping("/fetch-all-site/v2/pagging")
+    public ResponseEntity<Page<SiteResponseDto>> getAllSitesV2WithPagging(
+        @RequestParam(name = "offset",defaultValue = "0") int offset,
+        @RequestParam(name = "pageSize",defaultValue = "2") int pageSize
+    ) {
+
+        log.info("GET req to fetch all site details v2 with pagging");
+
+       Page<SiteResponseDto> allSiteV2WithPagination = siteService.findAllSiteV2WithPagination(offset,pageSize);;
+        return new ResponseEntity<>(allSiteV2WithPagination, HttpStatus.OK);
+    }
+
+    //this is normal offset based pagination
+    @GetMapping("/fetch-all-site/v2/pagging-sorting")
+    public ResponseEntity<Page<SiteResponseDto>> getAllSitesV2WithPaggingAndSorting(
+        @RequestParam(name = "offset",defaultValue = "0") int offset,
+        @RequestParam(name = "pageSize",defaultValue = "2") int pageSize,
+        @RequestParam(name = "field") String field
+    ) {
+
+        log.info("GET req to fetch all site details v2 with pagging and sorting");
+
+       Page<SiteResponseDto> allSiteV2WithPagination = siteService.findAllSiteV2WithPaginationAndSorting(offset,pageSize,field);
+        return new ResponseEntity<>(allSiteV2WithPagination, HttpStatus.OK);
+    }
+
+    //here we implement cursor based pagination
+      @GetMapping("/fetch-all-site/v2/cursor")
+    public ResponseEntity<CursorSiteResponse<SiteResponseDto>> getAllSitesV2WithPaggingAndSorting(
+        @RequestParam(required = false) UUID cursor,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+
+        log.info("GET req to fetch all site details v2 with pagging and sorting");
+
+       CursorSiteResponse<SiteResponseDto> sites = siteService.getSites(cursor, size);;
+        return new ResponseEntity<>(sites, HttpStatus.OK);
+    }
+
+
+
+
+
+
     // @GetMapping("/fetch-all-site") // public
     // CompletableFuture<ResponseEntity<List<SiteResponseDto>>> getAllSites() // {
     // // return siteService.fetchAllSites().thenApply(ResponseEntity::ok); // }
@@ -105,6 +152,11 @@ public class SiteController {
         return new ResponseEntity<>(sites, HttpStatus.OK);
     }
 
-    // @PostConstruct // public void check() { // log.debug("SiteController
-    // loaded..."); // }
+    @GetMapping("/fetch-all-region")
+    public ResponseEntity<List<String>> fethcAllAvailableRegion(){
+        List<String> fetchAllRegion = siteService.fetchAllRegion();
+        return new ResponseEntity(fetchAllRegion,HttpStatus.OK);
+    }
+
+
 }

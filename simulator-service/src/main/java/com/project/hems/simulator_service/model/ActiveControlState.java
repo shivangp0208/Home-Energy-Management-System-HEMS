@@ -26,6 +26,8 @@ public class ActiveControlState {
 
     private Instant validUntil;
 
+    //TODO:-
+    //move this active state in envoy service
     public boolean isActive(Instant now) {
         return validUntil != null && now.isBefore(validUntil);
     }

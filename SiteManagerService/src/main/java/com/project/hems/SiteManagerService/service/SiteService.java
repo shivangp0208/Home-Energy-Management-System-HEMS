@@ -1,5 +1,6 @@
 package com.project.hems.SiteManagerService.service;
 
+import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.SiteManagerService.dto.SiteRequestDto;
 import com.project.hems.SiteManagerService.entity.*;
 import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
@@ -13,6 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -156,6 +161,41 @@ public class SiteService {
         return siteResponseDtos;
     }
 
+    //pagination in fetchAllSiteV2 this api 
+    public Page<SiteResponseDto> findAllSiteV2WithPagination(int offset,int pageSize){
+       return siteRepo.findAll(PageRequest.of(offset, pageSize)).map(valueMapper::siteModelToResponseDto);
+    }
+
+    //pagination in fetchAllSiteV2 this api with sorting based on input key
+    public Page<SiteResponseDto> findAllSiteV2WithPaginationAndSorting(int offset,int pageSize,String field){
+       return siteRepo.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field))).map(valueMapper::siteModelToResponseDto);
+    }
+
+    //cursor based paginaton in fetchAllSiteV2
+    public CursorSiteResponse<SiteResponseDto> getSites(UUID cursor,int size){
+        //default page=0 and size=10
+         Pageable pageable=PageRequest.of(0, size);
+
+         //fetch next page record
+         List<SiteResponseDto> sites = siteRepo.fetchNextPage(cursor, pageable).stream().map(valueMapper::siteModelToResponseDto).toList();
+
+         //check if we have more record
+         boolean hasNext = sites.size() == size;
+
+         //define the next cursor
+         UUID nextCursor= hasNext?sites.get(sites.size()-1).getSiteId():null;
+
+         
+        return new CursorSiteResponse<>(
+            sites,
+            size,
+            nextCursor,
+            hasNext
+        );
+    }
+
+
+
     // @Async
     // @Transactional(readOnly = true)
     // public CompletableFuture<List<SiteResponseDto>> fetchAllSites() {
@@ -178,5 +218,10 @@ public class SiteService {
 
         log.debug("fetchSiteByRegion: Found {} sites for city={}", siteResponseDtos.size(), city);
         return siteResponseDtos;
+    }
+
+    public List<String> fetchAllRegion(){
+        List<String> allRegion = siteRepo.findAllRegion();
+        return allRegion;
     }
 }
