@@ -12,7 +12,8 @@ import lombok.Data;
 public class SiteEnrollSuccessResponse {
     private boolean success;
     private String message;
-    private Map<String,UUID> siteEnrollRequest;
+    private UUID siteId;
+    private UUID programId;
     private Instant enrollTime;
     
 }
