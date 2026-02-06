@@ -1,6 +1,8 @@
 package com.project.hems.program_enrollment_manager.repository;
 
+import java.lang.StackWalker.Option;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,5 +25,13 @@ List<ProgramEntity> findProgramsBySiteId(@Param("siteId") UUID siteId);
        "WHERE spe.program.programId = :programId")
 List<UUID> findSiteIdByProgramId(@Param("programId") UUID programId);
 
+//@Query("SELECT s FROM SiteProgramEnrollmentEntity WHERE programId=:programId")
+//List<SiteProgramEnrollmentEntity> findSiteProgramEnrollmentEntityByProgramId(@Param("programId") UUID programId);
+List<SiteProgramEnrollmentEntity> findByProgram_ProgramId(UUID programId);
+
+@Query("SELECT s.enrollmentId FROM SiteProgramEnrollmentEntity s " +
+       "WHERE s.program.programId = :programId " +
+       "AND s.siteId = :siteId")
+Optional<UUID> findEnrollmentId(@Param("programId") UUID programId,@Param("siteId") UUID siteId);
 
 }

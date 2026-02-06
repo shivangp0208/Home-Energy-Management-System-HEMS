@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
@@ -36,4 +39,8 @@ public class Program {
 
     @NotNull(message = "program type cannot be null")
     private ProgramType programType;
+
+    private ProgramStatus programStatus;
+
+
 }

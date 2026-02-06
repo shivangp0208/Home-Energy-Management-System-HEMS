@@ -3,10 +3,13 @@ package com.project.hems.program_enrollment_manager.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.project.hems.program_enrollment_manager.model.ProgramStatus;
 import com.project.hems.program_enrollment_manager.model.ProgramType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,4 +43,9 @@ public class ProgramEntity {
     
     @Column(name = "type", nullable = false, updatable = true)
     private ProgramType programType;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name ="status")
+    private ProgramStatus programStatus;
 }
