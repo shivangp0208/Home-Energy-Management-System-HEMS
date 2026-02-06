@@ -6,8 +6,10 @@ import java.util.UUID;
 import org.hibernate.annotations.Type;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Entity
 @Table(name = "program_configuration")
 @Data
