@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Entity
 @Table(name = "site_program_enrollment")
 @Data

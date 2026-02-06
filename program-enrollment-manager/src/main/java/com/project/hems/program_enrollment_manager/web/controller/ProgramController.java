@@ -83,10 +83,12 @@ public class ProgramController {
 
     //here we find enroll site in particular program 
     @PostMapping("/enroll-site-in-program")
-    public ResponseEntity<SiteEnrollSuccessResponse> enrollSiteinProgram(){
-        
-        return null;
-
+    public ResponseEntity<SiteEnrollSuccessResponse> enrollSiteinProgram(
+        @RequestParam UUID siteId,
+        @RequestParam UUID programId
+    ){
+        SiteEnrollSuccessResponse enrollSiteinProgram = siteProgramEnrollmentService.enrollSiteinProgram(siteId, programId);;
+        return new ResponseEntity<>(enrollSiteinProgram,HttpStatus.OK);
     }
     
 }
