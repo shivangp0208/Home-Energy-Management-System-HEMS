@@ -3,14 +3,19 @@ package com.project.hems.program_enrollment_manager.service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
 import com.project.hems.hems_api_contracts.contract.vpp.SiteEnrollSuccessResponse;
+import com.project.hems.program_enrollment_manager.entity.ProgramConfigurationEntity;
 import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
 import com.project.hems.program_enrollment_manager.entity.SiteProgramEnrollmentEntity;
-import com.project.hems.program_enrollment_manager.model.ProgramType;
+import com.project.hems.program_enrollment_manager.model.ProgramConfigurationUpdateRequestDto;
+import com.project.hems.program_enrollment_manager.model.ProgramConfigurationUpdateResponseDto;
+import com.project.hems.program_enrollment_manager.model.SiteStatus;
+import com.project.hems.program_enrollment_manager.repository.ProgramConfigurationRepo;
 import com.project.hems.program_enrollment_manager.repository.ProgramRepository;
 import com.project.hems.program_enrollment_manager.repository.SiteProgramEnrollmentRepo;
 
@@ -25,6 +30,7 @@ public class SiteProgramEnrollmentService {
 
     private final SiteProgramEnrollmentRepo siteProgramEnrollmentRepo;
     private final ProgramRepository programRepository;
+    private final ProgramConfigurationRepo programConfigurationRepo;
     
     //this service is work for checking which site enroll in which program
     //which site enroll in past which program and which date that join and which date vpp release that site 
@@ -61,7 +67,7 @@ public class SiteProgramEnrollmentService {
         SiteProgramEnrollmentEntity siteProgramEnrollmentEntity=SiteProgramEnrollmentEntity.builder()
                                 .enrollmentDate(LocalDateTime.now())
                                 .program(programEntity)
-                                .status("ACTIVE")
+                                .siteStatus(SiteStatus.ACTIVE)
                                 .siteId(siteId)
                                 .build();
         SiteProgramEnrollmentEntity savedEnrollmentEntity = siteProgramEnrollmentRepo.save(siteProgramEnrollmentEntity);;
@@ -75,5 +81,39 @@ public class SiteProgramEnrollmentService {
         .build();
 
         return siteEnrollSuccessResponse;
+    }
+
+
+    public ProgramConfigurationUpdateResponseDto updateProgram(ProgramConfigurationUpdateRequestDto programConfigurationRequestDto,UUID programId) {
+        //find program from programId
+       ProgramEntity program = programRepository.findById(programId).orElseThrow(()-> new RuntimeException("program not found"));;
+    
+       //find programConfiguration from programId
+       ProgramConfigurationEntity programConfig = programConfigurationRepo.findByProgram_programId(programId).orElseThrow(()->
+        new RuntimeException("program Configuration not found"));
+    
+       Optional.ofNullable(programConfigurationRequestDto.getType()).ifPresent(program::setProgramType);
+       Optional.ofNullable(programConfigurationRequestDto.getStartDateTime()).ifPresent(program::setStartDateTime);
+       Optional.ofNullable(programConfigurationRequestDto.getEndDateTime()).ifPresent(program::setEndDateTime);
+
+       Optional.ofNullable(programConfigurationRequestDto.getProgramDescription()).ifPresent(programConfig::setProgramDescription);
+       Optional.ofNullable(programConfigurationRequestDto.getPriority()).ifPresent(programConfig::setPriority);
+       
+       //we update updatedTime of programConfiguration
+       programConfig.setUpdatedAt(LocalDateTime.now());
+
+       //save program first
+       programRepository.save(program);
+       log.info("updated program is saved successfully");
+       programConfigurationRepo.save(programConfig);
+       log.info("updated program config is saved successfully. configId = {}",program.getProgramId());
+
+       ProgramConfigurationUpdateResponseDto programConfigurationResponseDto=ProgramConfigurationUpdateResponseDto
+                                                .builder()
+                                                .programId(programId)
+                                                .message("program updated successfully and programId = "+programId)
+                                                .build();
+        return programConfigurationResponseDto;
+
     }
 }
