@@ -22,6 +22,10 @@ public class Site {
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     // private Long id;
 
+    @Column(name = "vpp_id",nullable = true)
+    private UUID vppId;
+
+
     @ManyToOne
     @JoinColumn(name = "owner")
     @JsonBackReference

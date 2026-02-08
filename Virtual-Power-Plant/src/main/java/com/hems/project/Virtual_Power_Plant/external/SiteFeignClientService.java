@@ -17,13 +17,13 @@ public interface SiteFeignClientService {
         @GetMapping("/api/v1/owner/fetch-all-owner")
         public ResponseEntity<List<OwnerDto>> getAllOwner();
 
-         @GetMapping("api/v1/site/fetch-all-site/v2")
+         @GetMapping("/api/v1/site/fetch-all-site/v2")
        public ResponseEntity<List<SiteResponseDto>> getAllSitesV2();
 
-          @GetMapping("api/v1/site/fetch-site-by-region/{city}")
-    public ResponseEntity<List<SiteResponseDto>> getAllSiteByRegion(@PathVariable String city);
+          @GetMapping("/api/v1/site/fetch-site-by-region/{city}")
+    public ResponseEntity<List<SiteResponseDto>> getAllSiteByRegion(@PathVariable("city") String city);
 
-     @GetMapping("api/v1/site/fetch-all-region")
+     @GetMapping("/api/v1/site/fetch-all-region")
     public ResponseEntity<List<String>> fethcAllAvailableRegion();
 
 }

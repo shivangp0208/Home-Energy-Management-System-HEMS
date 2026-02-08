@@ -16,6 +16,7 @@ import com.hems.project.Virtual_Power_Plant.service.SiteCreationService;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
 import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
