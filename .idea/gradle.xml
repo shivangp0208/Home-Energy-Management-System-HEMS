@@ -12,11 +12,13 @@
             <option value="$PROJECT_DIR$/ServiceRegistry-HEMS" />
             <option value="$PROJECT_DIR$/SiteManagerService" />
             <option value="$PROJECT_DIR$/Virtual-Power-Plant" />
+            <option value="$PROJECT_DIR$/Vpp-Manager" />
             <option value="$PROJECT_DIR$/api-gateway-hems" />
             <option value="$PROJECT_DIR$/auth-service-hems" />
             <option value="$PROJECT_DIR$/dispatch-manager-service" />
             <option value="$PROJECT_DIR$/envoy-manager-service" />
             <option value="$PROJECT_DIR$/hems-api-contracts" />
+            <option value="$PROJECT_DIR$/program-enrollment-manager" />
             <option value="$PROJECT_DIR$/simulator-service" />
           </set>
         </option>

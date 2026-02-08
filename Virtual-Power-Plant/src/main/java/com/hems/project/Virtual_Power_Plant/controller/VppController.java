@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hems.project.Virtual_Power_Plant.service.VppService;
-import com.project.hems.hems_api_contracts.contract.program.model.ProgramConfigurationRequestDto;
-import com.project.hems.hems_api_contracts.contract.program.model.ProgramConfigurationResponseDto;
-import com.project.hems.hems_api_contracts.contract.program.model.ProgramEntity;
 import com.project.hems.hems_api_contracts.contract.vpp.SignalForImport;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteEnrollRequest;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteEnrollSuccessResponse;
@@ -41,43 +38,11 @@ public class VppController {
         return "send import details to vpp service";
     }
 
- 
-
     //TODO:-
-    //make a controller from which vpp create program
-        //here we find which site is enroll in which program
-    @PostMapping("/find-program-by-site")
-    public ResponseEntity<List<ProgramEntity>> findProgramBySiteId(@RequestParam UUID siteId){
-        ResponseEntity<List<ProgramEntity>> programBySite = vppService.findProgramBySite(siteId);
-        return programBySite;
-    }
-
-    //here we in particular program how many site is enroll
-    @PostMapping("/find-site-by-program")
-    public ResponseEntity<List<UUID>> findSiteIdByProgram(@RequestParam UUID programId){
-        ResponseEntity<List<UUID>> siteIdByProgramId = vppService.findSiteIdByProgramId(programId);
-        return siteIdByProgramId;
-    }
-
-    //here we find enroll site in particular program 
-    @PostMapping("/enroll-site-in-program")
-    public ResponseEntity<SiteEnrollSuccessResponse> enrollSiteinProgram(
-        @RequestParam UUID siteId,
-        @RequestParam UUID programId
-    ){
-       ResponseEntity<SiteEnrollSuccessResponse> enrollSiteinProgram = vppService.enrollSiteinProgram(siteId, programId);
-       return enrollSiteinProgram;
-    }
-
-    //vpp can update program priority and program configuration
-    //and start and end data 
-
-    @PutMapping("/update-program/{programId}")
-    public ResponseEntity<ProgramConfigurationResponseDto> updateProgram(
-        @RequestBody ProgramConfigurationRequestDto dto,
-        @PathVariable UUID programId
-    ){
-        ResponseEntity<ProgramConfigurationResponseDto> updateProgram = vppService.updateProgram(dto, programId);
-        return updateProgram;
-    }
+    //jyare user signup and login thayy with role vpp then we make emtpy vpp entity and 
+    //then ene dashboard mathi fill karvsu later ene jyare fill karvi hoy detail
+    //and when vpp detail fill kare like location,location photo and all then we put this into ai 
+    //and then we like send this to vpp manager.. and e verify karse 
+    
+   
 }
