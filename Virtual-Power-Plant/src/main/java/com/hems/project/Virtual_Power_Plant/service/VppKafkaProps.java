@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "property.config.kafka")
+@ConfigurationProperties(prefix = "property.config.kafka.vpp-snapshots-topic")
 public class VppKafkaProps {
     private String vppEnergyTopic;
 }

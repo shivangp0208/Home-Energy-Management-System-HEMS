@@ -2,8 +2,8 @@ package com.hems.project.Virtual_Power_Plant.Config;
 
 import org.springframework.stereotype.Component;
 
-import com.hems.project.Virtual_Power_Plant.dto.VppSnapshot;
 import com.hems.project.Virtual_Power_Plant.entity.VppSnapshotEntity;
+import com.project.hems.hems_api_contracts.contract.vpp.VppSnapshot;
 
 @Component
 public class VppModelMapper {

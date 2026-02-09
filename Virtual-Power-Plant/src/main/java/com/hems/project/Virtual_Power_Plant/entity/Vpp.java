@@ -34,7 +34,6 @@ public class Vpp {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-
     @Column(name = "vpp_name",nullable = false)
     private String name;
     @Column(name = "vpp_region",nullable = false)
@@ -44,8 +43,11 @@ public class Vpp {
 
     private String city;
 
+    //ahiya user ni detail store kariee ena karta we store in the auth service database
+    //TODO:-
+    //aa check karvu
     @Column(name = "auth_id")
-    private String authUserId;
+    private String authUserId; // sub: auth0|65f9ab1234abcde
 
     private String email;
     @Column(name="total_solar_capacity",nullable = false)

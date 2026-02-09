@@ -3,7 +3,7 @@ package com.hems.project.Virtual_Power_Plant.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.hems.project.Virtual_Power_Plant.dto.GenerationMode;
+import com.project.hems.hems_api_contracts.contract.vpp.GenerationMode;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,6 +12,7 @@ import lombok.*;
 @Table(name = "vpp_snapshot")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class VppSnapshotEntity {
 

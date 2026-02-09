@@ -3,11 +3,15 @@ package com.project.hems.hems_api_contracts.contract.vpp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class VppSnapshot {
 
     private UUID vppId;

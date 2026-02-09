@@ -1,5 +1,6 @@
 package com.hems.project.Vpp_Manager.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -7,9 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 
 import com.project.hems.hems_api_contracts.contract.vpp.VppSnapshot;
 
+@RequiredArgsConstructor
 @Slf4j
 @Component
 public class VppSnapshotConsumer {
@@ -17,23 +21,22 @@ public class VppSnapshotConsumer {
   @Value("${property.kafka.vpp-snapshots-topic}")
   private String topic;
 
+  private final SimpMessagingTemplate simpMessagingTemplate;
   @KafkaListener(topics = "${property.kafka.vpp-snapshots-topic}")
-  public void consume(ConsumerRecord<String,VppSnapshot> record, Acknowledgment ack) {
+  public void consume(VppSnapshot record, Acknowledgment ack) {
     try {
-      VppSnapshot snapshot = record.value();
-
       log.info("VPP-MANAGER ✅ got snapshot vppId={} totalGen={}W ts={}",
-          snapshot.getVppId(),
-          snapshot.getTotalGenerationW(),
-          snapshot.getTimestamp());
+          record.getVppId(),
+          record.getTotalGenerationW(),
+          record.getTimestamp());
 
-      // TODO: store hot state in Redis (recommended)
-      // redisService.put(snapshot.getVppId(), snapshot);
+      simpMessagingTemplate.convertAndSend(
+        "/topic/meter",
+        record
+      );
 
-      // ack.acknowl edge();  
     } catch (Exception e) {
-      log.error("VPP-MANAGER ❌ consume failed err={}", e.getMessage(), e);
-      // no ack => retry
+      log.error("VPP-MANAGER consume failed err={}", e.getMessage(), e);
     }
   }
 }

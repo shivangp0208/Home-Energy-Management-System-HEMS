@@ -4,15 +4,17 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
-import com.hems.project.Virtual_Power_Plant.dto.GenerationMode;
-import com.hems.project.Virtual_Power_Plant.dto.VppSnapshot;
+import com.project.hems.hems_api_contracts.contract.vpp.GenerationMode;
+import com.project.hems.hems_api_contracts.contract.vpp.VppSnapshot;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@EnableScheduling
 public class VppGenerationSimulator {
 
     private static final double DELTA_SECONDS = 5.0;
@@ -23,56 +25,102 @@ public class VppGenerationSimulator {
      */
     public VppSnapshot nextSnapshot(VppSnapshot current, double maxCapacityW) {
         if (current == null) return null;
+
+        final double dtHours = DELTA_SECONDS / 3600.0;
+
+        // If no capacity, still accumulate import/export based on current gridPower (optional)
         if (maxCapacityW <= 0) {
-            // No capacity -> keep snapshot but everything 0
+            Double value = current.getGridPowerW();
+            double gridW = (value != null) ? value : 0.0;
+            double exportW = Math.max(0.0, -gridW);
+            double importW = Math.max(0.0, gridW);
+
+            double totalGeneratedKwh = safe(current.getTotalGeneratedKwh());
+            double totalExportKwh = safe(current.getTotalExportKwh()) + (exportW * dtHours) / 1000.0;
+            double totalImportKwh = safe(current.getTotalImportKwh()) + (importW * dtHours) / 1000.0;
+
             return current.toBuilder()
                     .timestamp(LocalDateTime.now())
+                    .autoMode(current.isAutoMode())
+
                     .solarW(0).coalW(0).nuclearW(0).thermalW(0)
                     .totalGenerationW(0)
+
                     .batteryPowerW(0)
                     .gridPowerW(0)
+
+                    .totalGeneratedKwh(totalGeneratedKwh) // stays same (no generation)
+                    .totalExportKwh(totalExportKwh)
+                    .totalImportKwh(totalImportKwh)
                     .build();
         }
 
         GenerationMode mode = current.getMode();
 
-        // 1) generation breakdown (solar/coal/nuclear/thermal)
+        // 1) generation breakdown
         GenerationBreakdown g = computeGenerationBreakdown(mode, maxCapacityW);
-
         double totalGenW = g.solarW + g.coalW + g.nuclearW + g.thermalW;
 
-        // 2) battery + grid logic (targetExportW)
+        // 2) battery + grid flow
         BatteryGridFlow f = computeBatteryAndGridFlow(current, totalGenW);
+
+        // 3) accumulate ENERGY counters (kWh)
+        double exportW = Math.max(0.0, -f.gridPowerW);
+        double importW = Math.max(0.0,  f.gridPowerW);
+
+        double totalGeneratedKwh = safe(current.getTotalGeneratedKwh()) + (totalGenW * dtHours) / 1000.0;
+        double totalExportKwh    = safe(current.getTotalExportKwh())    + (exportW   * dtHours) / 1000.0;
+        double totalImportKwh    = safe(current.getTotalImportKwh())    + (importW   * dtHours) / 1000.0;
 
         VppSnapshot updated = current.toBuilder()
                 .timestamp(LocalDateTime.now())
+                .autoMode(current.isAutoMode()) // keep whatever your flag is
+
                 .solarW(g.solarW)
                 .coalW(g.coalW)
                 .nuclearW(g.nuclearW)
                 .thermalW(g.thermalW)
                 .totalGenerationW(totalGenW)
+
                 .batteryPowerW(f.batteryPowerW)
                 .gridPowerW(f.gridPowerW)
                 .batteryRemainingWh(f.batteryRemainingWh)
                 .batterySoc(f.batterySoc)
+
+                .totalGeneratedKwh(totalGeneratedKwh)
+                .totalExportKwh(totalExportKwh)
+                .totalImportKwh(totalImportKwh)
                 .build();
 
-        log.debug("VPP SNAPSHOT | vppId={} mode={} gen={}W grid={}W batt={}W soc={}%",
+        // Helpful debug: how much export came from battery (only when batteryPowerW is negative)
+        double batteryExportW = Math.max(0.0, -f.batteryPowerW);
+        log.debug("VPP SNAPSHOT | vppId={} mode={} gen={}W export={}W import={}W batt={}W battExport={}W soc={}%, totals: gen={}kWh exp={}kWh imp={}kWh",
                 updated.getVppId(),
                 updated.getMode(),
                 updated.getTotalGenerationW(),
-                updated.getGridPowerW(),
+                exportW,
+                importW,
                 updated.getBatteryPowerW(),
-                updated.getBatterySoc());
+                batteryExportW,
+                updated.getBatterySoc(),
+                updated.getTotalGeneratedKwh(),
+                updated.getTotalExportKwh(),
+                updated.getTotalImportKwh());
 
         return updated;
     }
+
+    private double safe(Double v) {
+        return v == null ? 0.0 : v;
+    }
+
 
     // -------------------------
     // GENERATION BREAKDOWN LOGIC
     // -------------------------
 
     private GenerationBreakdown computeGenerationBreakdown(GenerationMode mode, double maxCapacityW) {
+        //each per thread enu personal random madse ene and we bound value to 0.95<=value<1.05
         double noise = ThreadLocalRandom.current().nextDouble(0.95, 1.05);
 
         return switch (mode) {
@@ -131,8 +179,9 @@ public class VppGenerationSimulator {
     private GenerationBreakdown normalizeToCapacity(GenerationBreakdown g, double maxCapacityW) {
         double total = g.solarW + g.coalW + g.nuclearW + g.thermalW;
         if (total <= 0) return g;
-        if (total <= maxCapacityW) return g;
+        if (total <= maxCapacityW) return g;//already max ni najik j che
 
+        //if max ni najik na hoy toh ene banavo max ni najik total ne..
         double scale = maxCapacityW / total;
         return new GenerationBreakdown(
                 g.solarW * scale,
@@ -215,6 +264,7 @@ public class VppGenerationSimulator {
 
     // Small records for internal logic
     private record GenerationBreakdown(double solarW, double coalW, double nuclearW, double thermalW) {}
+
     private record BatteryGridFlow(double batteryPowerW, double gridPowerW,
                                    double batteryRemainingWh, int batterySoc) {}
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Email-Service/Home-Energy-Management-System-HEMS.Email-Service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Email-Service/Home-Energy-Management-System-HEMS.Email-Service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SiteManagerService/Home-Energy-Management-System-HEMS.SiteManagerService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/SiteManagerService/Home-Energy-Management-System-HEMS.SiteManagerService.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Virtual-Power-Plant/Home-Energy-Management-System-HEMS.Virtual-Power-Plant.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Virtual-Power-Plant/Home-Energy-Management-System-HEMS.Virtual-Power-Plant.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Vpp-Manager/Home-Energy-Management-System-HEMS.Vpp-Manager.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Vpp-Manager/Home-Energy-Management-System-HEMS.Vpp-Manager.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/api-gateway-hems/Home-Energy-Management-System-HEMS.api-gateway-hems.main.iml" filepath="$PROJECT_DIR$/.idea/modules/api-gateway-hems/Home-Energy-Management-System-HEMS.api-gateway-hems.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-service-hems/Home-Energy-Management-System-HEMS.auth-service-hems.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-service-hems/Home-Energy-Management-System-HEMS.auth-service-hems.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dispatch-manager-service/Home-Energy-Management-System-HEMS.dispatch-manager-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dispatch-manager-service/Home-Energy-Management-System-HEMS.dispatch-manager-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/envoy-manager-service/Home-Energy-Management-System-HEMS.envoy-manager-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/envoy-manager-service/Home-Energy-Management-System-HEMS.envoy-manager-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hems-api-contracts/Home-Energy-Management-System-HEMS.hems-api-contracts.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hems-api-contracts/Home-Energy-Management-System-HEMS.hems-api-contracts.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/program-enrollment-manager/Home-Energy-Management-System-HEMS.program-enrollment-manager.main.iml" filepath="$PROJECT_DIR$/.idea/modules/program-enrollment-manager/Home-Energy-Management-System-HEMS.program-enrollment-manager.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/simulator-service/Home-Energy-Management-System-HEMS.simulator-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/simulator-service/Home-Energy-Management-System-HEMS.simulator-service.main.iml" />
+    </modules>
+  </component>
+</project>

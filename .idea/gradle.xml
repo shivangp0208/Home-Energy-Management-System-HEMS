@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="#GRADLE_JAVA_HOME" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Email-Service" />
+            <option value="$PROJECT_DIR$/ServiceRegistry-HEMS" />
+            <option value="$PROJECT_DIR$/SiteManagerService" />
+            <option value="$PROJECT_DIR$/Virtual-Power-Plant" />
+            <option value="$PROJECT_DIR$/Vpp-Manager" />
+            <option value="$PROJECT_DIR$/api-gateway-hems" />
+            <option value="$PROJECT_DIR$/auth-service-hems" />
+            <option value="$PROJECT_DIR$/dispatch-manager-service" />
+            <option value="$PROJECT_DIR$/envoy-manager-service" />
+            <option value="$PROJECT_DIR$/hems-api-contracts" />
+            <option value="$PROJECT_DIR$/program-enrollment-manager" />
+            <option value="$PROJECT_DIR$/simulator-service" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

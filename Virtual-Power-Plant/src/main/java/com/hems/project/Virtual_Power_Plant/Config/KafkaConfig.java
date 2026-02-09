@@ -9,7 +9,7 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaConfig {
 
-      @Value("${property.config.kafka.vpp-snapshots-topic}")
+    @Value("${property.config.kafka.vpp-snapshots-topic}")
     private String topic;
 
     @Value("${property.config.kafka.vpp-snapshots-partitions:3}")
