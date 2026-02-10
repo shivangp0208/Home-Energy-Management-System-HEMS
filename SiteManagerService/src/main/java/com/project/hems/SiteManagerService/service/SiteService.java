@@ -1,6 +1,8 @@
 package com.project.hems.SiteManagerService.service;
 
+import com.project.hems.SiteManagerService.dto.AssignVppRequest;
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
+import com.project.hems.SiteManagerService.dto.EnrollSiteInVppResponse;
 import com.project.hems.SiteManagerService.dto.SiteRequestDto;
 import com.project.hems.SiteManagerService.entity.*;
 import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
@@ -10,6 +12,7 @@ import com.project.hems.SiteManagerService.util.ValueMapper;
 import com.project.hems.hems_api_contracts.contract.site.SiteCreationEvent;
 import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -223,5 +226,27 @@ public class SiteService {
     public List<String> fetchAllRegion(){
         List<String> allRegion = siteRepo.findAllRegion();
         return allRegion;
+    }
+
+     @Transactional
+    public EnrollSiteInVppResponse assignSiteToVpp(UUID siteId, AssignVppRequest request) {
+
+        Site site = siteRepo.findById(siteId)
+                .orElseThrow(() -> new RuntimeException("site not found: " + siteId));
+
+        // if already assigned, avoid override (optional)
+        if (site.getVppId() != null && !site.getVppId().equals(request.getVppId())) {
+            throw new RuntimeException("site already assigned to another VPP: " + site.getVppId());
+        }
+
+        site.setVppId(request.getVppId());
+        siteRepo.save(site);
+
+        return new EnrollSiteInVppResponse(
+                siteId,
+                request.getVppId(),
+                request.getVppName(),
+                "site assigned to VPP successfully"
+        );
     }
 }

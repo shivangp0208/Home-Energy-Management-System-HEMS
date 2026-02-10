@@ -1,6 +1,28 @@
 spring:
   application:
     name: Virtual-Power-Plant
+
+  datasource:
+    url: jdbc:postgresql://aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres
+    username: postgres.ggrwtqtkmtmhpntdwrkx
+    password: not desclosed
+    hikari:
+      maximum-pool-size: 1
+      minimum-idle: 0
+      idle-timeout: 10000
+      max-lifetime: 300000
+      connection-timeout: 30000
+
+
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
   kafka:
     producer:
       bootstrap-servers:
@@ -16,23 +38,25 @@ spring:
       enable-auto-commit: false
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+
       properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.trusted.packages: com.project.hems.hems_api_contracts.contract.simulator
         spring.json.use.type.headers: false
+        spring.json.trusted.packages: com.project.hems.hems_api_contracts.contract.simulator
         spring.json.value.default.type: com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot
-  
-    
-    properties:
-      # Accept only if headers available from kafka producer
-      spring.json.use.type.headers: true
-      spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
-      spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-      # Ensure the package is trusted
-      spring.json.trusted.packages: "com.project.hems.*"
-      
-    listner:
-      ack-mode:MANUAL
+
+
+    listener:
+      ack-mode: MANUAL
+
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+
 
 eureka:
   instance:
@@ -51,12 +75,27 @@ server:
 
 property:
   config:
-    kafka: 
+    kafka:
       raw-energy-group-id: raw-energy-readers-vpp
       raw-energy-topic: RAW_ENERGY_READINGS
       raw-energy-partition-count: 3
+
+      vpp-service-group-id: vpp-requirement-group
+      vpp-service-topic: VPP-REQUIREMENT
+      vpp-service-partition-count: 3
+
+      vpp-snapshots-topic: VPP_ENERGY_SNAPSHOTS
+      vpp-snapshots-partitions: 3
       replica-count: 1
+
+
 
 logging:
   level:
     '[com.project.hems.envoy_manager_service]': debug
+
+supabase:
+  url: https://ggrwtqtkmtmhpntdwrkx.supabase.co
+  key: not desclosed
+  bucket: vpp_images
+

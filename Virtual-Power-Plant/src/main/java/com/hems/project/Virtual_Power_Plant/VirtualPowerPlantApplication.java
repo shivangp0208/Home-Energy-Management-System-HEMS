@@ -12,4 +12,7 @@ public class VirtualPowerPlantApplication {
 		SpringApplication.run(VirtualPowerPlantApplication.class, args);
 	}
 
+
+
 }
+

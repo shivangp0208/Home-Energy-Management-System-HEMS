@@ -293,3 +293,859 @@ WebSocket (/ws)
 Browser subscribes to /topic/meter
    ↓
 JSON shown live in HTML
+
+
+
+google app password of our hems gmail account:-lhld nvzc ofui lukz
+
+
+---------------
+in supabase where we use polar based and transport based connection :-
+
+
+1) Root cause (what your log means)
+
+During startup, Hibernate tries to run schema work (ddl-auto: update).
+It needs a connection for DDL/metadata. But Supabase Session pooler refuses because:
+
+MaxClientsInSessionMode: max clients reached - in Session mode max clients are limited to pool_size
+
+So you’re connecting to a pooler endpoint that is in Session mode, and the pool is already full (maybe other services, dashboards, old app processes, etc.).
+
+2) Permanent solution (best practice)
+✅ A) Use Transaction Pooler for your app (runtime traffic)
+
+In Supabase dashboard:
+
+Go to Database → Connection pooling
+
+Choose Transaction mode host/port
+
+Use that host in your Spring datasource.url
+
+Example:
+
+spring:
+  datasource:
+    url: jdbc:postgresql://<TRANSACTION_POOLER_HOST>:5432/postgres?sslmode=require&prepareThreshold=0
+    username: postgres.<projectref>
+    password: xxxx
+
+
+Important: Your current host aws-1-ap-southeast-2.pooler.supabase.com can be either session or transaction depending on what Supabase gave you. You must copy the transaction pooler host exactly from dashboard.
+
+✅ B) Never run ddl-auto: update on pooled connections (production rule)
+
+Industry rule: migrations are separate from app runtime.
+
+So change:
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate   # or none
+
+
+Then run DB migrations using:
+
+Flyway / Liquibase, OR
+
+manually SQL (Supabase SQL editor), OR
+
+connect using direct DB endpoint (non-pooler) for migrations.
+
+Why? Because schema updates / metadata queries + pooler can cause startup connection spikes and failures.
+
+✅ C) Use two connection configs (industry pattern)
+
+Runtime (transaction pooler) + Migration (direct DB)
+
+Runtime (application.yml):
+
+spring:
+  datasource:
+    url: jdbc:postgresql://<TRANSACTION_POOLER_HOST>:5432/postgres?sslmode=require&prepareThreshold=0
+    username: postgres.<projectref>
+    password: xxxx
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+
+Migration profile (application-migrate.yml):
+
+spring:
+  datasource:
+    url: jdbc:postgresql://db.<projectref>.supabase.co:5432/postgres?sslmode=require
+    username: postgres
+    password: xxxx
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+
+Then you run migrations only when needed:
+
+SPRING_PROFILES_ACTIVE=migrate (one-time)
+
+normal app always uses runtime profile.
+
+3) Immediate steps to fix NOW (so it starts today)
+
+In Supabase dashboard, copy the Transaction pooler host and replace your URL host with it.
+
+Set:
+
+ddl-auto: validate (or none)
+
+Keep:
+
+prepareThreshold=0
+
+Set Hikari:
+
+maximum-pool-size: 1 or 2 is fine for dev
+
+Restart your services and ensure old processes are stopped (your old runs may still hold pooler client slots).
+
+4) Why you still see it even with max-pool-size=2
+
+Because the pooler “max clients reached” is about pooler client slots, not your local Hikari pool only.
+If you have:
+
+multiple microservices,
+
+multiple IntelliJ runs,
+
+restarts,
+
+Supabase dashboard SQL editor,
+
+or other apps using same pooler,
+
+you can hit the session pool limit easily.
+
+5) One more critical thing: your URL host must match your mode
+
+Session mode error means you are still using a session pooler host.
+So paste only this part (hide project ref if you want):
+
+the full host you’re using (just the hostname)
+
+and tell me what Supabase dashboard shows for:
+
+Transaction pooler host
+
+Session pooler host
+
+Then I’ll tell you exactly which one to use.
+
+TL;DR permanent solution
+
+App runtime → Transaction pooler + prepareThreshold=0
+
+No Hibernate schema updates at runtime → use Flyway/Liquibase or run DDL with direct DB separately
+
+ddl-auto → validate / none in normal profile
+
+If you do just those, this error will stop permanently.
+
+
+📘 Supabase Pooler + Hibernate DDL Notes (Production Understanding)
+🔵 1️⃣ Supabase Connection Pooling Modes
+
+Supabase provides two pooler modes:
+
+Mode	Best For	Supports	Risk
+Session Pooler	Long connections	Full DB features	Max client limit
+Transaction Pooler	Microservices / APIs	Normal queries	No session features
+🟢 Transaction Pooler (Recommended for Microservices)
+✅ When to Use
+
+Spring Boot apps
+
+Kafka consumers/producers
+
+Scheduled jobs
+
+High concurrency services
+
+Cloud deployments
+
+✅ Why Industry Uses This
+
+Shares DB connections efficiently
+
+Prevents DB overload
+
+Handles auto scaling services
+
+Works best with stateless APIs
+
+⚠️ Limitation
+
+Does NOT support:
+
+Session state
+
+Temp tables
+
+Prepared statement caching (needs prepareThreshold=0)
+
+✅ Required JDBC Setting
+prepareThreshold=0
+
+
+👉 Prevents prepared statement session pinning
+👉 Required for transaction pooler stability
+
+🔴 Session Pooler
+✅ When to Use
+
+Legacy apps
+
+Stateful DB sessions
+
+Direct DB tools
+
+Long transactions
+
+❌ Why NOT for Microservices
+
+Limited client slots
+
+Easy to hit MaxClientsInSessionMode error
+
+Not scalable
+
+🔥 Your Error Meaning
+MaxClientsInSessionMode
+
+
+Means:
+👉 Session pooler client slots full
+👉 Not Hikari issue
+👉 Not Spring issue
+👉 Pooler limit reached
+
+📘 Hibernate ddl-auto Notes
+🟢 ddl-auto = validate
+✅ What It Does
+
+Checks:
+
+Tables exist
+
+Columns exist
+
+Types match entity
+
+❌ What It DOES NOT DO
+
+Does NOT create tables
+
+Does NOT update schema
+
+Does NOT change DB
+
+✅ When To Use
+
+✔ Production
+✔ Pooled DB connections
+✔ Supabase transaction pooler
+✔ Stable schema environments
+
+🟡 ddl-auto = update
+✅ What It Does
+
+Hibernate automatically:
+
+Creates missing tables
+
+Adds new columns
+
+Updates schema
+
+⚠️ Risks
+
+❌ Can break production schema
+❌ Needs extra DB metadata connections
+❌ Not safe with poolers
+❌ Can cause startup connection spikes
+
+✅ When To Use
+
+✔ Local development
+✔ First time schema generation
+✔ Migration environment
+
+🔴 ddl-auto = create / create-drop
+
+Only for:
+
+Testing
+
+Local development
+
+Never production
+
+📘 Industry Standard Architecture
+🟢 Runtime Application Config
+spring:
+ datasource:
+   url: TRANSACTION_POOLER_URL
+ jpa:
+   hibernate:
+     ddl-auto: validate
+
+🟡 Migration / Schema Update Config
+spring:
+ datasource:
+   url: DIRECT_DATABASE_URL
+ jpa:
+   hibernate:
+     ddl-auto: update
+
+📘 Why Production Uses Validate
+
+Because:
+
+✔ Prevents accidental schema change
+✔ Works safely with poolers
+✔ Avoids startup DB overload
+✔ Forces proper migration process
+✔ Predictable deployments
+
+📘 Why Update Causes Pooler Problems
+
+During startup Hibernate:
+
+Reads metadata
+
+Checks schema
+
+Runs alter statements
+
+Opens multiple connections
+
+👉 Pooler may reject extra connections
+👉 Causes startup failure
+
+📘 Real Production Flow (Industry)
+Developer → writes entity change
+↓
+Migration tool → applies schema change
+↓
+Application runtime → validate only
+↓
+Production safe + stable
+
+📘 Quick Decision Guide
+Environment	ddl-auto	DB Connection
+Local Dev	update	Direct DB OR pooler
+QA / Staging	validate	Transaction pooler
+Production	validate	Transaction pooler
+Migration Job	update	Direct DB
+📘 Golden Rules (Remember)
+⭐ Rule 1
+
+Never run schema update through pooler in production
+
+⭐ Rule 2
+
+Use Transaction pooler for microservices
+
+⭐ Rule 3
+
+Use Validate in production runtime
+
+⭐ Rule 4
+
+Use Migration tools for schema changes
+
+📘 Your Correct Production Setup
+✅ JDBC
+Transaction pooler host
+prepareThreshold=0
+
+✅ Hibernate
+ddl-auto = validate
+
+📘 Simple Real-Life Analogy
+Session Pooler
+
+Like reserving a table in restaurant for whole evening.
+
+Transaction Pooler
+
+Like ordering takeaway — fast, efficient, shared resources.
+
+📘 Why Your Error Happened
+
+You were:
+❌ Using Session pooler
+❌ Running ddl-auto update
+❌ Hitting pool client limit
+
+📘 Final Production Safe Combo
+Transaction Pooler
++
+prepareThreshold=0
++
+ddl-auto = validate
+
+
+
+
+
+
+
+-------------------------------
+⭐ First Fix One Wrong Assumption
+
+You said:
+
+Grid is transport layer only
+
+👉 NOT exactly
+
+Grid is:
+
+Transport network + Huge shared power pool
+
+🌍 Real Grid Reality
+
+Grid is NOT empty wire.
+
+Grid =
+⚡ Many power plants connected
+⚡ Many VPP connected
+⚡ Many solar farms connected
+⚡ Many consumers connected
+
+So Grid Always Has Power Flowing
+
+Like water pipeline with water always moving.
+
+💡 Think Like This
+
+Grid = Electricity Ocean 🌊
+
+You can:
+👉 Pour water (Export)
+👉 Take water (Import)
+
+⭐ Now Your Red Case Question
+
+You asked:
+
+Battery discharge → Import from grid
+Grid is road → how import?
+
+Good — here is real answer 👇
+
+🔴 DEFICIT CASE Meaning
+VPP needs power
+But:
+Generation not enough
+Battery not enough
+
+
+Then:
+👉 Take power from GRID
+👉 That power originally came from OTHER power plants
+
+⭐ Real Example
+
+Your VPP:
+
+Gen = 500W
+Battery = 500W available
+Need = 3000W
+
+
+Then:
+
+Gen → 500
+Battery → 500
+Still Need → 2000
+Import from Grid → 2000
+
+⭐ Where Grid Power Comes From (Real World)
+
+From:
+
+Coal plant
+
+Nuclear plant
+
+Hydro plant
+
+Another VPP
+
+Large solar farm
+
+⭐ VERY IMPORTANT
+
+Grid does NOT store power (mostly)
+
+Grid = Flow network
+Power = generated and consumed in real time
+
+(Except few grid-scale batteries)
+
+⭐ Your Big Confusion Question
+
+You asked:
+
+Import means from sites?
+
+👉 NO
+Sites ≠ Grid
+
+⭐ Difference
+SITES
+
+Your owned / enrolled solar / battery units
+
+GRID
+
+External world electricity system
+
+⭐ In Your Architecture
+Site → VPP → Grid → Other consumers
+
+
+or
+
+Grid → VPP → Site
+
+⭐ When You IMPORT From Grid
+
+Means:
+👉 You are buying electricity from utility network
+
+Not from your sites.
+
+⭐ In YOUR CODE
+
+When:
+
+gridPowerW > 0
+
+
+Means:
+👉 VPP is taking energy from outside world
+
+⭐ Does Imported Power Go To Battery?
+
+Two possibilities:
+
+✅ Case 1 — Direct Supply (Most Common)
+
+Grid → Site load
+
+Battery not used.
+
+✅ Case 2 — Smart Charging
+
+Grid → Battery
+
+Used when:
+Night cheap tariff
+Day expensive sell
+
+⭐ In YOUR Current Simulator
+
+You ONLY simulate:
+
+Export
+Battery charge from generation
+Battery discharge for export
+
+You DO NOT simulate:
+Grid → Battery charging
+Grid → Site supply
+
+(Yet)
+
+⭐ SUPER SIMPLE VISUAL
+🟢 EXPORT CASE
+Generation → Grid
+Extra → Battery
+
+🔴 DEFICIT CASE
+Generation → Need
+Battery → Need
+Still Need → Grid Import
+
+⭐ FINAL CLEAR ANSWER (Your Exact Question)
+
+👉 Grid is NOT storage
+👉 Grid is huge connected system of producers + consumers
+
+When you import:
+👉 You take electricity generated somewhere else
+
+⭐ One Line Remember Forever
+
+Export → You sell power to grid
+Import → You buy power from grid
+
+⭐ Real Life Example (India)
+
+You export solar → Net meter → Grid
+
+Night time → You import → From grid
+
+Grid balances everything.
+BUT IN OUR APP GRID CONCEPT IS NOT THERE WE HAVE VPP AND DIRECT SITE
+AND WE SIRECT SEND VPP TO SITE THERE IS NO  GRID CONCEPT
+
+⭐ Question
+
+Grid means other power plants… so what are WE simulating?
+
+✅ REAL WORLD
+
+Grid contains:
+
+Many power plants
+Many VPP
+Many solar farms
+Many consumers
+
+
+Grid = Shared electricity network
+
+✅ WHAT YOU ARE SIMULATING (CURRENTLY)
+
+👉 You are simulating ONLY your VPP internal physics
+
+You simulate:
+
+✔ Generation
+✔ Battery charge/discharge
+✔ Export amount
+✔ Snapshot state
+
+❌ You are NOT simulating (yet)
+❌ Real grid behavior
+❌ Other power plants
+❌ Market price
+❌ Grid demand
+❌ Grid frequency balancing
+
+⭐ So In Your Simulator
+
+Grid =
+👉 External infinite power source
+👉 External infinite sink
+
+Like:
+
+If export → grid accepts
+If import → grid gives
+
+
+You don’t simulate grid internals.
+
+⭐ SUPER SIMPLE MODEL
+YOUR CURRENT MODEL
+[VPP]  <----->  [GRID (BLACK BOX)]
+
+
+You only simulate VPP side.
+
+Grid = External world.
+
+⭐ If You Want FULL REAL SIMULATION (Future)
+
+Then you simulate:
+
+Coal Plant
+Solar Farm
+Wind Farm
+Other VPP
+Demand Curve
+Price Curve
+Grid Stability
+
+
+But you are NOT doing that now.
+
+And that is correct for your stage 👍
+
+⭐ BEST WAY TO THINK
+
+Right now:
+
+Grid = Cloud storage of electricity
+(Conceptually — not physically)
+
+⭐ Why This Is OK
+
+Because real VPP systems ALSO treat grid like external system.
+
+They only care:
+
+Import allowed?
+Export allowed?
+Price?
+Limit?
+
+⭐ Example Mapping To Your Code
+
+If:
+
+gridPowerW = -2000
+
+
+Means:
+👉 You sold 2kW to grid
+
+You don’t care who consumed.
+
+If:
+
+gridPowerW = +2000
+
+
+Means:
+👉 You bought 2kW from grid
+
+You don’t care which plant generated.
+
+⭐ FINAL ANSWER (Direct)
+
+👉 YES
+You simulate VPP only
+
+👉 NO
+You do NOT simulate other power plants
+
+👉 Grid in your system = External world interface
+
+⭐ If You Want Industry Level Later
+
+You can add:
+
+Grid Simulator Service
+Market Price Service
+Demand Forecast Service
+
+But not needed now.
+
+ok so in our config we assume vpp as a generation and if vpp need then we import from site that is only concept is there.. in ours.. ok..
+
+Yes ✅ — you are almost correct, just let me refine it so it becomes 100% technically correct for your system design.
+
+⭐ Your Current System Concept (Corrected Final Version)
+✅ In YOUR System
+
+You are assuming VPP is:
+
+👉 Aggregated Generation Source
+👉 Aggregated Storage (Battery)
+👉 Energy Router
+
+⭐ Where Power Comes From (YOUR SYSTEM)
+Sites → VPP → Grid
+          ↑
+        Battery
+
+✅ If VPP Needs Power (In YOUR CURRENT LOGIC)
+
+You are NOT importing from real grid simulation.
+
+You are doing:
+
+👉 VPP asks Dispatch
+👉 Dispatch finds sites
+👉 Sites send power
+
+So in YOUR system:
+
+IMPORT = Import From Sites (via dispatch)
+NOT = Import From Real Grid Simulation
+
+⭐ Your Import Flow (Your Code)
+Step 1 — VPP Needs Power
+
+Example:
+
+Need 10kW extra
+
+Step 2 — VPP Sends Requirement
+POST /send-requirement
+
+
+Send:
+
+Region = SURAT
+Site Requirements = { siteId → requiredPower }
+
+Step 3 — Dispatch Manager Decides
+
+Dispatch:
+
+Find sites that can supply power
+
+Step 4 — Sites Supply Power
+
+Then power logically flows:
+
+Site Solar → VPP → Use or Store
+
+⭐ So In YOUR SYSTEM
+IMPORT Means
+Site → VPP
+
+
+NOT:
+
+Grid → VPP
+
+⭐ So You Are Simulating THIS MODEL
+Sites (Distributed Generation)
+        ↓
+       VPP (Aggregator + Battery + Logic)
+        ↓
+       Grid (External Sink / Market)
+
+⭐ Real World Mapping
+
+Your current system =
+👉 Community VPP
+👉 Solar Aggregation Platform
+👉 Distributed Energy Network
+
+⭐ When You Export
+VPP → Grid
+
+
+Means:
+Sell to external market.
+
+⭐ When You Import (YOUR SYSTEM)
+Sites → VPP
+
+
+Means:
+Collect energy from member sites.
+
+⭐ VERY IMPORTANT — You Have TWO Different "Imports"
+🔵 Logical Import (Your Current)
+
+Import from Sites
+
+🔴 Physical Grid Import (Future — Not Yet)
+
+Import from external grid
+
+⭐ So Final Sentence (Write In Notes)
+
+👉 In our system VPP acts as central aggregator
+👉 Import means collecting energy from enrolled sites via dispatch
+👉 Export means sending extra aggregated energy to external grid
+👉 Battery acts as buffer between site energy and grid export

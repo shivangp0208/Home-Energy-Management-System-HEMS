@@ -1,12 +1,15 @@
 package com.project.hems.SiteManagerService.controller;
 
+import com.project.hems.SiteManagerService.dto.AssignVppRequest;
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
+import com.project.hems.SiteManagerService.dto.EnrollSiteInVppResponse;
 import com.project.hems.SiteManagerService.dto.SiteRequestDto;
 import com.project.hems.SiteManagerService.entity.Site;
 import com.project.hems.SiteManagerService.service.SiteService;
 import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -158,5 +161,15 @@ public class SiteController {
         return new ResponseEntity(fetchAllRegion,HttpStatus.OK);
     }
 
+
+    //jyare vpp approve kari dey tyare apde site ni under e vpp ni id nakhi daisu 
+    @PostMapping("/{siteId}/assign-vpp")
+    public ResponseEntity<EnrollSiteInVppResponse> assignVppToSite(
+            @PathVariable("siteId") UUID siteId,
+            @RequestBody @Valid AssignVppRequest request
+    ) {
+        EnrollSiteInVppResponse resp = siteService.assignSiteToVpp(siteId, request);
+        return ResponseEntity.ok(resp);
+    }
 
 }
