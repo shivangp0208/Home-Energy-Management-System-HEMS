@@ -98,15 +98,20 @@ public class MeterSimulationService {
                         // 2. Physics Engine (Priority Logic)
                         Optional<ActiveControlState> activeControl = activeControlStore.getActiveControl(siteId);
 
-                        List<EnergyPriority> priorities = activeControl.map(ActiveControlState::getEnergyPriorities)
-                                        .orElse(ActiveControlStore.energyPriorities);
-                        meter.setEnergyPriorities(priorities);
+                        List<EnergyPriority> loadpriorities = activeControl.map(ActiveControlState::getLoadEnergyPriorities)
+                                        .orElse(ActiveControlStore.loadEnergyPriorities);
+                        List<EnergyPriority> surpluspriorities = activeControl.map(ActiveControlState::getSurplusEnergyPriorities)
+                                        .orElse(ActiveControlStore.surplusEnergyPriorities);
+                                        
+                        meter.setLoadEnergyPriorities(loadpriorities);
+                        meter.setSurplusEnergyPriorities(surpluspriorities);
 
                         energyPhysicsEngine.processEnergyBalance(
                                         meter,
                                         solarW,
                                         loadW,
-                                        priorities,
+                                        loadpriorities,
+                                        surpluspriorities,
                                         activeControl.orElse(null));
 
                         log.debug(

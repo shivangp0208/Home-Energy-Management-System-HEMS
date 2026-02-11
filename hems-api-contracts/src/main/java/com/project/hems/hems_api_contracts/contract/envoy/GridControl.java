@@ -1,5 +1,6 @@
 package com.project.hems.hems_api_contracts.contract.envoy;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

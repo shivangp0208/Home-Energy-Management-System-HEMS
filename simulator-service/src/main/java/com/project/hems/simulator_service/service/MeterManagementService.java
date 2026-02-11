@@ -42,7 +42,9 @@ public class MeterManagementService {
                 .batteryRemainingWh(5000.0) // Start half-full
 
                 // Initial Logic States
-                .energyPriorities(ActiveControlStore.energyPriorities)
+                .loadEnergyPriorities(ActiveControlStore.loadEnergyPriorities)
+                .surplusEnergyPriorities(ActiveControlStore.surplusEnergyPriorities)
+                
                 .batterySoc(50)
                 .batteryMode(BatteryMode.AUTO)
                 .chargingStatus(ChargingStatus.IDLE)

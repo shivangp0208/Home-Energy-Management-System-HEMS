@@ -6,14 +6,8 @@ import java.util.UUID;
 import com.project.hems.program_enrollment_manager.model.SiteStatus;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "site_program_enrollment")
 @Data

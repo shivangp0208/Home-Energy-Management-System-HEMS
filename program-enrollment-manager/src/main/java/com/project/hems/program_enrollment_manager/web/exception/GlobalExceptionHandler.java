@@ -32,4 +32,15 @@ public class GlobalExceptionHandler {
                 .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
                 .build();
     }
+
+    @ExceptionHandler(ProgramStateConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleProgramStateConflictException(ProgramStateConflictException ex) {
+        return ErrorResponse.builder()
+                .message(ex.getMessage())
+                .error("DUPLICATE_REQUEST")
+                .statusCode(HttpStatus.CONFLICT.value())
+                .build();
+    }
+
 }

@@ -54,5 +54,6 @@ public class MeterSnapshot  {
 
     private Integer batterySoc;
 
-    private List<EnergyPriority> energyPriorities;
+    private List<EnergyPriority> loadEnergyPriorities;
+    private List<EnergyPriority> surplusEnergyPriorities;
 }

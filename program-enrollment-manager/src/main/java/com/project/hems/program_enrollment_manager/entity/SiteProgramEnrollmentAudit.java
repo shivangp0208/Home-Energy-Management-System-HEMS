@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import com.project.hems.program_enrollment_manager.model.SiteStatus;
 
-import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,18 +13,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
-@Builder
-@AllArgsConstructor
 @Entity
 @Table(name = "site_program_enrollment_audit")
 @Data
-@NoArgsConstructor
 public class SiteProgramEnrollmentAudit {
 
     @GeneratedValue(strategy=GenerationType.UUID)

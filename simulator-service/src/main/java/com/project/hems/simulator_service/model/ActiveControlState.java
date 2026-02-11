@@ -22,7 +22,8 @@ public class ActiveControlState {
     private UUID dispatchId;
     private BatteryControl batteryControl;
     private GridControl gridControl;
-    private List<EnergyPriority> energyPriorities;
+    private List<EnergyPriority> loadEnergyPriorities;
+    private List<EnergyPriority> surplusEnergyPriorities;
 
     private Instant validUntil;
 

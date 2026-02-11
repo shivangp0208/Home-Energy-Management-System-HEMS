@@ -1,6 +1,5 @@
 package com.project.hems.program_enrollment_manager.model;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.Builder;

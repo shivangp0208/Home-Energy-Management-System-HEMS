@@ -1,13 +1,10 @@
 package com.project.hems.program_enrollment_manager.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
@@ -27,11 +24,11 @@ public class Program {
 
     @NotNull(message = "start date time cannot be null")
     @FutureOrPresent(message = "start date time cannot be in past, it can be in present or future")
-    private LocalDateTime startDateTime;
-    
+    private LocalDate startDate;
+
     @NotNull(message = "end date time cannot be null")
     @Future(message = "end date time cannot be in past, it can be in future only")
-    private LocalDateTime endDateTime;
+    private LocalDate endDate;
 
     // This is optional, if want to give priority to a particular program
     @JsonIgnore
@@ -40,7 +37,9 @@ public class Program {
     @NotNull(message = "program type cannot be null")
     private ProgramType programType;
 
-    private ProgramStatus programStatus;
+    @NotNull(message = "program description is required and cannot be null")
+    private ProgramDescription programDescription;
 
+    private ProgramStatus programStatus;
 
 }
