@@ -2,6 +2,9 @@ package com.project.hems.auth_service_hems.controller;
 
 import com.project.hems.auth_service_hems.model.User;
 import com.project.hems.auth_service_hems.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "User Controller", description = "Endpoints for user creation and authentication")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -73,6 +77,11 @@ public class UserController {
     // return "index";
     // }
 
+    @Operation(
+            summary = "Create or login user",
+            description = "Creates a new user or logs in an existing user based on JWT claims"
+    )
+    @ApiResponse(responseCode = "201", description = "User created or logged in successfully")
     @GetMapping("/create-user")
     public String createUser(@AuthenticationPrincipal Jwt jwt) {
 
@@ -95,6 +104,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Check service health", description = "Returns a simple working status")
     @GetMapping("/checking")
     public String check() {
         log.info("recived request for checking route");

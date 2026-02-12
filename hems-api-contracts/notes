@@ -1,0 +1,9 @@
+for every request we need role :-
+so we have two approch :-
+first we set manually from auth0 ui but this is not fesible
+
+second approch we use :-
+we make admin panel and we set the role of user from there..
+and we set in our local database ..
+and every request coming with JWT we extract email and check in our
+auth0 user database table which is role so we set role in header..

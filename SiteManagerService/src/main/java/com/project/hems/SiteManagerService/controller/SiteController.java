@@ -6,8 +6,11 @@ import com.project.hems.SiteManagerService.dto.EnrollSiteInVppResponse;
 import com.project.hems.SiteManagerService.dto.SiteRequestDto;
 import com.project.hems.SiteManagerService.entity.Site;
 import com.project.hems.SiteManagerService.service.SiteService;
+import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
 import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,17 +24,21 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/site")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Site APIs", description = "Read, Update and Delete Site")
+@Tag(name = "site apis", description = "read, create, update, delete, and manage site details")
 public class SiteController {
 
     private final SiteService siteService;
 
+
+    @Operation(summary = "create site", description = "create a new site with site details and return the created site")
+    @ApiResponse(responseCode = "201", description = "site created successfully")
     @PostMapping("/create-site")
     public ResponseEntity<Site> createSite(
             @RequestBody SiteRequestDto siteRequestDto,
@@ -57,6 +64,9 @@ public class SiteController {
         return new ResponseEntity<>(site, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "fetch site by id", description = "retrieve a single site by its id")
+    @ApiResponse(responseCode = "200", description = "site fetched successfully")
+    @ApiResponse(responseCode = "404", description = "site not found")
     @GetMapping("/fetch-site-by-id/{siteId}")
     public ResponseEntity<Site> getSite(@PathVariable UUID siteId) {
 
@@ -69,6 +79,8 @@ public class SiteController {
         return new ResponseEntity<>(site, HttpStatus.OK);
     }
 
+    @Operation(summary = "fetch all sites", description = "retrieve a list of all sites")
+    @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-all-site")
     public ResponseEntity<List<Site>> getAllSites() {
 
@@ -80,7 +92,8 @@ public class SiteController {
 
         return new ResponseEntity<>(sites, HttpStatus.OK);
     }
-
+    @Operation(summary = "fetch all sites v2", description = "retrieve all sites in site response dto format")
+    @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-all-site/v2")
     public ResponseEntity<List<SiteResponseDto>> getAllSitesV2() {
 
@@ -94,6 +107,8 @@ public class SiteController {
     }
 
     //this is normal offset based pagination
+    @Operation(summary = "fetch all sites with pagination", description = "retrieve sites with offset-based pagination")
+    @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-all-site/v2/pagging")
     public ResponseEntity<Page<SiteResponseDto>> getAllSitesV2WithPagging(
         @RequestParam(name = "offset",defaultValue = "0") int offset,
@@ -107,6 +122,8 @@ public class SiteController {
     }
 
     //this is normal offset based pagination
+    @Operation(summary = "fetch all sites with pagination and sorting", description = "retrieve sites with offset-based pagination and sorting by field")
+    @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-all-site/v2/pagging-sorting")
     public ResponseEntity<Page<SiteResponseDto>> getAllSitesV2WithPaggingAndSorting(
         @RequestParam(name = "offset",defaultValue = "0") int offset,
@@ -121,7 +138,9 @@ public class SiteController {
     }
 
     //here we implement cursor based pagination
-      @GetMapping("/fetch-all-site/v2/cursor")
+    @Operation(summary = "fetch all sites with cursor-based pagination", description = "retrieve sites using cursor-based pagination for large data sets")
+    @ApiResponse(responseCode = "200", description = "sites fetched successfully")
+    @GetMapping("/fetch-all-site/v2/cursor")
     public ResponseEntity<CursorSiteResponse<SiteResponseDto>> getAllSitesV2WithPaggingAndSorting(
         @RequestParam(required = false) UUID cursor,
         @RequestParam(defaultValue = "10") int size
@@ -141,7 +160,8 @@ public class SiteController {
     // @GetMapping("/fetch-all-site") // public
     // CompletableFuture<ResponseEntity<List<SiteResponseDto>>> getAllSites() // {
     // // return siteService.fetchAllSites().thenApply(ResponseEntity::ok); // }
-
+    @Operation(summary = "fetch site by region", description = "retrieve a list of sites filtered by city/region")
+    @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-site-by-region/{city}")
     public ResponseEntity<List<SiteResponseDto>> getAllSiteByRegion(
             @PathVariable String city) {
@@ -155,6 +175,8 @@ public class SiteController {
         return new ResponseEntity<>(sites, HttpStatus.OK);
     }
 
+    @Operation(summary = "fetch all available regions", description = "retrieve a list of all distinct regions where sites are available")
+    @ApiResponse(responseCode = "200", description = "regions fetched successfully")
     @GetMapping("/fetch-all-region")
     public ResponseEntity<List<String>> fethcAllAvailableRegion(){
         List<String> fetchAllRegion = siteService.fetchAllRegion();
@@ -162,7 +184,9 @@ public class SiteController {
     }
 
 
-    //jyare vpp approve kari dey tyare apde site ni under e vpp ni id nakhi daisu 
+    //jyare vpp approve kari dey tyare apde site ni under e vpp ni id nakhi daisu
+    @Operation(summary = "assign vpp to site", description = "assign a VPP to a site after approval")
+    @ApiResponse(responseCode = "200", description = "vpp assigned successfully")
     @PostMapping("/{siteId}/assign-vpp")
     public ResponseEntity<EnrollSiteInVppResponse> assignVppToSite(
             @PathVariable("siteId") UUID siteId,
@@ -170,6 +194,17 @@ public class SiteController {
     ) {
         EnrollSiteInVppResponse resp = siteService.assignSiteToVpp(siteId, request);
         return ResponseEntity.ok(resp);
+    }
+
+    //prorgam enroll thayy tyare apde user ne e program ma nakhi daisu
+    @Operation(summary = "add program to site", description = "add a program to the site after user enrollment")
+    @ApiResponse(responseCode = "200", description = "program added successfully")
+    @PostMapping("/{site-id}/add-program")
+    public ResponseEntity<Map<UUID,String>> addPrograminSite(
+            @PathVariable("site-id") UUID siteId,
+            @RequestBody AddProgramConfigInSite addProgramConfigInSite){
+        Map<UUID,String> added=siteService.addProgramDetailInSite(siteId,addProgramConfigInSite);
+        return new ResponseEntity<>(added,HttpStatus.OK);
     }
 
 }

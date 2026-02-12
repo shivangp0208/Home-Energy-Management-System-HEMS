@@ -4,7 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
+@EnableFeignClients
 @SpringBootApplication
 public class ProgramEnrollmentManagerApplication {
 
@@ -14,7 +16,7 @@ public class ProgramEnrollmentManagerApplication {
 
 	@PostConstruct 
 public void started() {
-  System.out.println("✅ PROGRAM-ENROLLMENT-MANAGER STARTED");
+  System.out.println("PROGRAM-ENROLLMENT-MANAGER STARTED");
 }
 
 

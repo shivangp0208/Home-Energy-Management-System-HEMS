@@ -25,7 +25,7 @@ public class VppSnapshotConsumer {
   @KafkaListener(topics = "${property.kafka.vpp-snapshots-topic}")
   public void consume(VppSnapshot record, Acknowledgment ack) {
     try {
-      log.info("VPP-MANAGER ✅ got snapshot vppId={} totalGen={}W ts={}",
+      log.info("VPP-MANAGER got snapshot vppId={} totalGen={}W ts={}",
           record.getVppId(),
           record.getTotalGenerationW(),
           record.getTimestamp());
@@ -34,6 +34,7 @@ public class VppSnapshotConsumer {
         "/topic/meter",
         record
       );
+      ack.acknowledge();
 
     } catch (Exception e) {
       log.error("VPP-MANAGER consume failed err={}", e.getMessage(), e);

@@ -3,9 +3,9 @@ package com.project.hems.program_enrollment_manager.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.project.hems.program_enrollment_manager.model.ProgramStatus;
-import com.project.hems.program_enrollment_manager.model.ProgramType;
+import com.project.hems.hems_api_contracts.contract.program.ProgramStatus;
 
+import com.project.hems.hems_api_contracts.contract.program.ProgramType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

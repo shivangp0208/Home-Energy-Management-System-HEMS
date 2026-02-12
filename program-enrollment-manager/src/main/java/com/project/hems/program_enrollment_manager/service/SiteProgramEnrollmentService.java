@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.project.hems.hems_api_contracts.contract.vpp.SiteEnrollSuccessResponse;
@@ -31,7 +33,8 @@ public class SiteProgramEnrollmentService {
     private final SiteProgramEnrollmentRepo siteProgramEnrollmentRepo;
     private final ProgramRepository programRepository;
     private final ProgramConfigurationRepo programConfigurationRepo;
-    
+    private final SiteManagerService siteManagerService;
+
     //this service is work for checking which site enroll in which program
     //which site enroll in past which program and which date that join and which date vpp release that site 
 
@@ -48,13 +51,20 @@ public class SiteProgramEnrollmentService {
         return siteIdByProgramId;
     }
 
+
     //enroll site in particular program
+    @Transactional
     public SiteEnrollSuccessResponse enrollSiteinProgram(UUID siteId,UUID programId){
         //first check is program and site is available 
         log.info("programId is {} and siteId is {} ",programId,siteId);
         ProgramEntity programEntity = programRepository.findById(programId).orElseThrow(()->
                     new RuntimeException(" program is not found")
                 );
+
+        //find program config based on programId
+        ProgramConfigurationEntity programConfigurationEntity=programConfigurationRepo.findByProgram_programId(programId)
+                .orElseThrow(()-> new RuntimeException("program configuration is not found for programId"+programId));
+
     
         //now we check program start and end time ke valid che date ni range ma che ke nai
         LocalDateTime now=LocalDateTime.now();
@@ -71,6 +81,21 @@ public class SiteProgramEnrollmentService {
                                 .siteId(siteId)
                                 .build();
         SiteProgramEnrollmentEntity savedEnrollmentEntity = siteProgramEnrollmentRepo.save(siteProgramEnrollmentEntity);;
+
+        //now have ahiya site service ni method call karine site table ma pan update kari daisu
+        AddProgramConfigInSite programConfig=AddProgramConfigInSite.builder()
+                .programId(programId)
+                .programPriority(programConfigurationEntity.getPriority())
+                .programStatus(programEntity.getProgramStatus())
+                .programType(programEntity.getProgramType())
+                .programName(programEntity.getProgramName())
+                .programDescription(programConfigurationEntity.getProgramDescription())
+                .endDateTime(programEntity.getEndDateTime())
+                .startDateTime(programEntity.getStartDateTime())
+                .build();
+
+        siteManagerService.addProgramInSite(siteId,programConfig);
+        log.info("program is successfully add in site");
 
         SiteEnrollSuccessResponse siteEnrollSuccessResponse=SiteEnrollSuccessResponse.builder()
         .enrollTime(Instant.now())

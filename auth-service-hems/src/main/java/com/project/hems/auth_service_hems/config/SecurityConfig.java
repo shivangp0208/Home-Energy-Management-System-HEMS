@@ -19,7 +19,9 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/error", "/api/auth").permitAll()
+                        .requestMatchers("/", "/error", "/api/auth",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**").permitAll()
                         .requestMatchers("/checkeddata").authenticated()
                         .anyRequest().permitAll())
                 // .oauth2Login(oauth2 -> oauth2

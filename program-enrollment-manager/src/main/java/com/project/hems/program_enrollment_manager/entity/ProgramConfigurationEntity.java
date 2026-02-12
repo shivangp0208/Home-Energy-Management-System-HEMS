@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+import com.project.hems.hems_api_contracts.contract.program.ProgramPriority;
 import org.hibernate.annotations.Type;
 
-import com.project.hems.program_enrollment_manager.model.ProgramPriority;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 
 import jakarta.persistence.*;
@@ -36,6 +36,7 @@ public class ProgramConfigurationEntity {
     private Map<String, Object> programDescription;
 
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "program_priority")
     private ProgramPriority priority;
 

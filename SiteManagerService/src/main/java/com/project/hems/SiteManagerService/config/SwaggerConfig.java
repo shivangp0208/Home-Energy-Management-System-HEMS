@@ -24,7 +24,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("SiteManager microservice APIs")
-                        .description("By Jills"))
+                        .description("By Jills & Shivange"))
                 .servers(List.of(localServer, liveServer));
     }
 }

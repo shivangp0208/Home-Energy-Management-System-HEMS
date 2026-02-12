@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 
+import com.project.hems.hems_api_contracts.contract.program.ProgramPriority;
+import com.project.hems.hems_api_contracts.contract.program.ProgramType;
 import lombok.Data;
 
 @Data

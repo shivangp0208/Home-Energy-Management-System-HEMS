@@ -16,5 +16,6 @@ public class SiteRequestDto {
     private List<SolarDto> solars;
     private BatteryDto battery;
     private AddressDto address;
-    private List<UUID> programId;// jema user e ui mathi select karyu hase
+//    private List<UUID> programId;// jema user e ui mathi select karyu hase
+    //aa programId have apde jyare vpp enroll karse tyare ema add karsu
 }
