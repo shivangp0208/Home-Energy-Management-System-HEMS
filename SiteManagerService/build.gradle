@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.1'
-    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.springframework.boot' version '3.5.10'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.project.hems'
@@ -23,7 +23,7 @@ repositories {
     mavenCentral()
 }
 ext {
-    set('springCloudVersion', "2023.0.4")
+    set('springCloudVersion', "2025.0.1")
     set('springAiVersion', "1.1.2")
 }
 
@@ -43,10 +43,10 @@ dependencies {
     // Jackson
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-
+    implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.15.2'
 
     // Swagger (Spring Boot 3 compatible)
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.15'
 
     // Database
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -56,7 +56,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     // Mapper
-    implementation 'org.modelmapper:modelmapper:3.2.6'
+    implementation 'org.modelmapper:modelmapper:3.2.4'
 
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

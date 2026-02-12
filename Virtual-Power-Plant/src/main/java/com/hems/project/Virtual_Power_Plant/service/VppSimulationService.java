@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+
+import com.project.hems.hems_api_contracts.contract.vpp.GenerationMode;
+import com.project.hems.hems_api_contracts.contract.vpp.VppSnapshot;
+import com.project.hems.hems_api_contracts.contract.vpp.VppStrategyMode;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -13,8 +17,6 @@ import com.hems.project.Virtual_Power_Plant.Config.VppModelMapper;
 import com.hems.project.Virtual_Power_Plant.entity.VppSnapshotEntity;
 
 import com.hems.project.Virtual_Power_Plant.repository.VppSnapshotRepository;
-import com.project.hems.hems_api_contracts.contract.vpp.GenerationMode;
-import com.project.hems.hems_api_contracts.contract.vpp.VppSnapshot;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +33,9 @@ public class VppSimulationService {
     private final VppSnapshotRepository vppSnapshotRepository;
 
     // Kafka publish (live stream)
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+//    private final KafkaTemplate<String, Object> kafkaTemplate;
 
+    private  final VppSnapshotProducer vppSnapshotProducer;
     // Generation logic (your File 3)
     private final VppGenerationSimulator vppGenerationSimulator;
 
@@ -101,16 +104,20 @@ public void saveVppSnapshotsToDb() {
                 updated.setTimestamp(LocalDateTime.now());
 
                 // 3) publish to Kafka
-                kafkaTemplate.send(topic, vppId.toString(), updated);
-                log.error("TEST KAFKA SEND {}", updated);
-                log.info("simulateLiveVppReadings: published vppId={} totalGen={}W grid={}W battery={}W",
-                        vppId,
-                        updated.getTotalGenerationW(),
-                        updated.getGridPowerW(),
-                        updated.getBatteryPowerW());
+//                kafkaTemplate.send(topic, vppId.toString(), updated);
+//                log.error("TEST KAFKA SEND {}", updated);
+//                log.info("simulateLiveVppReadings: published vppId={} totalGen={}W grid={}W battery={}W",
+//                        vppId,
+//                        updated.getTotalGenerationW(),
+//                        updated.getGridPowerW(),
+//                        updated.getBatteryPowerW());
+                log.info("successfully send to kafka event {}",updated);
+                vppSnapshotProducer.publish(updated);
+
 
                 // 4) update HOT map
                 vppSnapshots.put(vppId, updated);
+
 
             } catch (Exception e) {
                 log.error("simulateLiveVppReadings: failed simulation vppId={} error={}", vppId, e.getMessage(), e);
@@ -144,6 +151,7 @@ public void saveVppSnapshotsToDb() {
 
     public void startVpp(UUID vppId, double maxCapacityW, double batteryCapacityWh) {
 
+        log.info("start vpp service is execute");
         double solarMax = maxCapacityW * 0.5;
         double coalMax = maxCapacityW * 0.3;
         double nuclearMax = maxCapacityW * 0.15;
@@ -152,26 +160,43 @@ public void saveVppSnapshotsToDb() {
         VppSnapshot initial = VppSnapshot.builder()
                 .vppId(vppId)
                 .timestamp(LocalDateTime.now())
+
+                // generation selection
                 .mode(GenerationMode.AUTO)
 
+                // strategy selection (WHERE power goes)
+                .strategyMode(VppStrategyMode.EXPORT_FOCUS)
+                .siteDemandW(0.0)
+                .arbitrageEnabled(false)
+
+                // capacity refs
                 .maxSolarCapacityW(solarMax)
                 .maxCoalCapacityW(coalMax)
                 .maxNuclearCapacityW(nuclearMax)
                 .maxThermalCapacityW(thermalMax)
 
+                // battery state
                 .batteryCapacityWh(batteryCapacityWh)
                 .batteryRemainingWh(batteryCapacityWh * 0.5)
                 .batterySoc(50)
 
+                // dispatch/control
                 .targetExportW(0)
 
+                // live
                 .solarW(0).coalW(0).nuclearW(0).thermalW(0)
                 .totalGenerationW(0)
                 .batteryPowerW(0)
                 .gridPowerW(0)
+
+                // accumulators
+                .totalGeneratedKwh(0)
+                .totalExportKwh(0)
+                .totalImportKwh(0)
                 .build();
 
         vppSnapshots.put(vppId, initial);
+
     }
 
 
@@ -179,12 +204,6 @@ public void saveVppSnapshotsToDb() {
             vppSnapshots.remove(vppId);
         }
 
-        public void setMode(UUID vppId,GenerationMode mode) {
-            VppSnapshot snap = vppSnapshots.get(vppId);
-            if (snap == null) return;
-            snap.setMode(mode);
-            vppSnapshots.put(vppId, snap);
-        }
 
         public void setTargetExport(UUID vppId, double targetExportW) {
             VppSnapshot snap = vppSnapshots.get(vppId);
@@ -192,5 +211,36 @@ public void saveVppSnapshotsToDb() {
             snap.setTargetExportW(targetExportW);
             vppSnapshots.put(vppId, snap);
         }
+
+    public void setMode(UUID vppId, GenerationMode mode) {
+        VppSnapshot snap = vppSnapshots.get(vppId);
+        if (snap == null) return;
+
+        vppSnapshots.put(vppId,
+                snap.toBuilder()
+                        .mode(mode)
+                        .build());
+    }
+
+    public void setStrategyMode(UUID vppId, VppStrategyMode strategyMode) {
+        VppSnapshot snap = vppSnapshots.get(vppId);
+        if (snap == null) return;
+
+        vppSnapshots.put(vppId,
+                snap.toBuilder()
+                        .strategyMode(strategyMode)
+                        .build());
+    }
+
+    public void setSiteDemand(UUID vppId, double siteDemandW) {
+        VppSnapshot snap = vppSnapshots.get(vppId);
+        if (snap == null) return;
+
+        vppSnapshots.put(vppId,
+                snap.toBuilder()
+                        .siteDemandW(siteDemandW)
+                        .build());
+    }
+
 
 }

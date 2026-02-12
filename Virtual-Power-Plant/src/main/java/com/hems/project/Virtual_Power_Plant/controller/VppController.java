@@ -6,15 +6,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.project.hems.hems_api_contracts.contract.vpp.SignalForImport;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.hems.project.Virtual_Power_Plant.service.VppService;
 
@@ -22,6 +18,9 @@ import com.hems.project.Virtual_Power_Plant.service.VppService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+//aa frontend mate che hamda emj lakhi rakhyu che frontend diff port per run kare and backend diff port per so ena mate..
+@CrossOrigin("*")
+@Tag(name = "Vpp controller",description = "api for send vpp requirement signal")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -30,6 +29,10 @@ public class VppController {
 
     private final VppService vppService;
 
+    @Operation(
+            summary = "send signal to import power",
+            description = "receives a request to import power from a specific region and forwards the signal to the VPP service for processing."
+    )
     @PostMapping("/send-requirement")
     public String sendSignalForImport(@RequestBody SignalForImport signalForImport){
     log.info("received request : send signal to import power from region = {} ",signalForImport.getRegionName());

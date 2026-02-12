@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.lang.NonNull;
+import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.project.hems.hems_api_contracts.contract.program.Program;
@@ -49,8 +51,10 @@ public class SiteProgramEnrollmentService {
         return siteIdByProgramId;
     }
 
+
     // TODO: implement the logic for checking program conflict for a site
     // enroll site in particular program
+    @Transactional
     public SiteProgramEnrollment enrollSiteinProgram(UUID siteId, @NonNull UUID programId) {
         // first check is program and site is available
         log.info("programId is {} and siteId is {} ", programId, siteId);

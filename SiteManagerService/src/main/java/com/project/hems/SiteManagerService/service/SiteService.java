@@ -9,6 +9,8 @@ import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
 import com.project.hems.SiteManagerService.util.ValueMapper;
+import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
+import com.project.hems.hems_api_contracts.contract.program.Program;
 import com.project.hems.hems_api_contracts.contract.site.SiteCreationEvent;
 import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
 
@@ -21,11 +23,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -63,7 +67,7 @@ public class SiteService {
         Site site = new Site();
         site.setOwner(savedOwner);
         site.setActive(true);
-        site.setEnrollProgramIds(dto.getProgramId());
+       // site.setEnrollProgramIds(dto.getProgramId());
 
         // now have child na table jode thi badhu laisu save karsu then site ma save
         // karsu
@@ -249,4 +253,35 @@ public class SiteService {
                 "site assigned to VPP successfully"
         );
     }
-}
+
+    //enroll site in program
+    //aa apde program service ni under controller call thsase enroll in site tyare call kari desu
+    public Map<UUID,String> addProgramDetailInSite(UUID siteId,
+                                                   AddProgramConfigInSite dto) {
+
+        Site site = siteRepo.findById(siteId)
+                .orElseThrow(() -> new RuntimeException("site not found"));
+
+        SiteProgram siteProgram = SiteProgram.builder()
+                .programId(dto.getProgramId())
+                .programName(dto.getProgramName())
+                .startDateTime(dto.getStartDateTime())
+                .endDateTime(dto.getEndDateTime())
+                .programPriority(dto.getProgramPriority())
+                .programType(dto.getProgramType())
+                .programStatus(dto.getProgramStatus())
+                .programDescription(
+                        (Map<String, Object>) dto.getProgramDescription()
+                )
+                .site(site)
+                .build();
+
+        site.getEnrollProgram().add(siteProgram);
+
+        siteRepo.save(site);
+
+        return Map.of(siteId, "program added successfully");
+    }
+
+    }
+

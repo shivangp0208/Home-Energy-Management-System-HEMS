@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 
 
 @Entity
-@Table(name = "vitual_power_plant")
+@Table(name = "virtual_power_plant")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

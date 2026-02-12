@@ -4,77 +4,83 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Component;
-
 import com.project.hems.hems_api_contracts.contract.vpp.GenerationMode;
 import com.project.hems.hems_api_contracts.contract.vpp.VppSnapshot;
+import com.project.hems.hems_api_contracts.contract.vpp.VppStrategyMode;
+import org.springframework.stereotype.Component;
+
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@EnableScheduling
 public class VppGenerationSimulator {
 
-    private static final double DELTA_SECONDS = 5.0;
-    private static final double SECONDS_TO_HOURS = 1.0 / 3600.0;
 
-    /**
-     * ✅ MAIN ENTRY POINT (called by VppSimulationService every 5 seconds)
-     */
+    private static final double DELTA_SECONDS = 5.0;
+    private static final double DT_HOURS = DELTA_SECONDS / 3600.0;
+
+    // Battery power limits (W)
+    private static final double MAX_CHARGE_W = 3000.0;
+    private static final double MAX_DISCHARGE_W = 3000.0;
+
+    // Arbitrage thresholds (simple)
+    private static final int CHEAP_START_HOUR = 0;   // 00:00
+    private static final int CHEAP_END_HOUR = 6;     // 06:00
+    private static final int EXPENSIVE_START_HOUR = 18; // 18:00
+    private static final int EXPENSIVE_END_HOUR = 23;   // 23:00
+
+    // SOC guardrails for arbitrage
+    private static final int ARB_MIN_SOC = 20; // don't drain below 20%
+    private static final int ARB_TARGET_SOC = 90; // stop charging near 90%
+
     public VppSnapshot nextSnapshot(VppSnapshot current, double maxCapacityW) {
         if (current == null) return null;
 
-        final double dtHours = DELTA_SECONDS / 3600.0;
 
-        // If no capacity, still accumulate import/export based on current gridPower (optional)
+        VppStrategyMode strategyMode =
+                current.getStrategyMode() != null ? current.getStrategyMode() : VppStrategyMode.EXPORT_FOCUS;
+
+        // If no capacity -> no generation; still allow import/export accumulation if you want
         if (maxCapacityW <= 0) {
-            Double value = current.getGridPowerW();
-            double gridW = (value != null) ? value : 0.0;
+            double gridW = safe(current.getGridPowerW());
             double exportW = Math.max(0.0, -gridW);
             double importW = Math.max(0.0, gridW);
 
-            double totalGeneratedKwh = safe(current.getTotalGeneratedKwh());
-            double totalExportKwh = safe(current.getTotalExportKwh()) + (exportW * dtHours) / 1000.0;
-            double totalImportKwh = safe(current.getTotalImportKwh()) + (importW * dtHours) / 1000.0;
-
             return current.toBuilder()
                     .timestamp(LocalDateTime.now())
-                    .autoMode(current.isAutoMode())
-
                     .solarW(0).coalW(0).nuclearW(0).thermalW(0)
                     .totalGenerationW(0)
-
                     .batteryPowerW(0)
                     .gridPowerW(0)
-
-                    .totalGeneratedKwh(totalGeneratedKwh) // stays same (no generation)
-                    .totalExportKwh(totalExportKwh)
-                    .totalImportKwh(totalImportKwh)
+                    .totalExportKwh(safe(current.getTotalExportKwh()) + (exportW * DT_HOURS) / 1000.0)
+                    .totalImportKwh(safe(current.getTotalImportKwh()) + (importW * DT_HOURS) / 1000.0)
+                    .strategyMode(strategyMode)
                     .build();
         }
 
-        GenerationMode mode = current.getMode();
-
-        // 1) generation breakdown
-        GenerationBreakdown g = computeGenerationBreakdown(mode, maxCapacityW);
+        // 1) Generate power based on GenerationMode
+        GenerationBreakdown g = computeGenerationBreakdown(current.getMode(), maxCapacityW);
         double totalGenW = g.solarW + g.coalW + g.nuclearW + g.thermalW;
 
-        // 2) battery + grid flow
-        BatteryGridFlow f = computeBatteryAndGridFlow(current, totalGenW);
+        // 2) Route power based on StrategyMode
+        BatteryGridFlow flow = switch (strategyMode) {
+            case EXPORT_FOCUS -> exportFocusFlow(current, totalGenW);
+            case SELF_CONSUMPTION -> selfConsumptionFlow(current, totalGenW);
+            case ARBITRAGE -> arbitrageFlow(current, totalGenW);
+        };
 
-        // 3) accumulate ENERGY counters (kWh)
-        double exportW = Math.max(0.0, -f.gridPowerW);
-        double importW = Math.max(0.0,  f.gridPowerW);
+        // 3) Accumulate kWh counters
+        double exportW = Math.max(0.0, -flow.gridPowerW);
+        double importW = Math.max(0.0, flow.gridPowerW);
 
-        double totalGeneratedKwh = safe(current.getTotalGeneratedKwh()) + (totalGenW * dtHours) / 1000.0;
-        double totalExportKwh    = safe(current.getTotalExportKwh())    + (exportW   * dtHours) / 1000.0;
-        double totalImportKwh    = safe(current.getTotalImportKwh())    + (importW   * dtHours) / 1000.0;
+        double totalGeneratedKwh = safe(current.getTotalGeneratedKwh()) + (totalGenW * DT_HOURS) / 1000.0;
+        double totalExportKwh = safe(current.getTotalExportKwh()) + (exportW * DT_HOURS) / 1000.0;
+        double totalImportKwh = safe(current.getTotalImportKwh()) + (importW * DT_HOURS) / 1000.0;
 
         VppSnapshot updated = current.toBuilder()
                 .timestamp(LocalDateTime.now())
-                .autoMode(current.isAutoMode()) // keep whatever your flag is
+                .strategyMode(strategyMode)
 
                 .solarW(g.solarW)
                 .coalW(g.coalW)
@@ -82,45 +88,309 @@ public class VppGenerationSimulator {
                 .thermalW(g.thermalW)
                 .totalGenerationW(totalGenW)
 
-                .batteryPowerW(f.batteryPowerW)
-                .gridPowerW(f.gridPowerW)
-                .batteryRemainingWh(f.batteryRemainingWh)
-                .batterySoc(f.batterySoc)
+                .batteryPowerW(flow.batteryPowerW)
+                .gridPowerW(flow.gridPowerW)
+                .batteryRemainingWh(flow.batteryRemainingWh)
+                .batterySoc(flow.batterySoc)
 
                 .totalGeneratedKwh(totalGeneratedKwh)
                 .totalExportKwh(totalExportKwh)
                 .totalImportKwh(totalImportKwh)
                 .build();
 
-        // Helpful debug: how much export came from battery (only when batteryPowerW is negative)
-        double batteryExportW = Math.max(0.0, -f.batteryPowerW);
-        log.debug("VPP SNAPSHOT | vppId={} mode={} gen={}W export={}W import={}W batt={}W battExport={}W soc={}%, totals: gen={}kWh exp={}kWh imp={}kWh",
-                updated.getVppId(),
-                updated.getMode(),
-                updated.getTotalGenerationW(),
-                exportW,
-                importW,
-                updated.getBatteryPowerW(),
-                batteryExportW,
-                updated.getBatterySoc(),
-                updated.getTotalGeneratedKwh(),
-                updated.getTotalExportKwh(),
-                updated.getTotalImportKwh());
 
         return updated;
+    }
+
+    // =========================================================
+    //  STRATEGY 1: EXPORT_FOCUS (meet targetExportW first)
+    // =========================================================
+    private BatteryGridFlow exportFocusFlow(VppSnapshot current, double totalGenW) {
+
+        double targetExportW = Math.max(0.0, safe(current.getTargetExportW()));
+
+        BatteryState b = batteryState(current);
+
+        double gridPowerW = 0.0;     // + import / - export
+        double batteryPowerW = 0.0;  // + charge / - discharge
+
+        // Step 1: export from generation
+        double exportFromGenW = Math.min(totalGenW, targetExportW);
+        gridPowerW = -exportFromGenW;
+
+        double remainingGenW = totalGenW - exportFromGenW;
+        double exportStillNeededW = targetExportW - exportFromGenW;
+
+        // Step 2: if still need export -> discharge battery
+        if (exportStillNeededW > 0.0 && b.canDischarge()) {
+            BatteryTransfer discharge = dischargeBattery(b, Math.min(MAX_DISCHARGE_W, exportStillNeededW));
+            batteryPowerW = -discharge.actualW;
+            b.remainingWh = discharge.newRemainingWh;
+
+            // export increases
+            gridPowerW = -(exportFromGenW + discharge.actualW);
+        }
+
+        // Step 3: if generation surplus -> charge battery
+        if (remainingGenW > 0.0 && b.canCharge()) {
+            BatteryTransfer charge = chargeBattery(b, Math.min(MAX_CHARGE_W, remainingGenW));
+            batteryPowerW = charge.actualW; // charging
+            b.remainingWh = charge.newRemainingWh;
+        }
+
+        int soc = computeSoc(b.capacityWh, b.remainingWh);
+        return new BatteryGridFlow(batteryPowerW, gridPowerW, b.remainingWh, soc);
+    }
+
+    // =========================================================
+    //  STRATEGY 2: SELF_CONSUMPTION (serve siteDemandW first)
+    // =========================================================
+    private BatteryGridFlow selfConsumptionFlow(VppSnapshot current, double totalGenW) {
+
+        double siteDemandW = Math.max(0.0, safe(current.getSiteDemandW()));
+        double targetExportW = Math.max(0.0, safe(current.getTargetExportW())); // optional export goal after demand
+
+        BatteryState b = batteryState(current);
+
+        double gridPowerW = 0.0;
+        double batteryPowerW = 0.0;
+
+        // Step 1: use generation to serve demand
+        double servedByGenW = Math.min(totalGenW, siteDemandW);
+        double remainingDemandW = siteDemandW - servedByGenW;
+        double remainingGenW = totalGenW - servedByGenW;
+
+        // Step 2: if demand still remains -> discharge battery to serve demand (avoid import)
+        if (remainingDemandW > 0.0 && b.canDischarge()) {
+            BatteryTransfer discharge = dischargeBattery(b, Math.min(MAX_DISCHARGE_W, remainingDemandW));
+            batteryPowerW = -discharge.actualW;
+            b.remainingWh = discharge.newRemainingWh;
+
+            remainingDemandW -= discharge.actualW;
+        }
+
+        // Step 3: if demand still remains -> import from grid
+        if (remainingDemandW > 0.0) {
+            gridPowerW += remainingDemandW; // import positive
+            remainingDemandW = 0.0;
+        }
+
+        // Step 4: after demand met, optionally export up to targetExportW using remaining generation
+        if (targetExportW > 0.0) {
+            double exportFromGenW = Math.min(remainingGenW, targetExportW);
+            gridPowerW -= exportFromGenW; // export is negative
+            remainingGenW -= exportFromGenW;
+
+            // If still need export after remainingGen, can discharge battery (optional)
+            double exportStillNeededW = targetExportW - exportFromGenW;
+            if (exportStillNeededW > 0.0 && b.canDischarge()) {
+                BatteryTransfer discharge = dischargeBattery(b, Math.min(MAX_DISCHARGE_W, exportStillNeededW));
+                // if batteryPowerW already charging/discharging earlier, merge carefully:
+                batteryPowerW = mergeBatteryPower(batteryPowerW, -discharge.actualW);
+                b.remainingWh = discharge.newRemainingWh;
+
+                gridPowerW -= discharge.actualW;
+            }
+        }
+
+        // Step 5: if generation still surplus -> charge battery
+        if (remainingGenW > 0.0 && b.canCharge()) {
+            BatteryTransfer charge = chargeBattery(b, Math.min(MAX_CHARGE_W, remainingGenW));
+            batteryPowerW = mergeBatteryPower(batteryPowerW, charge.actualW);
+            b.remainingWh = charge.newRemainingWh;
+        }
+
+        int soc = computeSoc(b.capacityWh, b.remainingWh);
+        return new BatteryGridFlow(batteryPowerW, gridPowerW, b.remainingWh, soc);
+    }
+
+    // =========================================================
+    //  STRATEGY 3: ARBITRAGE (charge cheap, discharge expensive)
+    // =========================================================
+    private BatteryGridFlow arbitrageFlow(VppSnapshot current, double totalGenW) {
+
+        BatteryState b = batteryState(current);
+
+        // Simulate “price” windows using hour; replace with real grid price signal later
+        int hour = LocalTime.now().getHour();
+        boolean cheap = hour >= CHEAP_START_HOUR && hour < CHEAP_END_HOUR;
+        boolean expensive = hour >= EXPENSIVE_START_HOUR && hour <= EXPENSIVE_END_HOUR;
+
+        double siteDemandW = Math.max(0.0, safe(current.getSiteDemandW()));
+        double targetExportW = Math.max(0.0, safe(current.getTargetExportW()));
+
+        double gridPowerW = 0.0;
+        double batteryPowerW = 0.0;
+
+        // Base: serve site demand first (same as self-consumption)
+        double servedByGenW = Math.min(totalGenW, siteDemandW);
+        double remainingDemandW = siteDemandW - servedByGenW;
+        double remainingGenW = totalGenW - servedByGenW;
+
+        // If demand remains, discharge battery (but don’t go below ARB_MIN_SOC)
+        int socNow = computeSoc(b.capacityWh, b.remainingWh);
+
+        if (remainingDemandW > 0.0 && b.canDischarge() && socNow > ARB_MIN_SOC) {
+            BatteryTransfer discharge = dischargeBattery(b, Math.min(MAX_DISCHARGE_W, remainingDemandW));
+            batteryPowerW = -discharge.actualW;
+            b.remainingWh = discharge.newRemainingWh;
+
+            remainingDemandW -= discharge.actualW;
+        }
+
+        // If still demand -> import
+        if (remainingDemandW > 0.0) {
+            gridPowerW += remainingDemandW;
+            remainingDemandW = 0.0;
+        }
+
+        // Cheap window: prefer charging battery (even importing to charge if enabled)
+        if (cheap && current.getStrategyMode() == VppStrategyMode.ARBITRAGE) {
+            int soc = computeSoc(b.capacityWh, b.remainingWh);
+
+            // First, charge from remaining generation surplus
+            if (remainingGenW > 0.0 && b.canCharge() && soc < ARB_TARGET_SOC) {
+                BatteryTransfer charge = chargeBattery(b, Math.min(MAX_CHARGE_W, remainingGenW));
+                batteryPowerW = mergeBatteryPower(batteryPowerW, charge.actualW);
+                b.remainingWh = charge.newRemainingWh;
+                remainingGenW -= charge.actualW;
+            }
+
+            // If still want charging and no surplus, import to charge (optional)
+            soc = computeSoc(b.capacityWh, b.remainingWh);
+            if (b.canCharge() && soc < ARB_TARGET_SOC) {
+                double wantedChargeW = MAX_CHARGE_W;
+                BatteryTransfer charge = chargeBattery(b, wantedChargeW);
+                // If battery was already charging from gen, merge; else charge from import
+                batteryPowerW = mergeBatteryPower(batteryPowerW, charge.actualW);
+                b.remainingWh = charge.newRemainingWh;
+
+                // Import power for charging (if not fully covered by gen)
+                // Here we assume this charge comes from grid.
+                gridPowerW += charge.actualW;
+            }
+        }
+
+        // Expensive window: prefer discharging/exporting (after meeting demand)
+        if (expensive) {
+            int soc = computeSoc(b.capacityWh, b.remainingWh);
+
+            // export from remaining generation first up to targetExportW
+            double exportFromGenW = Math.min(remainingGenW, targetExportW);
+            gridPowerW -= exportFromGenW;
+            remainingGenW -= exportFromGenW;
+
+            double exportStillNeededW = targetExportW - exportFromGenW;
+
+            // If still need export, discharge battery (only if SOC above min)
+            if (exportStillNeededW > 0.0 && b.canDischarge() && soc > ARB_MIN_SOC) {
+                BatteryTransfer discharge = dischargeBattery(b, Math.min(MAX_DISCHARGE_W, exportStillNeededW));
+                batteryPowerW = mergeBatteryPower(batteryPowerW, -discharge.actualW);
+                b.remainingWh = discharge.newRemainingWh;
+
+                gridPowerW -= discharge.actualW;
+            }
+
+            // If still surplus gen after export -> you can export it all (or charge battery; your choice)
+            // Here: export all remaining gen (sell high).
+            if (remainingGenW > 0.0) {
+                gridPowerW -= remainingGenW;
+                remainingGenW = 0.0;
+            }
+
+        } else {
+            // Normal hours: after meeting demand, charge battery with surplus
+            if (remainingGenW > 0.0 && b.canCharge()) {
+                BatteryTransfer charge = chargeBattery(b, Math.min(MAX_CHARGE_W, remainingGenW));
+                batteryPowerW = mergeBatteryPower(batteryPowerW, charge.actualW);
+                b.remainingWh = charge.newRemainingWh;
+                remainingGenW -= charge.actualW;
+            }
+
+            // Optionally export remaining surplus if you want (here we export only if targetExportW set)
+            if (targetExportW > 0.0 && remainingGenW > 0.0) {
+                double export = Math.min(remainingGenW, targetExportW);
+                gridPowerW -= export;
+                remainingGenW -= export;
+            }
+        }
+
+        int soc = computeSoc(b.capacityWh, b.remainingWh);
+
+        return new BatteryGridFlow(batteryPowerW, gridPowerW, b.remainingWh, soc);
+    }
+
+    // =========================================================
+    // Battery helper logic
+    // =========================================================
+
+    private BatteryState batteryState(VppSnapshot current) {
+        double capacityWh = Math.max(0.0, safe(current.getBatteryCapacityWh()));
+        double remainingWh = clamp(safe(current.getBatteryRemainingWh()), 0.0, capacityWh);
+        return new BatteryState(capacityWh, remainingWh);
+    }
+
+    private BatteryTransfer chargeBattery(BatteryState b, double requestedW) {
+        if (requestedW <= 0 || b.capacityWh <= 0) return new BatteryTransfer(0, b.remainingWh);
+
+        double freeWh = b.capacityWh - b.remainingWh;
+        if (freeWh <= 0) return new BatteryTransfer(0, b.remainingWh);
+
+        double requestedWh = (requestedW * DT_HOURS); // W * h = Wh
+        double actualWh = Math.min(requestedWh, freeWh);
+        double actualW = actualWh / DT_HOURS;
+
+        return new BatteryTransfer(actualW, b.remainingWh + actualWh);
+    }
+
+    private BatteryTransfer dischargeBattery(BatteryState b, double requestedW) {
+        if (requestedW <= 0 || b.capacityWh <= 0) return new BatteryTransfer(0, b.remainingWh);
+        if (b.remainingWh <= 0) return new BatteryTransfer(0, b.remainingWh);
+
+        double requestedWh = (requestedW * DT_HOURS);
+        double actualWh = Math.min(requestedWh, b.remainingWh);
+        double actualW = actualWh / DT_HOURS;
+
+        return new BatteryTransfer(actualW, b.remainingWh - actualWh);
+    }
+
+
+    private boolean nearlyZero(double v) {
+
+        return Math.abs(v) < 1e-9;
+    }
+
+    /**
+     * If you previously discharged and now want to charge (or opposite),
+     * we choose the later operation to dominate. This keeps numbers stable.
+     */
+    private double mergeBatteryPower(double existingW, double nextW) {
+        if (nearlyZero(existingW)) return nextW;
+        // If both same direction, add them; if opposite direction, keep nextW (last action wins)
+        if ((existingW > 0 && nextW > 0) || (existingW < 0 && nextW < 0)) {
+            return existingW + nextW;
+        }
+        return nextW;
+    }
+
+    private int computeSoc(double capWh, double remWh) {
+        if (capWh <= 0) return 0;
+        return (int) Math.round((remWh / capWh) * 100.0);
+    }
+
+    private double clamp(double v, double min, double max) {
+        return Math.max(min, Math.min(max, v));
     }
 
     private double safe(Double v) {
         return v == null ? 0.0 : v;
     }
 
-
-    // -------------------------
-    // GENERATION BREAKDOWN LOGIC
-    // -------------------------
+    // =========================================================
+    // GENERATION BREAKDOWN (your existing logic)
+    // =========================================================
 
     private GenerationBreakdown computeGenerationBreakdown(GenerationMode mode, double maxCapacityW) {
-        //each per thread enu personal random madse ene and we bound value to 0.95<=value<1.05
         double noise = ThreadLocalRandom.current().nextDouble(0.95, 1.05);
 
         return switch (mode) {
@@ -141,23 +411,17 @@ public class VppGenerationSimulator {
                 yield normalizeToCapacity(new GenerationBreakdown(0, 0, 0, thermal), maxCapacityW);
             }
             case AUTO -> autoMix(maxCapacityW, noise);
-            default -> throw new IllegalArgumentException("Unexpected value: " + mode);
+            default -> throw new IllegalArgumentException("Unexpected mode: " + mode);
         };
     }
 
-    /**
-     * AUTO: Day -> solar + coal, Night -> nuclear + thermal
-     */
     private GenerationBreakdown autoMix(double maxCapacityW, double noise) {
         int hour = LocalTime.now().getHour();
-
         if (hour >= 6 && hour < 18) {
-            // day
             double solar = solarCurve(maxCapacityW) * noise;
             double coal = maxCapacityW * 0.35 * noise;
             return normalizeToCapacity(new GenerationBreakdown(solar, coal, 0, 0), maxCapacityW);
         } else {
-            // night
             double nuclear = maxCapacityW * 0.75 * noise;
             double thermal = maxCapacityW * 0.20 * noise;
             return normalizeToCapacity(new GenerationBreakdown(0, 0, nuclear, thermal), maxCapacityW);
@@ -173,15 +437,11 @@ public class VppGenerationSimulator {
         return peakW * Math.sin(radians);
     }
 
-    /**
-     * Ensure breakdown never exceeds maxCapacityW
-     */
     private GenerationBreakdown normalizeToCapacity(GenerationBreakdown g, double maxCapacityW) {
         double total = g.solarW + g.coalW + g.nuclearW + g.thermalW;
         if (total <= 0) return g;
-        if (total <= maxCapacityW) return g;//already max ni najik j che
+        if (total <= maxCapacityW) return g;
 
-        //if max ni najik na hoy toh ene banavo max ni najik total ne..
         double scale = maxCapacityW / total;
         return new GenerationBreakdown(
                 g.solarW * scale,
@@ -191,80 +451,28 @@ public class VppGenerationSimulator {
         );
     }
 
-    // -------------------------
-    // BATTERY + GRID LOGIC
-    // -------------------------
-
-    private BatteryGridFlow computeBatteryAndGridFlow(VppSnapshot current, double totalGenW) {
-
-        double targetExportW = Math.max(0, current.getTargetExportW());
-
-        double batteryCapacityWh = Math.max(0, current.getBatteryCapacityWh());
-        double batteryRemainingWh = clamp(current.getBatteryRemainingWh(), 0, batteryCapacityWh);
-
-        // Convention:
-        // gridPowerW < 0 => export
-        // gridPowerW > 0 => import
-        // batteryPowerW > 0 => charging
-        // batteryPowerW < 0 => discharging
-
-        double gridPowerW = 0.0;
-        double batteryPowerW = 0.0;
-
-        // 1) Meet export target using generation first
-        double exportFromGenW = Math.min(totalGenW, targetExportW);
-        gridPowerW = -exportFromGenW;
-
-        double remainingGenAfterExportW = totalGenW - exportFromGenW;
-        double exportStillNeededW = targetExportW - exportFromGenW;
-
-        // 2) If still need export, discharge battery
-        if (exportStillNeededW > 0 && batteryCapacityWh > 0 && batteryRemainingWh > 0) {
-            double dischargeW = Math.min(3000.0, exportStillNeededW); // limit discharge rate
-            double dischargeWh = dischargeW * DELTA_SECONDS * SECONDS_TO_HOURS;
-
-            // if battery doesn't have enough energy
-            dischargeWh = Math.min(dischargeWh, batteryRemainingWh);
-
-            double actualDischargeW = dischargeWh / (DELTA_SECONDS * SECONDS_TO_HOURS);
-
-            batteryPowerW = -actualDischargeW;
-            batteryRemainingWh -= dischargeWh;
-
-            // export increases
-            gridPowerW = -(exportFromGenW + actualDischargeW);
-        }
-
-        // 3) If surplus generation exists after export, charge battery
-        if (remainingGenAfterExportW > 0 && batteryCapacityWh > 0 && batteryRemainingWh < batteryCapacityWh) {
-            double chargeW = Math.min(3000.0, remainingGenAfterExportW); // limit charge rate
-            double chargeWh = chargeW * DELTA_SECONDS * SECONDS_TO_HOURS;
-
-            double freeWh = batteryCapacityWh - batteryRemainingWh;
-            chargeWh = Math.min(chargeWh, freeWh);
-
-            double actualChargeW = chargeWh / (DELTA_SECONDS * SECONDS_TO_HOURS);
-
-            batteryPowerW = actualChargeW; // charging overrides discharge in surplus scenario
-            batteryRemainingWh += chargeWh;
-        }
-
-        int soc = (batteryCapacityWh <= 0) ? 0 : (int) Math.round((batteryRemainingWh / batteryCapacityWh) * 100);
-
-        return new BatteryGridFlow(batteryPowerW, gridPowerW, batteryRemainingWh, clampInt(soc, 0, 100));
-    }
-
-    private double clamp(double v, double min, double max) {
-        return Math.max(min, Math.min(max, v));
-    }
-
-    private int clampInt(int v, int min, int max) {
-        return Math.max(min, Math.min(max, v));
-    }
-
-    // Small records for internal logic
+    // =========================================================
+    // small records
+    // =========================================================
     private record GenerationBreakdown(double solarW, double coalW, double nuclearW, double thermalW) {}
+    private record BatteryGridFlow(double batteryPowerW, double gridPowerW, double batteryRemainingWh, int batterySoc) {}
+    private static class BatteryState {
+        final double capacityWh;
+        double remainingWh;
 
-    private record BatteryGridFlow(double batteryPowerW, double gridPowerW,
-                                   double batteryRemainingWh, int batterySoc) {}
+        BatteryState(double capacityWh, double remainingWh) {
+            this.capacityWh = capacityWh;
+            this.remainingWh = remainingWh;
+        }
+
+        boolean canCharge() {
+            return capacityWh > 0 && remainingWh < capacityWh;
+        }
+
+        boolean canDischarge() {
+            return capacityWh > 0 && remainingWh > 0;
+        }
+    }
+
+    private record BatteryTransfer(double actualW, double newRemainingWh) {}
 }

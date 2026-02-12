@@ -143,7 +143,6 @@ public class ValueMapper {
             addressDto.setSiteId(site.getId());
             dto.setAddressInfo(addressDto);
         }
-        dto.setProgramId(site.getEnrollProgramIds());
 
         return dto;
     }

@@ -1,12 +1,15 @@
 package com.hems.project.Virtual_Power_Plant.entity;
 
+import com.project.hems.hems_api_contracts.contract.vpp.GenerationMode;
+import com.project.hems.hems_api_contracts.contract.vpp.VppStrategyMode;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import com.project.hems.hems_api_contracts.contract.vpp.GenerationMode;
-
-import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
 @Table(name = "vpp_snapshot")
@@ -26,6 +29,13 @@ public class VppSnapshotEntity {
     @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "strategy_mode")
+    private VppStrategyMode strategyMode;
+
+    @Column(name = "site_demand_w")
+    private double siteDemandW;
+
     // Generation breakdown
     private double solarW;
     private double coalW;
@@ -43,9 +53,23 @@ public class VppSnapshotEntity {
     private double batteryRemainingWh;
     private int batterySoc;
 
-    // Dispatch target
+    // Dispatch / Control
     private double targetExportW;
 
     @Enumerated(EnumType.STRING)
     private GenerationMode mode;
+
+    // Capacity reference
+    private double maxSolarCapacityW;
+    private double maxCoalCapacityW;
+    private double maxNuclearCapacityW;
+    private double maxThermalCapacityW;
+
+    // Accumulators
+    private double totalGeneratedKwh;
+    private double totalExportKwh;
+    private double totalImportKwh;
+
+    // Flags
+    private boolean autoMode;
 }

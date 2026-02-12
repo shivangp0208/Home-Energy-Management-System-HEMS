@@ -2,11 +2,13 @@ package com.project.hems.SiteManagerService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,9 +58,14 @@ public class Site {
 
     // private List<UUID> enrollProgramIds;//ahiya apde direct List<Program> na kari
     // sakiee..
-    @ElementCollection
-    @CollectionTable(name = "site_programs", joinColumns = @JoinColumn(name = "site_id"))
-    @Column(name = "program_id")
-    @NotEmpty(message = "must be one program id is needed")
-    private List<UUID> enrollProgramIds;
+    //@ElementCollection
+    //@Embedded
+    //@CollectionTable(name = "site_programs", joinColumns = @JoinColumn(name = "site_id"))
+    //@Column(name = "program")
+    //@NotEmpty(message = "must be one program id is needed")
+    //private List<AddProgramConfigInSite> enrollProgram=new ArrayList<>();
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SiteProgram> enrollProgram = new ArrayList<>();
 }

@@ -43,6 +43,9 @@ public class SupabaseStorageService {
 
     public String uploadImage(UUID vppId,MultipartFile multipartFile) throws IOException{
         String originalFilename = multipartFile.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+        //TODO:-
+        //for file name we take the UUID for that vpp from incoming request
+        //and see from this one request user can upload multiple file ??
         String fileName=UUID.randomUUID()+"_"+originalFilename;
         String uploadUrl= supabaseUrl + "/storage/v1/object/"+bucket+ "/"+vppId+ "/" +fileName;
         HttpHeaders headers = new HttpHeaders();

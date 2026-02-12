@@ -4,6 +4,8 @@ import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.service.OwnerService;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +22,17 @@ import java.util.UUID;
 @RequestMapping("/api/v1/owner")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Owner APIs", description = "Create, Update, Delete Owner")
+@Tag(name = "owner apis", description = "create, update, delete, and fetch owner details")
 public class OwnerController {
 
     private final OwnerService ownerService;
 
+    @Operation(
+            summary = "create owner",
+            description = "create a new owner using request body and return the saved owner details"
+    )
+    @ApiResponse(responseCode = "201", description = "owner created successfully")
+    @ApiResponse(responseCode = "400", description = "invalid owner data")
     @PostMapping("/create-owner")
     // @ResponseStatus(HttpStatus.CREATED)
     // @PreAuthorize("hasAuthority('SCOPE_site:write')")
@@ -41,6 +49,12 @@ public class OwnerController {
         return new ResponseEntity<>(savedOwner, HttpStatus.CREATED);
     }
 
+    @Operation(
+            summary = "fetch owner by id",
+            description = "retrieve owner details by given owner id"
+    )
+    @ApiResponse(responseCode = "200", description = "owner fetched successfully")
+    @ApiResponse(responseCode = "404", description = "owner not found")
     @GetMapping("/fetch-owner-by-id/{ownerId}")
     public ResponseEntity<OwnerDto> getOwner(@PathVariable UUID ownerId) {
         log.info("getOwner: GET req to fetch the owner detail with given owner id = {}", ownerId);
@@ -50,6 +64,11 @@ public class OwnerController {
         return new ResponseEntity<>(ownerDto, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "fetch all owners",
+            description = "retrieve a list of all owners available in the database"
+    )
+    @ApiResponse(responseCode = "200", description = "owners list fetched successfully")
     @GetMapping("/fetch-all-owner")
     // @PreAuthorize("hasAuthority('SCOPE_site:read')")
     public ResponseEntity<List<OwnerDto>> getAllOwner() {
@@ -60,6 +79,12 @@ public class OwnerController {
         return new ResponseEntity<>(allOwner, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "update owner",
+            description = "update owner details and return the updated owner object"
+    )
+    @ApiResponse(responseCode = "200", description = "owner updated successfully")
+    @ApiResponse(responseCode = "404", description = "owner not found")
     @PutMapping("/update-owner")
     public ResponseEntity<OwnerDto> updateOwner(@RequestBody Owner owner) {
         log.info("updateOwner: PUT req to update owner details with given detail = {}", owner);
@@ -69,6 +94,13 @@ public class OwnerController {
         return new ResponseEntity<>(updatedOwner, HttpStatus.OK);
     }
 
+
+    @Operation(
+            summary = "delete owner by id",
+            description = "delete the owner with the given owner id"
+    )
+    @ApiResponse(responseCode = "200", description = "owner deleted successfully")
+    @ApiResponse(responseCode = "404", description = "owner not found")
     @DeleteMapping("/delete-owner-by-id/{ownerId}")
     public ResponseEntity<OwnerDto> deleteOwner(@PathVariable UUID ownerId) {
         log.info("deleteOwner: DELETE req to delete the owner with given owner id = {}", ownerId);
