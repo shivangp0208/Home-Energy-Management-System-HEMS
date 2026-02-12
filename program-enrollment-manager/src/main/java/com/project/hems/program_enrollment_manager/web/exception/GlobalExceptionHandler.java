@@ -43,4 +43,24 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(ProgramExpiredException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    public ErrorResponse handleProgramExpiredException(ProgramExpiredException ex) {
+        return ErrorResponse.builder()
+                .message(ex.getMessage())
+                .error("PROGRAM_EXPIRED")
+                .statusCode(HttpStatus.NOT_ACCEPTABLE.value())
+                .build();
+    }
+
+    @ExceptionHandler(SiteNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    public ErrorResponse handleSiteNotFoundException(SiteNotFoundException ex) {
+        return ErrorResponse.builder()
+                .message(ex.getMessage())
+                .error("SITE_NOT_FOUND")
+                .statusCode(HttpStatus.NOT_ACCEPTABLE.value())
+                .build();
+    }
+
 }

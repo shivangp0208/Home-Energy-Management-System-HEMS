@@ -16,9 +16,9 @@ public class SiteProgramEnrollmentAuditDto {
     private UUID enrollmentId;
 
     private UUID programId;
-    private SiteStatus newSiteStatus;
+    // private SiteStatus newSiteStatus;
 
-    private SiteStatus oldSiteStatus;
+    // private SiteStatus oldSiteStatus;
     private LocalDateTime changeAt;
 
     private String reason;

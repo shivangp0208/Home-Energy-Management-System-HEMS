@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
-import com.project.hems.program_enrollment_manager.model.ProgramStatus;
+import com.project.hems.hems_api_contracts.contract.program.ProgramStatus;
 
 @Repository
 public interface ProgramRepository extends JpaRepository<ProgramEntity, UUID> {

@@ -16,10 +16,10 @@ import com.project.hems.program_enrollment_manager.entity.SiteProgramEnrollmentE
 public interface SiteProgramEnrollmentRepo extends JpaRepository<SiteProgramEnrollmentEntity, UUID> {
 
        @Query("SELECT spe.program FROM SiteProgramEnrollmentEntity spe " +
-                     "WHERE spe.siteId = :siteId")
+                     "WHERE spe.site = :siteId")
        List<ProgramEntity> findProgramsBySiteId(@Param("siteId") UUID siteId);
 
-       @Query("SELECT spe.siteId FROM SiteProgramEnrollmentEntity spe " +
+       @Query("SELECT spe.site FROM SiteProgramEnrollmentEntity spe " +
                      "WHERE spe.program.programId = :programId")
        List<UUID> findSiteIdByProgramId(@Param("programId") UUID programId);
 
@@ -32,7 +32,7 @@ public interface SiteProgramEnrollmentRepo extends JpaRepository<SiteProgramEnro
 
        @Query("SELECT s.enrollmentId FROM SiteProgramEnrollmentEntity s " +
                      "WHERE s.program.programId = :programId " +
-                     "AND s.siteId = :siteId")
+                     "AND s.site = :siteId")
        Optional<UUID> findEnrollmentId(@Param("programId") UUID programId, @Param("siteId") UUID siteId);
 
 }

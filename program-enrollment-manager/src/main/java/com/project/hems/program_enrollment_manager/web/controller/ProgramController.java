@@ -2,9 +2,8 @@ package com.project.hems.program_enrollment_manager.web.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.hems.hems_api_contracts.contract.vpp.SiteEnrollSuccessResponse;
-import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
-import com.project.hems.program_enrollment_manager.model.Program;
+import com.project.hems.program_enrollment_manager.model.SiteProgramEnrollment;
+import com.project.hems.hems_api_contracts.contract.program.Program;
 import com.project.hems.program_enrollment_manager.service.ProgramService;
 import com.project.hems.program_enrollment_manager.service.SiteProgramEnrollmentService;
 
@@ -16,8 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,7 +46,8 @@ public class ProgramController {
     }
 
     @GetMapping("/get-program/{programId}")
-    public ResponseEntity<Program> getOneProgram(@PathVariable UUID programId) {
+    public ResponseEntity<Program> getOneProgram(
+            @PathVariable(name = "programId", required = true) @NonNull UUID programId) {
         Program programById = programService.findProgramById(programId);
         return new ResponseEntity<>(programById, HttpStatus.OK);
     }
@@ -59,54 +60,50 @@ public class ProgramController {
 
     @PutMapping("/update-program/{programId}")
     public ResponseEntity<Program> updateProgram(
-            @PathVariable UUID programId,
+            @PathVariable(name = "programId", required = true) @NonNull UUID programId,
             @RequestBody Program program) {
         Program updatedProgram = programService.updateProgram(programId, program);
         return new ResponseEntity<>(updatedProgram, HttpStatus.CREATED);
     }
 
-    // TODO: instead of bringing just siteId or programId bring whole program POJO using feign client if required
     // here we find which site is enroll in which program
-    @PostMapping("/find-program-by-site")
-    public ResponseEntity<List<ProgramEntity>> findProgramBySiteId(@RequestParam UUID siteId) {
-        List<ProgramEntity> programBySite = siteProgramEnrollmentService.findProgramBySite(siteId);
+    @GetMapping("/find-program-by-site")
+    public ResponseEntity<List<Program>> findProgramBySiteId(
+            @RequestParam(name = "siteId", required = true) UUID siteId) {
+        List<Program> programBySite = siteProgramEnrollmentService.findProgramBySite(siteId);
         return new ResponseEntity<>(programBySite, HttpStatus.OK);
     }
 
     // here we in particular program how many site is enroll
-    @PostMapping("/find-site-by-program")
-    public ResponseEntity<List<UUID>> findSiteIdByProgram(@RequestParam UUID programId) {
+    @GetMapping("/find-site-by-program")
+    public ResponseEntity<List<UUID>> findSiteIdByProgram(
+            @RequestParam(name = "programId", required = true) UUID programId) {
         List<UUID> listSiteIds = siteProgramEnrollmentService.findSiteIdByProgramId(programId);
         return new ResponseEntity<>(listSiteIds, HttpStatus.OK);
     }
 
     // here we find enroll site in particular program
     @PostMapping("/enroll-site-in-program")
-    public ResponseEntity<SiteEnrollSuccessResponse> enrollSiteinProgram(
-            @RequestParam UUID siteId,
-            @RequestParam UUID programId) {
-        SiteEnrollSuccessResponse enrollSiteinProgram = siteProgramEnrollmentService.enrollSiteinProgram(siteId,
+    public ResponseEntity<SiteProgramEnrollment> enrollSiteinProgram(
+            @RequestParam(name = "siteId", required = true) UUID siteId,
+            @RequestParam(name = "programId", required = true) @NonNull UUID programId) {
+        SiteProgramEnrollment enrollSiteinProgram = siteProgramEnrollmentService.enrollSiteinProgram(siteId,
                 programId);
         return new ResponseEntity<>(enrollSiteinProgram, HttpStatus.OK);
     }
 
-    // delete a program
-    @DeleteMapping("/delete-program/{programId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeProgram(@PathVariable("programId") UUID programId) {
-        programService.deleteProgram(programId);
-    }
-
-    // activate program
-    @PostMapping("/activate-paogram/{programId}")
-    public ResponseEntity<Program> activateProgram(@PathVariable UUID programId) {
+    // // activate program
+    @PatchMapping("/activate-program/{programId}")
+    public ResponseEntity<Program> activateProgram(
+            @PathVariable(name = "programId", required = true) @NonNull UUID programId) {
         Program activatedProgram = programService.activateProgram(programId);
         return new ResponseEntity<>(activatedProgram, HttpStatus.OK);
     }
 
-    // deactivate program
-    @PostMapping("/deactivate-paogram/{programId}")
-    public ResponseEntity<Program> deactivateProgram(@PathVariable UUID programId) {
+    // // deactivate program
+    @PatchMapping("/deactivate-program/{programId}")
+    public ResponseEntity<Program> deactivateProgram(
+            @PathVariable(name = "programId", required = true) @NonNull UUID programId) {
         Program deactivatedProgram = programService.deactivateProgram(programId);
         return new ResponseEntity<>(deactivatedProgram, HttpStatus.OK);
     }

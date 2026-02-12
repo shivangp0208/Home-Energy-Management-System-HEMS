@@ -1,4 +1,4 @@
-package com.project.hems.program_enrollment_manager.model;
+package com.project.hems.hems_api_contracts.contract.program;
 
 import java.util.List;
 

@@ -3,8 +3,6 @@ package com.project.hems.program_enrollment_manager.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.project.hems.program_enrollment_manager.model.SiteStatus;
-
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,16 +17,12 @@ public class SiteProgramEnrollmentEntity {
     private UUID enrollmentId;
 
     @Column(name = "site_id", nullable = false)
-    private UUID siteId;
+    private UUID site;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "program_id", nullable = false)
     private ProgramEntity program;
 
-    @Column(name = "enrollment_date")
-    private LocalDateTime enrollmentDate = LocalDateTime.now();
-
-    @Enumerated(EnumType.STRING)
-    @Column(name ="status")
-    private SiteStatus siteStatus;
+    @Column(name = "enrollment_time")
+    private LocalDateTime enrollmentTime = LocalDateTime.now();
 }
