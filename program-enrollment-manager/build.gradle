@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.10'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '3.2.10'
+	id 'io.spring.dependency-management' version '1.1.0'
 }
 
 
@@ -16,7 +16,7 @@ java {
 }
 
 ext {
-	set('springCloudVersion', "2025.0.1")
+	set('springCloudVersion', "2023.0.4")
 }
 
 
@@ -39,6 +39,7 @@ dependencies {
 	implementation project(':hems-api-contracts')
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
 	// runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'org.postgresql:postgresql'

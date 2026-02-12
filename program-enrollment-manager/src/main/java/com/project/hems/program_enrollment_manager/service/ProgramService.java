@@ -28,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ProgramService {
 
-    // only progrm related find configuration,when program is created , what type of
-    // program it is that we see in this service
     private final ProgramRepository programRepository;
     private final ModelMapper mapper;
 

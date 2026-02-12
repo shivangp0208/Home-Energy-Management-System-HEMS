@@ -3,14 +3,12 @@ package com.project.hems.program_enrollment_manager.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.project.hems.hems_api_contracts.contract.program.Program;
-import com.project.hems.hems_api_contracts.contract.site.Site;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
 import com.project.hems.program_enrollment_manager.entity.SiteProgramEnrollmentEntity;
 import com.project.hems.program_enrollment_manager.model.SiteProgramEnrollment;
@@ -42,7 +40,7 @@ public class SiteProgramEnrollmentService {
         List<ProgramEntity> programsBySiteId = siteProgramEnrollmentRepo.findProgramsBySiteId(siteId);
         return programsBySiteId.stream()
                 .map(entity -> mapper.map(entity, Program.class))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // find which site enroll in which program
@@ -51,6 +49,7 @@ public class SiteProgramEnrollmentService {
         return siteIdByProgramId;
     }
 
+    // TODO: implement the logic for checking program conflict for a site
     // enroll site in particular program
     public SiteProgramEnrollment enrollSiteinProgram(UUID siteId, @NonNull UUID programId) {
         // first check is program and site is available
@@ -59,7 +58,7 @@ public class SiteProgramEnrollmentService {
                 .orElseThrow(() -> new ProgramNotFoundException(
                         "unable to find program detail for program id = " + programId));
 
-        Site siteEntity = siteFeignClientService.getSite(siteId).getBody();
+        SiteDto siteEntity = siteFeignClientService.getSite(siteId).getBody();
         if (siteEntity == null) {
             throw new SiteNotFoundException("unable to find site detail with site id = " + siteId);
         }
@@ -81,44 +80,4 @@ public class SiteProgramEnrollmentService {
 
         return mapper.map(savedEnrollmentEntity, SiteProgramEnrollment.class);
     }
-
-    // public ProgramConfigurationUpdateResponseDto
-    // updateProgram(ProgramConfigurationUpdateRequestDto
-    // programConfigurationRequestDto,UUID programId) {
-    // //find program from programId
-    // ProgramEntity program =
-    // programRepository.findById(programId).orElseThrow(()-> new
-    // RuntimeException("program not found"));;
-
-    // //find programConfiguration from programId
-    // ProgramConfigurationEntity programConfig =
-    // programConfigurationRepo.findByProgram_programId(programId).orElseThrow(()->
-    // new RuntimeException("program Configuration not found"));
-
-    // Optional.ofNullable(programConfigurationRequestDto.getType()).ifPresent(program::setProgramType);
-    // Optional.ofNullable(programConfigurationRequestDto.getStartDateTime()).ifPresent(program::setStartDateTime);
-    // Optional.ofNullable(programConfigurationRequestDto.getEndDateTime()).ifPresent(program::setEndDateTime);
-
-    // Optional.ofNullable(programConfigurationRequestDto.getProgramDescription()).ifPresent(programConfig::setProgramDescription);
-    // Optional.ofNullable(programConfigurationRequestDto.getPriority()).ifPresent(programConfig::setPriority);
-
-    // //we update updatedTime of programConfiguration
-    // programConfig.setUpdatedAt(LocalDateTime.now());
-
-    // //save program first
-    // programRepository.save(program);
-    // log.info("updated program is saved successfully");
-    // programConfigurationRepo.save(programConfig);
-    // log.info("updated program config is saved successfully. configId =
-    // {}",program.getProgramId());
-
-    // ProgramConfigurationUpdateResponseDto
-    // programConfigurationResponseDto=ProgramConfigurationUpdateResponseDto
-    // .builder()
-    // .programId(programId)
-    // .message("program updated successfully and programId = "+programId)
-    // .build();
-    // return programConfigurationResponseDto;
-
-    // }
 }
