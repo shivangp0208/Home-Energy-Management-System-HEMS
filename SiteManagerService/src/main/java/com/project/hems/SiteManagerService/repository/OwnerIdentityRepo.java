@@ -1,8 +1,9 @@
 package com.project.hems.SiteManagerService.repository;
 
-import com.project.hems.SiteManagerService.entity.OwnerIdentities;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.project.hems.SiteManagerService.entity.OwnerIdentities;
 
 import java.util.UUID;
 

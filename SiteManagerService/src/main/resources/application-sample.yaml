@@ -1,25 +1,25 @@
 spring:
   datasource:
-
+#    url: jdbc:mysql://hems-auth.czkgccwqed1c.ap-south-1.rds.amazonaws.com:3306/site_service?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+#    username: 
+#    password: 
     url: jdbc:mysql://localhost:3306/site_service
-    username: root
-    password: not desclosed
+    username: 
+    password: 
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-
 
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
+
   main:
     allow-bean-definition-overriding: true
-  # threads:
-  #   virtual:
-  #     enabled: true
+
   application:
-    name: SITE-SERVICE-HEMS
+    name: site-service
+
   security:
     oauth2:
       resourceserver:
@@ -46,8 +46,6 @@ eureka:
     service-url:
       defaultZone: http://localhost:8091/eureka
 
-
-
 property:
   config:
     kafka:
@@ -56,8 +54,6 @@ property:
       site-creation-partition-count: 1
       replica-count: 1
 
-
-
 logging:
   level:
-    org.springframework.ai: DEBUG
+    '[com.project.hems.SiteManagerService]': debug

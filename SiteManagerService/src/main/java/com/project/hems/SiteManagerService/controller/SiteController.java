@@ -1,17 +1,13 @@
 package com.project.hems.SiteManagerService.controller;
 
-import com.project.hems.SiteManagerService.dto.AssignVppRequest;
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
-import com.project.hems.SiteManagerService.dto.EnrollSiteInVppResponse;
-import com.project.hems.SiteManagerService.dto.SiteRequestDto;
-import com.project.hems.SiteManagerService.entity.Site;
 import com.project.hems.SiteManagerService.service.SiteService;
-import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
-import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +20,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -36,12 +31,12 @@ public class SiteController {
 
     private final SiteService siteService;
 
-
+    @Transactional
     @Operation(summary = "create site", description = "create a new site with site details and return the created site")
     @ApiResponse(responseCode = "201", description = "site created successfully")
     @PostMapping("/create-site")
-    public ResponseEntity<Site> createSite(
-            @RequestBody SiteRequestDto siteRequestDto,
+    public ResponseEntity<SiteDto> createSite(
+            @RequestBody @Valid SiteDto siteRequestDto,
             @AuthenticationPrincipal Jwt jwt) {
 
         log.info("POST req to create site with site detail = {}", siteRequestDto);
@@ -56,10 +51,10 @@ public class SiteController {
 
         log.debug("Creating site for userSub={}, email={}", userSub, email);
 
-        Site site = siteService.createSite(siteRequestDto, userSub);
+        SiteDto site = siteService.createSite(siteRequestDto, userSub);
 
         log.info("Site created successfully. siteId={}, userSub={}",
-                site.getId(), userSub);
+                site.getSiteId(), userSub);
 
         return new ResponseEntity<>(site, HttpStatus.CREATED);
     }
@@ -68,11 +63,11 @@ public class SiteController {
     @ApiResponse(responseCode = "200", description = "site fetched successfully")
     @ApiResponse(responseCode = "404", description = "site not found")
     @GetMapping("/fetch-site-by-id/{siteId}")
-    public ResponseEntity<Site> getSite(@PathVariable UUID siteId) {
+    public ResponseEntity<SiteDto> getSite(@PathVariable(name = "siteId", required = true) UUID siteId) {
 
         log.info("GET req to fetch site by id with siteId={}", siteId);
 
-        Site site = siteService.fetchSiteById(siteId);
+        SiteDto site = siteService.fetchSiteById(siteId);
 
         log.debug("Fetched site details. siteId={}", siteId);
 
@@ -82,11 +77,11 @@ public class SiteController {
     @Operation(summary = "fetch all sites", description = "retrieve a list of all sites")
     @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-all-site")
-    public ResponseEntity<List<Site>> getAllSites() {
+    public ResponseEntity<List<SiteDto>> getAllSites() {
 
         log.info("GET req to fetch all site details");
 
-        List<Site> sites = siteService.fetchAllSite();
+        List<SiteDto> sites = siteService.fetchAllSite();
 
         log.debug("Fetched all sites. count={}", sites.size());
 
@@ -95,11 +90,11 @@ public class SiteController {
     @Operation(summary = "fetch all sites v2", description = "retrieve all sites in site response dto format")
     @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-all-site/v2")
-    public ResponseEntity<List<SiteResponseDto>> getAllSitesV2() {
+    public ResponseEntity<List<SiteDto>> getAllSitesV2() {
 
         log.info("GET req to fetch all site details v2");
 
-        List<SiteResponseDto> sites = siteService.fetchAllSiteV2();
+        List<SiteDto> sites = siteService.fetchAllSiteV2();
 
         log.debug("Fetched all sites v2. count={}", sites.size());
 
@@ -110,14 +105,14 @@ public class SiteController {
     @Operation(summary = "fetch all sites with pagination", description = "retrieve sites with offset-based pagination")
     @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-all-site/v2/pagging")
-    public ResponseEntity<Page<SiteResponseDto>> getAllSitesV2WithPagging(
-        @RequestParam(name = "offset",defaultValue = "0") int offset,
-        @RequestParam(name = "pageSize",defaultValue = "2") int pageSize
-    ) {
+    public ResponseEntity<Page<SiteDto>> getAllSitesV2WithPagging(
+            @RequestParam(name = "offset", defaultValue = "0") int offset,
+            @RequestParam(name = "pageSize", defaultValue = "2") int pageSize) {
 
         log.info("GET req to fetch all site details v2 with pagging");
 
-       Page<SiteResponseDto> allSiteV2WithPagination = siteService.findAllSiteV2WithPagination(offset,pageSize);;
+        Page<SiteDto> allSiteV2WithPagination = siteService.findAllSiteV2WithPagination(offset, pageSize);
+        ;
         return new ResponseEntity<>(allSiteV2WithPagination, HttpStatus.OK);
     }
 
@@ -125,15 +120,15 @@ public class SiteController {
     @Operation(summary = "fetch all sites with pagination and sorting", description = "retrieve sites with offset-based pagination and sorting by field")
     @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-all-site/v2/pagging-sorting")
-    public ResponseEntity<Page<SiteResponseDto>> getAllSitesV2WithPaggingAndSorting(
-        @RequestParam(name = "offset",defaultValue = "0") int offset,
-        @RequestParam(name = "pageSize",defaultValue = "2") int pageSize,
-        @RequestParam(name = "field") String field
-    ) {
+    public ResponseEntity<Page<SiteDto>> getAllSitesV2WithPaggingAndSorting(
+            @RequestParam(name = "offset", defaultValue = "0") int offset,
+            @RequestParam(name = "pageSize", defaultValue = "2") int pageSize,
+            @RequestParam(name = "field") String field) {
 
         log.info("GET req to fetch all site details v2 with pagging and sorting");
 
-       Page<SiteResponseDto> allSiteV2WithPagination = siteService.findAllSiteV2WithPaginationAndSorting(offset,pageSize,field);
+        Page<SiteDto> allSiteV2WithPagination = siteService.findAllSiteV2WithPaginationAndSorting(offset,
+                pageSize, field);
         return new ResponseEntity<>(allSiteV2WithPagination, HttpStatus.OK);
     }
 
@@ -141,34 +136,30 @@ public class SiteController {
     @Operation(summary = "fetch all sites with cursor-based pagination", description = "retrieve sites using cursor-based pagination for large data sets")
     @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-all-site/v2/cursor")
-    public ResponseEntity<CursorSiteResponse<SiteResponseDto>> getAllSitesV2WithPaggingAndSorting(
+    public ResponseEntity<CursorSiteResponse<SiteDto>> getAllSitesV2WithPaggingAndSorting(
         @RequestParam(required = false) UUID cursor,
         @RequestParam(defaultValue = "10") int size
     ) {
 
         log.info("GET req to fetch all site details v2 with pagging and sorting");
 
-       CursorSiteResponse<SiteResponseDto> sites = siteService.getSites(cursor, size);;
+        CursorSiteResponse<SiteDto> sites = siteService.getSites(cursor, size);
+        ;
         return new ResponseEntity<>(sites, HttpStatus.OK);
     }
 
-
-
-
-
-
     // @GetMapping("/fetch-all-site") // public
-    // CompletableFuture<ResponseEntity<List<SiteResponseDto>>> getAllSites() // {
+    // CompletableFuture<ResponseEntity<List<SiteDto>>> getAllSites() // {
     // // return siteService.fetchAllSites().thenApply(ResponseEntity::ok); // }
     @Operation(summary = "fetch site by region", description = "retrieve a list of sites filtered by city/region")
     @ApiResponse(responseCode = "200", description = "sites fetched successfully")
     @GetMapping("/fetch-site-by-region/{city}")
-    public ResponseEntity<List<SiteResponseDto>> getAllSiteByRegion(
+    public ResponseEntity<List<SiteDto>> getAllSiteByRegion(
             @PathVariable String city) {
 
         log.info("GET req to fetch site by region with city={}", city);
 
-        List<SiteResponseDto> sites = siteService.fetchSiteByRegion(city);
+        List<SiteDto> sites = siteService.fetchSiteByRegion(city);
 
         log.debug("Fetched sites by region. city={}, count={}", city, sites.size());
 
@@ -178,33 +169,32 @@ public class SiteController {
     @Operation(summary = "fetch all available regions", description = "retrieve a list of all distinct regions where sites are available")
     @ApiResponse(responseCode = "200", description = "regions fetched successfully")
     @GetMapping("/fetch-all-region")
-    public ResponseEntity<List<String>> fethcAllAvailableRegion(){
+    public ResponseEntity<List<String>> fethcAllAvailableRegion() {
         List<String> fetchAllRegion = siteService.fetchAllRegion();
-        return new ResponseEntity(fetchAllRegion,HttpStatus.OK);
+        return new ResponseEntity(fetchAllRegion, HttpStatus.OK);
     }
-
 
     //jyare vpp approve kari dey tyare apde site ni under e vpp ni id nakhi daisu
-    @Operation(summary = "assign vpp to site", description = "assign a VPP to a site after approval")
-    @ApiResponse(responseCode = "200", description = "vpp assigned successfully")
-    @PostMapping("/{siteId}/assign-vpp")
-    public ResponseEntity<EnrollSiteInVppResponse> assignVppToSite(
-            @PathVariable("siteId") UUID siteId,
-            @RequestBody @Valid AssignVppRequest request
-    ) {
-        EnrollSiteInVppResponse resp = siteService.assignSiteToVpp(siteId, request);
-        return ResponseEntity.ok(resp);
-    }
+    // @Operation(summary = "assign vpp to site", description = "assign a VPP to a site after approval")
+    // @ApiResponse(responseCode = "200", description = "vpp assigned successfully")
+    // @PostMapping("/{siteId}/assign-vpp")
+    // public ResponseEntity<EnrollSiteInVppResponse> assignVppToSite(
+    //         @PathVariable("siteId") UUID siteId,
+    //         @RequestBody @Valid AssignVppRequest request
+    // ) {
+    //     EnrollSiteInVppResponse resp = siteService.assignSiteToVpp(siteId, request);
+    //     return ResponseEntity.ok(resp);
+    // }
 
     //prorgam enroll thayy tyare apde user ne e program ma nakhi daisu
-    @Operation(summary = "add program to site", description = "add a program to the site after user enrollment")
-    @ApiResponse(responseCode = "200", description = "program added successfully")
-    @PostMapping("/{site-id}/add-program")
-    public ResponseEntity<Map<UUID,String>> addPrograminSite(
-            @PathVariable("site-id") UUID siteId,
-            @RequestBody AddProgramConfigInSite addProgramConfigInSite){
-        Map<UUID,String> added=siteService.addProgramDetailInSite(siteId,addProgramConfigInSite);
-        return new ResponseEntity<>(added,HttpStatus.OK);
-    }
+    // @Operation(summary = "add program to site", description = "add a program to the site after user enrollment")
+    // @ApiResponse(responseCode = "200", description = "program added successfully")
+    // @PostMapping("/{site-id}/add-program")
+    // public ResponseEntity<Map<UUID,String>> addPrograminSite(
+    //         @PathVariable("site-id") UUID siteId,
+    //         @RequestBody AddProgramConfigInSite addProgramConfigInSite){
+    //     Map<UUID,String> added=siteService.addProgramDetailInSite(siteId,addProgramConfigInSite);
+    //     return new ResponseEntity<>(added,HttpStatus.OK);
+    // }
 
 }

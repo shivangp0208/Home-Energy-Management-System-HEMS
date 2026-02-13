@@ -1,13 +1,13 @@
 package com.project.hems.SiteManagerService.repository;
 
-import com.project.hems.SiteManagerService.entity.Owner;
-import com.project.hems.SiteManagerService.entity.Site;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.project.hems.SiteManagerService.entity.Owner;
+import com.project.hems.SiteManagerService.entity.Site;
 
 import java.util.List;
 import java.util.UUID;

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.project.hems.program_enrollment_manager.entity.ProgramDescEntity;
 import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
 import com.project.hems.hems_api_contracts.contract.program.Program;
-import com.project.hems.hems_api_contracts.contract.program.ProgramStatus;
 import com.project.hems.program_enrollment_manager.repository.ProgramRepository;
 import com.project.hems.program_enrollment_manager.web.exception.ProgramNotFoundException;
 import com.project.hems.program_enrollment_manager.web.exception.ProgramStateConflictException;

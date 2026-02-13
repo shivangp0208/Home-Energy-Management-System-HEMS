@@ -2,36 +2,34 @@ package com.project.hems.SiteManagerService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "solar")
-@Data
+@Getter
+@Setter
+@ToString
 public class Solar {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @Column(name = "id", nullable = false, updatable = false, unique = true)
+    private UUID solarId;
 
-    @Positive(message = "panel capacity must be positive")
-    @NotNull(message = "totalPanelCapacity cannot be null")
+    @Column(name = "total_panel_capacity", nullable = false, updatable = true)
     private double totalPanelCapacityW;
-
-    @NotNull(message = "inverterMaxCapacity cannot be null")
-    @Positive(message = "inverter max capacity must be positive")
+    
+    @Column(name = "inverter_max_capacity", nullable = false, updatable = true)
     private double inverterMaxCapacityW;
-
-    @NotBlank(message = "solar panel orientation cannot be blank")
+    
+    @Column(name = "orientation", nullable = false, updatable = true)
     private String orientation;
 
-    @ManyToOne
-    @JoinColumn(name = "site_id")
-    @JsonBackReference // child side
-    @NotNull(message = "site cannot be null")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "site_id", nullable = false, updatable = false)
+    @JsonBackReference 
     private Site site;
 
 }

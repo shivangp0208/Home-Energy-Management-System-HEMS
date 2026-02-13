@@ -1,12 +1,12 @@
 package com.project.hems.SiteManagerService.controller;
 
-import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.service.OwnerService;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,32 +27,26 @@ public class OwnerController {
 
     private final OwnerService ownerService;
 
-    @Operation(
-            summary = "create owner",
-            description = "create a new owner using request body and return the saved owner details"
-    )
+    @Operation(summary = "create owner", description = "create a new owner using request body and return the saved owner details")
     @ApiResponse(responseCode = "201", description = "owner created successfully")
     @ApiResponse(responseCode = "400", description = "invalid owner data")
     @PostMapping("/create-owner")
     // @ResponseStatus(HttpStatus.CREATED)
     // @PreAuthorize("hasAuthority('SCOPE_site:write')")
     public ResponseEntity<OwnerDto> createOwner(
-            @RequestBody Owner owner,
+            @RequestBody OwnerDto ownerDto,
             @AuthenticationPrincipal Jwt jwt) {
-        log.info("createOwner: POST req to create owner with owner detail = {}", owner);
+        log.info("createOwner: POST req to create owner with owner detail = {}", ownerDto);
 
         String email = jwt.getClaimAsString("http://hems.com/email");
         log.debug("createOwner: retrieved subject = {} and email = {}", jwt.getSubject(), email);
 
-        OwnerDto savedOwner = ownerService.createOwner(owner, jwt.getSubject(), email);
+        OwnerDto savedOwner = ownerService.createOwner(ownerDto, jwt.getSubject(), email);
 
         return new ResponseEntity<>(savedOwner, HttpStatus.CREATED);
     }
 
-    @Operation(
-            summary = "fetch owner by id",
-            description = "retrieve owner details by given owner id"
-    )
+    @Operation(summary = "fetch owner by id", description = "retrieve owner details by given owner id")
     @ApiResponse(responseCode = "200", description = "owner fetched successfully")
     @ApiResponse(responseCode = "404", description = "owner not found")
     @GetMapping("/fetch-owner-by-id/{ownerId}")
@@ -64,10 +58,7 @@ public class OwnerController {
         return new ResponseEntity<>(ownerDto, HttpStatus.OK);
     }
 
-    @Operation(
-            summary = "fetch all owners",
-            description = "retrieve a list of all owners available in the database"
-    )
+    @Operation(summary = "fetch all owners", description = "retrieve a list of all owners available in the database")
     @ApiResponse(responseCode = "200", description = "owners list fetched successfully")
     @GetMapping("/fetch-all-owner")
     // @PreAuthorize("hasAuthority('SCOPE_site:read')")
@@ -79,26 +70,23 @@ public class OwnerController {
         return new ResponseEntity<>(allOwner, HttpStatus.OK);
     }
 
-    @Operation(
-            summary = "update owner",
-            description = "update owner details and return the updated owner object"
-    )
+    @Operation(summary = "update owner", description = "update owner details and return the updated owner object")
     @ApiResponse(responseCode = "200", description = "owner updated successfully")
     @ApiResponse(responseCode = "404", description = "owner not found")
-    @PutMapping("/update-owner")
-    public ResponseEntity<OwnerDto> updateOwner(@RequestBody Owner owner) {
-        log.info("updateOwner: PUT req to update owner details with given detail = {}", owner);
+    @PutMapping("/update-owner/{ownerId}")
+    public ResponseEntity<OwnerDto> updateOwner(
+            @PathVariable(name = "ownerId", required = true) UUID ownerId,
+            @RequestBody @Valid OwnerDto ownerDto) {
+        log.info(
+                "updateOwner: PUT req to update owner details with given detail ownerId = {} and updated ownerDto = {}",
+                ownerId, ownerDto);
 
-        OwnerDto updatedOwner = ownerService.updateOwnerDetail(owner);
+        OwnerDto updatedOwner = ownerService.updateOwnerDetail(ownerId, ownerDto);
 
         return new ResponseEntity<>(updatedOwner, HttpStatus.OK);
     }
 
-
-    @Operation(
-            summary = "delete owner by id",
-            description = "delete the owner with the given owner id"
-    )
+    @Operation(summary = "delete owner by id", description = "delete the owner with the given owner id")
     @ApiResponse(responseCode = "200", description = "owner deleted successfully")
     @ApiResponse(responseCode = "404", description = "owner not found")
     @DeleteMapping("/delete-owner-by-id/{ownerId}")
@@ -106,7 +94,7 @@ public class OwnerController {
         log.info("deleteOwner: DELETE req to delete the owner with given owner id = {}", ownerId);
 
         ownerService.deleteOwner(ownerId);
-        
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
