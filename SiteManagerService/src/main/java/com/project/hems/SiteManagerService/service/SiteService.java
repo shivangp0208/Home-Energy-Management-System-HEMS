@@ -8,6 +8,7 @@ import com.project.hems.SiteManagerService.entity.*;
 import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
+import com.project.hems.SiteManagerService.service.impl.SiteServiceImpl;
 import com.project.hems.SiteManagerService.util.ValueMapper;
 import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
 import com.project.hems.hems_api_contracts.contract.program.Program;
@@ -31,11 +32,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SiteService {
+public class SiteService implements SiteServiceImpl {
 
     private final SiteRepo siteRepo;
     private final OwnerRepo ownerRepo;
@@ -46,12 +50,13 @@ public class SiteService {
     public String siteCreationTopic;
 
     public Site createSite(SiteRequestDto dto, String userSub) {
+
         log.info("createSite: Creating site for ownerId={} by userSub={}", dto.getOwnerId(), userSub);
 
         // in dto apde id store kariee chiee owner entity ni so apde ema thi fetch
         // karine obj banavsu
     log.info("creating site start ownerId={} userSub={}", dto.getOwnerId(), userSub);
-        log.info("fetch owner is exists or not with ownerId = {}",dto.getOwnerId());
+    log.info("fetch owner is exists or not with ownerId = {}",dto.getOwnerId());
         Owner owner = ownerRepo.findById(dto.getOwnerId())
                 .orElseThrow(() -> {
                     log.warn("createSite: Owner not found, ownerId={}", dto.getOwnerId());

@@ -30,8 +30,10 @@ public class VppService {
 
     private final ProgramManagerFeignClientService programManagerFeignClientService;
 
-    
+
+
     public String importPower(SignalForImport signalForImport){
+
         kafkaTemplate.send(vppRequirement, signalForImport);
         log.debug("importPower: vpp requirement is send to dispatch manager total site is :- "+signalForImport.getRequirement().size());
         return "successfull";

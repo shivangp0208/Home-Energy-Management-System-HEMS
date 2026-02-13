@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 @Component
 public class ValueMapper {
@@ -39,6 +40,27 @@ public class ValueMapper {
         }
         return ownerDto;
     }
+
+    //here i change to Funtional Interface Funtion<T,R>
+    Function<Owner, OwnerDto> ownerModelToDto2 = owner -> {
+        OwnerDto ownerDto = new OwnerDto();
+
+        ownerDto.setId(owner.getId());
+        ownerDto.setOwnerName(owner.getOwnerName());
+        ownerDto.setEmail(owner.getEmail());
+        ownerDto.setPhoneNo(owner.getPhoneNo());
+
+        if (owner.getSites() != null) {
+            List<UUID> siteIds = owner.getSites()
+                    .stream()
+                    .map(site -> site.getId())
+                    .toList();
+
+            ownerDto.setSitesIds(siteIds);
+        }
+        return ownerDto;
+    };
+
 
     public Owner ownerDtoToModel(OwnerDto ownerDto, List<Site> site) {
         Owner owner = new Owner();

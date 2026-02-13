@@ -6,6 +6,7 @@ import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerIdentityRepo;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
+import com.project.hems.SiteManagerService.service.impl.OwnerServiceImpl;
 import com.project.hems.SiteManagerService.util.ValueMapper;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
 
@@ -22,7 +23,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OwnerService {
+public class OwnerService implements OwnerServiceImpl {
 
     private final OwnerRepo ownerRepo;
     private final SiteRepo siteRepo;
@@ -61,6 +62,7 @@ public class OwnerService {
         }
 
         log.info("createOwner: Owner creation completed for ownerId={}", savedOwner.getId());
+
         return valueMapper.ownerModelToDto(savedOwner);
     }
 

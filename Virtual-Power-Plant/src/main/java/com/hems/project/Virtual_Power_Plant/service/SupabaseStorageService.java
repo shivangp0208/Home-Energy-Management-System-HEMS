@@ -36,6 +36,11 @@ public class SupabaseStorageService {
 
     private final RestTemplate restTemplate;
 
+
+    //TODO:-
+    //here implement Async and CompletableFuture concept km ke upload image thaya kare pachad backgroun ma
+    //other execution not wait for that
+    //Same do for email service also
     //note:-
     //supabase eni storage api https://PROJECT_ID.supabase.co/storage/v1/object
     //aa rete expose kare.. so aa /storage/v1/object lakhvu jarur che pachi 

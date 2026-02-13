@@ -101,7 +101,6 @@ public class ProgramService {
         //km ke banne delete karvu padse ek sathe 
         ProgramConfigurationEntity programConfig = programConfigurationRepo.findByProgram_programId(programId).orElseThrow(()-> new RuntimeException("program config not found for programId "+programId));;
 
-
         programConfigurationRepo.delete(programConfig);
         log.info("program config is deleted");
 
