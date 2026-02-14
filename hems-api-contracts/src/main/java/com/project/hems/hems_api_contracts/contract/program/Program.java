@@ -1,9 +1,12 @@
 package com.project.hems.hems_api_contracts.contract.program;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -41,5 +44,8 @@ public class Program {
     private ProgramDescription programDescription;
 
     private ProgramStatus programStatus;
+
+    @ToString.Exclude
+    private List<SiteDto> sites = new ArrayList<>();
 
 }

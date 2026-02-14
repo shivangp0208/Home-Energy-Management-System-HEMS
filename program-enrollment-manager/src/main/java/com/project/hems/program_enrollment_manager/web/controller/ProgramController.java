@@ -38,7 +38,7 @@ public class ProgramController {
         private final ProgramService programService;
         private final SiteProgramEnrollmentService siteProgramEnrollmentService;
 
-        @GetMapping("/get-all-programs")
+        @GetMapping("/programs")
         @ResponseStatus(HttpStatus.OK)
         public Page<Program> getAllPrograms(
                         @RequestParam(name = "pageNumber", required = false, defaultValue = "0") int pageNumber,
@@ -52,11 +52,18 @@ public class ProgramController {
         @Operation(summary = "get program by id", description = "retrieve a single program using its unique programId")
         @ApiResponse(responseCode = "200", description = "program found and returned successfully")
         @ApiResponse(responseCode = "404", description = "program with given id not found")
-        @GetMapping("/get-program/{programId}")
+        @GetMapping("/programs/{programId}")
         public ResponseEntity<Program> getOneProgram(
                         @PathVariable(name = "programId", required = true) @NonNull UUID programId) {
                 Program programById = programService.findProgramById(programId);
                 return new ResponseEntity<>(programById, HttpStatus.OK);
+        }
+
+        @GetMapping("/programs/{programId}/sites")
+        public ResponseEntity<Program> getAllSitesByProgramId(
+                        @PathVariable(name = "programId", required = true) UUID programId) {
+                Program programDetail = siteProgramEnrollmentService.findSiteIdByProgramId(programId);
+                return new ResponseEntity<>(programDetail, HttpStatus.OK);
         }
 
         @Operation(summary = "create new program", description = "create a new program with provided details")
@@ -78,22 +85,22 @@ public class ProgramController {
         }
 
         // here we find which site is enroll in which program
-        @Operation(summary = "find programs by site", description = "find all programs a particular site is enrolled in")
-        @ApiResponse(responseCode = "200", description = "list of programs returned successfully")
-        @GetMapping("/find-program-by-site")
-        public ResponseEntity<List<Program>> findProgramBySiteId(@RequestParam UUID siteId) {
-                List<Program> programBySite = siteProgramEnrollmentService.findProgramBySite(siteId);
-                return new ResponseEntity<>(programBySite, HttpStatus.OK);
-        }
+        // @Operation(summary = "find programs by site", description = "find all programs a particular site is enrolled in")
+        // @ApiResponse(responseCode = "200", description = "list of programs returned successfully")
+        // @GetMapping("/find-program-by-site")
+        // public ResponseEntity<List<Program>> findProgramBySiteId(@RequestParam UUID siteId) {
+        //         List<Program> programBySite = siteProgramEnrollmentService.findProgramBySite(siteId);
+        //         return new ResponseEntity<>(programBySite, HttpStatus.OK);
+        // }
 
         // here we in particular program how many site is enroll
-        @Operation(summary = "find sites by program", description = "find all site ids enrolled in a particular program")
-        @ApiResponse(responseCode = "200", description = "list of site ids returned successfully")
-        @GetMapping("/find-site-by-program")
-        public ResponseEntity<List<UUID>> findSiteIdByProgram(@RequestParam UUID programId) {
-                List<UUID> listSiteIds = siteProgramEnrollmentService.findSiteIdByProgramId(programId);
-                return new ResponseEntity<>(listSiteIds, HttpStatus.OK);
-        }
+        // @Operation(summary = "find sites by program", description = "find all site ids enrolled in a particular program")
+        // @ApiResponse(responseCode = "200", description = "list of site ids returned successfully")
+        // @GetMapping("/find-site-by-program")
+        // public ResponseEntity<List<UUID>> findSiteIdByProgram(@RequestParam UUID programId) {
+        //         List<UUID> listSiteIds = siteProgramEnrollmentService.findSiteIdByProgramId(programId);
+        //         return new ResponseEntity<>(listSiteIds, HttpStatus.OK);
+        // }
 
         // here we find enroll site in particular program
         @Operation(summary = "enroll site in program", description = "enroll a site in a specific program")

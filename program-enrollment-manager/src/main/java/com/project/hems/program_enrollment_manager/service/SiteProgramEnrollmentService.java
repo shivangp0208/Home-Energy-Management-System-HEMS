@@ -2,11 +2,13 @@ package com.project.hems.program_enrollment_manager.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.lang.NonNull;
-import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+
 import org.springframework.stereotype.Service;
 
 import com.project.hems.hems_api_contracts.contract.program.Program;
@@ -18,6 +20,7 @@ import com.project.hems.program_enrollment_manager.repository.ProgramRepository;
 import com.project.hems.program_enrollment_manager.repository.SiteProgramEnrollmentRepo;
 import com.project.hems.program_enrollment_manager.web.exception.ProgramExpiredException;
 import com.project.hems.program_enrollment_manager.web.exception.ProgramNotFoundException;
+import com.project.hems.program_enrollment_manager.web.exception.SiteAlreadyEnroledException;
 import com.project.hems.program_enrollment_manager.web.exception.SiteNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -38,19 +41,26 @@ public class SiteProgramEnrollmentService {
     // date vpp release that site
 
     // find which program enroll in which site
-    public List<Program> findProgramBySite(UUID siteId) {
-        List<ProgramEntity> programsBySiteId = siteProgramEnrollmentRepo.findProgramsBySiteId(siteId);
-        return programsBySiteId.stream()
-                .map(entity -> mapper.map(entity, Program.class))
-                .toList();
-    }
+    // public List<Program> findProgramBySite(UUID siteId) {
+    // List<ProgramEntity> programsBySiteId =
+    // siteProgramEnrollmentRepo.findProgramsBySiteId(siteId);
+    // return programsBySiteId.stream()
+    // .map(entity -> mapper.map(entity, Program.class))
+    // .toList();
+    // }
 
     // find which site enroll in which program
-    public List<UUID> findSiteIdByProgramId(UUID programId) {
-        List<UUID> siteIdByProgramId = siteProgramEnrollmentRepo.findSiteIdByProgramId(programId);
-        return siteIdByProgramId;
-    }
+    public Program findSiteIdByProgramId(UUID programId) {
+        ProgramEntity programEntity = programRepository.findById(programId).orElseThrow(
+                () -> new ProgramNotFoundException("unable to find program detail with program detail = " + programId));
 
+        Program program = mapper.map(programEntity, Program.class);
+        program.getSites().forEach(site -> {
+            site = siteFeignClientService.getSite(site.getSiteId()).getBody();
+        });
+
+        return program;
+    }
 
     // TODO: implement the logic for checking program conflict for a site
     // enroll site in particular program
@@ -58,12 +68,23 @@ public class SiteProgramEnrollmentService {
     public SiteProgramEnrollment enrollSiteinProgram(UUID siteId, @NonNull UUID programId) {
         // first check is program and site is available
         log.info("programId is {} and siteId is {} ", programId, siteId);
+
         ProgramEntity programEntity = programRepository.findById(programId)
                 .orElseThrow(() -> new ProgramNotFoundException(
                         "unable to find program detail for program id = " + programId));
 
-        SiteDto siteEntity = siteFeignClientService.getSite(siteId).getBody();
-        if (siteEntity == null) {
+        if (siteProgramEnrollmentRepo
+                .existsBySiteAndProgram(siteId, programEntity)) {
+            log.error("enrollSiteinProgram: site with site id " + siteId + " is already enroled in program "
+                    + programId);
+            throw new SiteAlreadyEnroledException(
+                    "site with site id " + siteId + " is already enroled in program " + programId);
+        }
+
+        @Valid
+        SiteDto siteDto = siteFeignClientService.getSite(siteId).getBody();
+        if (siteDto == null) {
+            log.error("enrollSiteinProgram unable to find site detail with site id = " + siteId);
             throw new SiteNotFoundException("unable to find site detail with site id = " + siteId);
         }
 
@@ -74,14 +95,15 @@ public class SiteProgramEnrollmentService {
                     "program with program id " + programId + " had expired on " + programEntity.getEndDate());
         }
 
-        SiteProgramEnrollment siteProgramEnrollment = SiteProgramEnrollment.builder()
-                .program(mapper.map(programEntity, Program.class))
-                .site(siteEntity)
-                .build();
+        SiteProgramEnrollmentEntity enrolmentEntity = new SiteProgramEnrollmentEntity();
+        enrolmentEntity.setProgram(programEntity);
+        enrolmentEntity.setSite(siteDto.getSiteId());
 
-        SiteProgramEnrollmentEntity savedEnrollmentEntity = siteProgramEnrollmentRepo
-                .save(mapper.map(siteProgramEnrollment, SiteProgramEnrollmentEntity.class));
+        SiteProgramEnrollmentEntity savedEntity = siteProgramEnrollmentRepo.save(enrolmentEntity);
+        SiteProgramEnrollment savedEnrolment = mapper.map(savedEntity, SiteProgramEnrollment.class);
+        savedEnrolment.setSite(siteDto);
 
-        return mapper.map(savedEnrollmentEntity, SiteProgramEnrollment.class);
+        siteFeignClientService.addPrograminSite(siteId, mapper.map(programEntity, Program.class));
+        return savedEnrolment;
     }
 }

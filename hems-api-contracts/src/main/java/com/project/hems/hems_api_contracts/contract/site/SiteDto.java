@@ -38,5 +38,6 @@ public class SiteDto {
     @Valid
     private AddressDto address;
 
+    @ToString.Exclude
     private List<Program> enrollProgramIds = new ArrayList<>();
 }

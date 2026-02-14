@@ -8,8 +8,14 @@ import org.springframework.context.annotation.Configuration;
 public class ProgramMapper {
 
     @Bean
-    public ModelMapper getModelMapper() {
-        return new ModelMapper();
-    }
+    public ModelMapper modelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
 
+        // Global configuration
+        modelMapper.getConfiguration()
+                .setSkipNullEnabled(true)
+                .setAmbiguityIgnored(true);
+
+        return modelMapper;
+    }
 }

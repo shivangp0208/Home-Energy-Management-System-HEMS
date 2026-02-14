@@ -1,6 +1,8 @@
 package com.project.hems.program_enrollment_manager.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.project.hems.hems_api_contracts.contract.program.ProgramStatus;
@@ -8,6 +10,7 @@ import com.project.hems.hems_api_contracts.contract.program.ProgramType;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.EnumType;
@@ -47,5 +50,9 @@ public class ProgramEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ProgramStatus programStatus;
-    
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Column(name = "site_id")
+    private List<UUID> sites = new ArrayList<>();
+
 }

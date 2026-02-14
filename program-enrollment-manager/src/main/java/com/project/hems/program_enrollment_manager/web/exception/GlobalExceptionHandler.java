@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.project.hems.program_enrollment_manager.web.exception.site.SiteArgumentException;
+import com.project.hems.program_enrollment_manager.web.exception.site.SiteResourceNotFoundException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -60,6 +63,36 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .error("SITE_NOT_FOUND")
                 .statusCode(HttpStatus.NOT_ACCEPTABLE.value())
+                .build();
+    }
+
+    @ExceptionHandler(SiteResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleSiteResourceNotFoundException(SiteResourceNotFoundException ex) {
+        return ErrorResponse.builder()
+                .message(ex.getMessage())
+                .error("SITE_RESOURCE_NOT_FOUND")
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .build();
+    }
+
+    @ExceptionHandler(SiteArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleSiteArgumentException(SiteArgumentException ex) {
+        return ErrorResponse.builder()
+                .message(ex.getMessage())
+                .error("SITE_INVALID_ARGUMENT")
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .build();
+    }
+
+    @ExceptionHandler(SiteAlreadyEnroledException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleSiteAlreadyEnroledException(SiteAlreadyEnroledException ex) {
+        return ErrorResponse.builder()
+                .message(ex.getMessage())
+                .error("SITE_ALREADY_ENROLED")
+                .statusCode(HttpStatus.CONFLICT.value())
                 .build();
     }
 

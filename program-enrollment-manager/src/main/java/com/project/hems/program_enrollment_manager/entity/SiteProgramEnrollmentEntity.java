@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "site_program_enrollment")
@@ -21,8 +22,10 @@ public class SiteProgramEnrollmentEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "program_id", nullable = false)
+    @ToString.Exclude
     private ProgramEntity program;
 
+    // TODO: instead of mannually working for maintaining timing use refernce for mssc-beer-service project to add timestamp for automatic timestamp saving
     @Column(name = "enrollment_time")
     private LocalDateTime enrollmentTime = LocalDateTime.now();
 }

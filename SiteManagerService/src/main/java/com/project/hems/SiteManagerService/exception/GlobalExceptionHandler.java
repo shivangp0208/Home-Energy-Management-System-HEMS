@@ -39,4 +39,10 @@ public class GlobalExceptionHandler {
 
     return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(ProgramNotValidException.class)
+  public ResponseEntity<ExceptionDto> handleProgramNotValidException(ProgramNotValidException ex) {
+    ExceptionDto exceptionDto = new ExceptionDto(ex.getMessage(), HttpStatus.BAD_REQUEST, 404);
+    return new ResponseEntity<>(exceptionDto, HttpStatus.BAD_REQUEST);
+  }
 }
