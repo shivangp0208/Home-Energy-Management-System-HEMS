@@ -1,6 +1,7 @@
 package com.project.hems.SiteManagerService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.project.hems.SiteManagerService.annotation.ValidateProgramType;
 import com.project.hems.hems_api_contracts.contract.program.ProgramPriority;
 import com.project.hems.hems_api_contracts.contract.program.ProgramStatus;
 import com.project.hems.hems_api_contracts.contract.program.ProgramType;
@@ -38,6 +39,10 @@ public class SiteProgram {
 
     @Enumerated(EnumType.STRING)
     private ProgramType programType;
+
+    //here we make my own Annotation..
+//    @ValidateProgramType
+//    private String programType;
 
     @Enumerated(EnumType.STRING)
     private ProgramStatus programStatus;

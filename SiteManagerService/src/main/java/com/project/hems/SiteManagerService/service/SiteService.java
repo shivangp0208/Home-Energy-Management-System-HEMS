@@ -144,7 +144,6 @@ public class SiteService implements SiteServiceImpl {
     //
     public List<Site> fetchAllSite() {
         log.info("fetchAllSite: Fetching all sites");
-
         List<Site> sites = siteRepo.findAll();
         log.trace("fetchAllSite: running on thread :- " + Thread.currentThread());
         log.debug("fetchAllSite: Running on thread={}", Thread.currentThread());
@@ -163,7 +162,6 @@ public class SiteService implements SiteServiceImpl {
 
     public List<SiteResponseDto> fetchAllSiteV2() {
         log.info("fetchAllSiteV2: Fetching all sites as response DTO");
-
         List<Site> sites = siteRepo.findAll();
         List<SiteResponseDto> siteResponseDtos = sites.stream()
                 .map(valueMapper::siteModelToResponseDto)
