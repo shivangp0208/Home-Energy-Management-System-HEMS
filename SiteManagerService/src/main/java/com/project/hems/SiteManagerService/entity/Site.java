@@ -26,6 +26,8 @@ public class Site {
     @ToString.Exclude
     private Owner owner;
 
+
+
     @Column(name = "is_active")
     private boolean isActive;
 

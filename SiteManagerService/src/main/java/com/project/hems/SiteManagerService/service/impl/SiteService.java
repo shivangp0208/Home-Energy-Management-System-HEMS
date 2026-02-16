@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 import java.util.UUID;
 
-public interface SiteServiceImpl {
+public interface SiteService {
 
      SiteDto createSite(SiteDto siteDto, String userSub);
 

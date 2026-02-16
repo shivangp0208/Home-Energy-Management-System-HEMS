@@ -20,8 +20,8 @@ public class SiteDto {
 
     private UUID siteId;
 
-    @NotNull(message = "Owner is required")
-    private OwnerDto owner;
+    @NotNull(message = "OwnerId is required")
+    private UUID ownerId;
 
     @JsonProperty("isActive")
     private boolean isActive;

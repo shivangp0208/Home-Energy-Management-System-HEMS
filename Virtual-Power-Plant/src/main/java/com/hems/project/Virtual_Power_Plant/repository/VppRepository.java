@@ -1,4 +1,9 @@
 package com.hems.project.Virtual_Power_Plant.repository;
 
-public class VppRepository {
+import com.hems.project.Virtual_Power_Plant.entity.Vpp;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface VppRepository extends JpaRepository<Vpp, UUID> {
 }

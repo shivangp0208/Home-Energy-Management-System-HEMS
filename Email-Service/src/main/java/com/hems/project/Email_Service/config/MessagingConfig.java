@@ -1,4 +1,4 @@
-package com.project.hems.SiteManagerService.config;
+package com.hems.project.Email_Service.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -7,7 +7,7 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+
 
 
 @Configuration
@@ -28,7 +28,7 @@ public class MessagingConfig {
     }
 
     @Bean
-    public Binding binding(Queue queue,TopicExchange exchange){
+    public Binding binding(Queue queue, TopicExchange exchange){
         return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
     }
 

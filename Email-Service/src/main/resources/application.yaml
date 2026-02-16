@@ -12,6 +12,13 @@ spring:
           auth: true
           starttls:
             enable: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: Hems#Einfochips
+
 server:
   port: 8088
 

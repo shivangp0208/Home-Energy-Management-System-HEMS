@@ -1,8 +1,8 @@
 package com.hems.project.Email_Service.controller;
 
-import com.hems.project.Email_Service.dto.MailSuccessfullRequestDto;
-import com.hems.project.Email_Service.dto.MailSuccessfullResponseDto;
 import com.hems.project.Email_Service.service.MailService;
+import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
+import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullResponseDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;

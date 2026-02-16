@@ -1,19 +1,20 @@
 package com.hems.project.Virtual_Power_Plant.controller;
 
 import java.util.List;
+import java.util.UUID;
 
+import com.hems.project.Virtual_Power_Plant.dto.SiteCollectionRequestDto;
+import com.hems.project.Virtual_Power_Plant.dto.SiteCollectionResponseDto;
+import com.hems.project.Virtual_Power_Plant.service.VppService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 
 
 import com.hems.project.Virtual_Power_Plant.service.SiteCreationService;
@@ -29,11 +30,12 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SiteController {
     private final SiteCreationService service;
+    private final VppService vppService;
 
     @Operation(summary = "Fetch all sites",
             description = "Retrieves all registered sites from Site Manager Service via Feign client.")
     @GetMapping("/fetch-all-site")
-    public ResponseEntity<List<SiteDto>> fetchAllSite(){
+    public ResponseEntity<List<SiteDto>> fetchAllSite() {
         log.info("received request in VppService: fetch all site");
         return service.fetchAllSites();
     }
@@ -43,7 +45,7 @@ public class SiteController {
     @Operation(summary = "Fetch all owners",
             description = "Retrieves all registered site owners from Site Manager Service.")
     @GetMapping("/fetch-all-owner")
-    public ResponseEntity<List<OwnerDto>> fetchAllOwner(){
+    public ResponseEntity<List<OwnerDto>> fetchAllOwner() {
         log.info("received request in VppService: fetch all owner");
         return service.fetchAllOnwer();
     }
@@ -61,8 +63,8 @@ public class SiteController {
             @ApiResponse(responseCode = "200", description = "Token is valid"),
             @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid token")
     })
-     @GetMapping("/check-token")
-    public String checkToken( @AuthenticationPrincipal Jwt jwt) {
+    @GetMapping("/check-token")
+    public String checkToken(@AuthenticationPrincipal Jwt jwt) {
         return jwt.toString();
     }
 
@@ -71,7 +73,7 @@ public class SiteController {
             description = "Retrieves all sites filtered by a specific region (city).")
     @ApiResponse(responseCode = "200", description = "Sites fetched successfully by region")
     @GetMapping("/fetch-site-by-region/{city}")
-    public ResponseEntity<List<SiteDto>> fetchAllSiteByRegion(@PathVariable String city){
+    public ResponseEntity<List<SiteDto>> fetchAllSiteByRegion(@PathVariable String city) {
         log.info("received request in VppService : fetch sites by region city={}", city);
         return service.fetchSitesByRegion(city);
     }
@@ -80,15 +82,22 @@ public class SiteController {
             description = "Retrieves a list of all available regions (cities) where sites are registered.")
     @ApiResponse(responseCode = "200", description = "Regions fetched successfully")
     @GetMapping("/fetch-all-region")
-    public ResponseEntity<List<String>> fetchAllRegion(){
+    public ResponseEntity<List<String>> fetchAllRegion() {
         log.info("received request in VppService : fetch all regoin");
-       return service.fetchAllRegion();
+        return service.fetchAllRegion();
     }
-    
+
+    //make group of site and name it to one collection
+    //take collectio vppId in requestParam and list of sideId and collectionName in request Body and return dto
+    @PostMapping("/create-collection/{vppId}")
+    public ResponseEntity<SiteCollectionResponseDto> createCollection(
+            @RequestBody SiteCollectionRequestDto dto,
+            @PathVariable("vppId") UUID vppId
+    ) {
+         SiteCollectionResponseDto collection = vppService.createCollection(vppId, dto);
+
+        return new ResponseEntity<>(collection, HttpStatus.OK);
+    }
 
 
-
-    
-    
-    
 }

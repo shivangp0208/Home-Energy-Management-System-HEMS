@@ -15,15 +15,15 @@ import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 public interface SiteFeignClientService {
   
         @GetMapping("/api/v1/owner/fetch-all-owner")
-        public ResponseEntity<List<OwnerDto>> getAllOwner();
+         ResponseEntity<List<OwnerDto>> getAllOwner();
 
          @GetMapping("/api/v1/site/fetch-all-site/v2")
-       public ResponseEntity<List<SiteDto>> getAllSitesV2();
+        ResponseEntity<List<SiteDto>> getAllSitesV2();
 
           @GetMapping("/api/v1/site/fetch-site-by-region/{city}")
-    public ResponseEntity<List<SiteDto>> getAllSiteByRegion(@PathVariable("city") String city);
+         ResponseEntity<List<SiteDto>> getAllSiteByRegion(@PathVariable("city") String city);
 
-     @GetMapping("/api/v1/site/fetch-all-region")
-    public ResponseEntity<List<String>> fethcAllAvailableRegion();
+        @GetMapping("/api/v1/site/fetch-all-region")
+       ResponseEntity<List<String>> fethcAllAvailableRegion();
 
 }

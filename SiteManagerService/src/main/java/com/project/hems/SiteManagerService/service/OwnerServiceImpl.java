@@ -2,12 +2,13 @@ package com.project.hems.SiteManagerService.service;
 
 import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.entity.OwnerIdentities;
+import com.project.hems.SiteManagerService.entity.Site;
 import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerIdentityRepo;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
-import com.project.hems.SiteManagerService.service.impl.OwnerServiceImpl;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,13 +16,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OwnerService implements OwnerServiceImpl {
+public class OwnerServiceImpl implements com.project.hems.SiteManagerService.service.impl.OwnerService {
 
     private final OwnerRepo ownerRepo;
     private final SiteRepo siteRepo;
@@ -98,11 +101,18 @@ public class OwnerService implements OwnerServiceImpl {
                             "updateOwnerDetail: owner is not found for this is : " + ownerDto.getOwnerId());
                 });
 
-        existingOwner.setOwnerName(ownerDto.getOwnerName());
-        existingOwner.setEmail(ownerDto.getEmail());
-        existingOwner.setPhoneNo(ownerDto.getPhoneNo());
+        Optional.ofNullable(ownerDto.getEmail()).ifPresent(existingOwner::setEmail);
+        Optional.ofNullable(ownerDto.getOwnerName()).ifPresent(existingOwner::setOwnerName);
+        Optional.ofNullable(ownerDto.getPhoneNo()).ifPresent(existingOwner::setPhoneNo);
+        Optional.ofNullable(ownerDto.getSites()).ifPresent(siteDtos->{
+            List<Site> sites= siteDtos.stream()
+                    .map(siteDto-> mapper.map(siteDto,Site.class))
+                    .toList();
+            existingOwner.setSites(sites);
+        });
 
-        existingOwner.getSites().forEach(site -> site.setOwner(existingOwner));
+
+
         Owner savedUpdatedOwner = ownerRepo.save(existingOwner);
 
         log.debug("complete update owner details ownerId={} ", ownerDto.getOwnerId());

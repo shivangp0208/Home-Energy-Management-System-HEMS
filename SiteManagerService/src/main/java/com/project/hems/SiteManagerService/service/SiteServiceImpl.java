@@ -4,6 +4,8 @@ import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.SiteManagerService.entity.Battery;
 import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.entity.Site;
+import com.project.hems.SiteManagerService.util.EmailTemplateUtil;
+import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
 import com.project.hems.hems_api_contracts.contract.program.Program;
 import com.project.hems.hems_api_contracts.contract.site.*;
 
@@ -13,7 +15,6 @@ import com.project.hems.SiteManagerService.exception.ProgramNotValidException;
 import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
-import com.project.hems.SiteManagerService.service.impl.SiteServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SiteService implements SiteServiceImpl {
+public class SiteServiceImpl implements com.project.hems.SiteManagerService.service.impl.SiteService {
 
     private final SiteRepo siteRepo;
     private final OwnerRepo ownerRepo;
@@ -45,16 +46,16 @@ public class SiteService implements SiteServiceImpl {
 
     @Transactional
     public SiteDto createSite(SiteDto siteDto, String userSub) {
-        log.info("createSite: Creating site for ownerId={} by userSub={}", siteDto.getOwner(), userSub);
+        log.info("createSite: Creating site for ownerId={} by userSub={}", siteDto.getOwnerId(), userSub);
 
         // in dto apde id store kariee chiee owner entity ni so apde ema thi fetch
         // karine obj banavsu
-        log.info("creating site start ownerId={} userSub={}", siteDto.getOwner(), userSub);
-        log.info("fetch owner is exists or not with ownerId = {}", siteDto.getOwner());
-        Owner owner = ownerRepo.findById(siteDto.getOwner().getOwnerId())
+        log.info("creating site start ownerId={} userSub={}", siteDto.getOwnerId(), userSub);
+        log.info("fetch owner is exists or not with ownerId = {}", siteDto.getOwnerId());
+        Owner owner = ownerRepo.findById(siteDto.getOwnerId())
                 .orElseThrow(() -> {
                     log.warn("createSite: Owner not found, ownerId={}",
-                            siteDto.getOwner().getOwnerId());
+                            siteDto.getOwnerId());
                     return new ResourceNotFoundException(
                             "Owner not found first add Owner then add Site");
                 });
@@ -66,7 +67,6 @@ public class SiteService implements SiteServiceImpl {
 
         log.debug("createSite: after mapping site dto to entity = {}", siteEnity);
 
-        siteEnity.getOwner().getSites().add(siteEnity);
         siteEnity.getSolar().forEach(solarEn -> solarEn.setSite(siteEnity));
         siteEnity.getAddress().setSite(siteEnity);
         siteEnity.getBatteries().forEach(battery -> battery.setSite(siteEnity));
@@ -76,7 +76,7 @@ public class SiteService implements SiteServiceImpl {
         Site savedSite = siteRepo.save(siteEnity);
         log.info("Creating site success siteId={} ownerId={} solarCount={} batteryIncluded={} addressIncluded={}",
                 savedSite.getSiteId(),
-                savedSite.getOwner(),
+                savedSite.getOwner().getOwnerId(),
                 savedSite.getSolar() != null ? savedSite.getSolar().size() : 0,
                 savedSite.getBatteries() != null,
                 savedSite.getAddress() != null);
@@ -96,7 +96,6 @@ public class SiteService implements SiteServiceImpl {
 
         kafkaTemplate.send(siteCreationTopic, siteCreationEvent);
         log.info("createSite: Kafka event sent, topic={}, siteId={}", siteCreationTopic, savedSite.getSiteId());
-
         return mapper.map(savedSite, SiteDto.class);
     }
 

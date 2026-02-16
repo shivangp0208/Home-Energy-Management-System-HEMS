@@ -1,6 +1,8 @@
 package com.hems.project.Virtual_Power_Plant.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.hems.project.Virtual_Power_Plant.dto.VppOperationalStatus;
@@ -18,7 +20,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 
 @Entity
@@ -89,7 +92,11 @@ public class Vpp {
     private String verifiedBy; //jene verify karyu hoy e vpp manager nu name..
 
     @Column(name = "verification_note")
-    private String verificationNotes;      
+    private String verificationNotes;
+
+    @JdbcTypeCode(SqlTypes.JSON) //usig this hibrnate will knoww how to convert this to josn
+    @Column(name = "site_collection",columnDefinition = "json")
+    private Map<String, List<UUID>> siteCollection;
 
 
 }
