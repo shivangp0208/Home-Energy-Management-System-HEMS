@@ -10,8 +10,13 @@
         <module name="Home-Energy-Management-System-HEMS.Email-Service.main" />
         <module name="Home-Energy-Management-System-HEMS.program-enrollment-manager.main" />
         <module name="Home-Energy-Management-System-HEMS.Vpp-Manager.main" />
-        <module name="Home-Energy-Management-System-HEMS.api-gateway-hems.main" />
+        <module name="Home-Energy-Management-System-HEMS.auth-service-hems.main" />
         <module name="Home-Energy-Management-System-HEMS.Virtual-Power-Plant.main" />
+        <module name="Home-Energy-Management-System-HEMS.simulator-service.main" />
+        <module name="Home-Energy-Management-System-HEMS.SiteManagerService.main" />
+        <module name="Home-Energy-Management-System-HEMS.envoy-manager-service.main" />
+        <module name="Home-Energy-Management-System-HEMS.api-gateway-hems.main" />
+        <module name="Home-Energy-Management-System-HEMS.dispatch-manager-service.main" />
       </profile>
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
@@ -19,29 +24,6 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f195ee86e6c896ea47a1d39defbe20eb59cd149d/lombok-1.18.30.jar" />
         </processorPath>
         <module name="Home-Energy-Management-System-HEMS.hems-api-contracts.main" />
-        <module name="Home-Energy-Management-System-HEMS.SiteManagerService.main" />
-        <module name="Home-Energy-Management-System-HEMS.auth-service-hems.main" />
-      </profile>
-      <profile name="Gradle Imported" enabled="true">
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar" />
-        </processorPath>
-        <module name="Home-Energy-Management-System-HEMS.dispatch-manager-service.main" />
-      </profile>
-      <profile name="Gradle Imported" enabled="true">
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.38/57f8f5e02e92a30fd21b80cbd426a4172b5f8e29/lombok-1.18.38.jar" />
-        </processorPath>
-        <module name="Home-Energy-Management-System-HEMS.envoy-manager-service.main" />
-      </profile>
-      <profile name="Gradle Imported" enabled="true">
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.34/ec547ef414ab1d2c040118fb9c1c265ada63af14/lombok-1.18.34.jar" />
-        </processorPath>
-        <module name="Home-Energy-Management-System-HEMS.simulator-service.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="17" />
