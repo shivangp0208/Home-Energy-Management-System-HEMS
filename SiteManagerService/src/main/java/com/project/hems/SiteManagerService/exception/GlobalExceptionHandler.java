@@ -17,32 +17,32 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(value = ResourceNotFoundException.class)
-    public ResponseEntity<ExceptionDto> handleResourceNotFound(ResourceNotFoundException ex){
-    log.warn("Resource not found: {}", ex.getMessage(), ex);
-      ExceptionDto exceptionDto=new ExceptionDto(ex.getMessage(),HttpStatus.NOT_FOUND,404);
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionDto);
-    }
+  public ResponseEntity<ExceptionDto> handleResourceNotFound(ResourceNotFoundException ex) {
+    ExceptionDto exceptionDto = new ExceptionDto(ex.getMessage(), HttpStatus.NOT_FOUND, 404);
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionDto);
+  }
 
-  // handles DTO binding errors example:- request ma koi missing che argunment to aa run thase
+  // handles DTO binding errors example:- request ma koi missing che argunment to
+  // aa run thase
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex){
-    log.warn("Request validation failed. Error count={}",ex.getBindingResult().getErrorCount(), ex);
-        Map<String, String> errors = new HashMap<>();
-    ex.getBindingResult().getFieldErrors().forEach(error ->
-            errors.put(error.getField(), error.getDefaultMessage())
-    );
+  public ResponseEntity<Map<String, String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    Map<String, String> errors = new HashMap<>();
+    ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
     return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
   }
 
   // Jpa validation ni error hase toh ama catch thase
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex){
-    log.warn("Constraint violation occurred: {}", ex.getMessage(), ex);
+  public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
     Map<String, String> errors = new HashMap<>();
-    ex.getConstraintViolations().forEach(cv ->
-            errors.put(cv.getPropertyPath().toString(), cv.getMessage())
-    );
+    ex.getConstraintViolations().forEach(cv -> errors.put(cv.getPropertyPath().toString(), cv.getMessage()));
 
     return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(ProgramNotValidException.class)
+  public ResponseEntity<ExceptionDto> handleProgramNotValidException(ProgramNotValidException ex) {
+    ExceptionDto exceptionDto = new ExceptionDto(ex.getMessage(), HttpStatus.BAD_REQUEST, 404);
+    return new ResponseEntity<>(exceptionDto, HttpStatus.BAD_REQUEST);
   }
 }

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,7 +41,9 @@ public class MeterManagementService {
                 .batteryRemainingWh(5000.0) // Start half-full
 
                 // Initial Logic States
-                .energyPriorities(ActiveControlStore.energyPriorities)
+                .loadEnergyPriorities(ActiveControlStore.loadEnergyPriorities)
+                .surplusEnergyPriorities(ActiveControlStore.surplusEnergyPriorities)
+                
                 .batterySoc(50)
                 .batteryMode(BatteryMode.AUTO)
                 .chargingStatus(ChargingStatus.IDLE)
@@ -116,7 +117,7 @@ public class MeterManagementService {
 
         List<MeterSnapshot> snapshots = meterReadings.entrySet().stream()
                 .map(entry -> entry.getValue())
-                .collect(Collectors.toList());
+                .toList();
 
         log.info("getAllMeters: fetched {} meter snapshots from Bean Map",
                 snapshots != null ? snapshots.size() : 0);

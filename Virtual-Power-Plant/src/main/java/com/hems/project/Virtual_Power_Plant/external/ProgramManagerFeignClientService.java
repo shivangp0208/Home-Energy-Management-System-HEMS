@@ -4,25 +4,18 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import com.project.hems.hems_api_contracts.contract.program.Program;
-import com.project.hems.hems_api_contracts.contract.program.ProgramConfigurationRequestDto;
-import com.project.hems.hems_api_contracts.contract.program.ProgramConfigurationResponseDto;
-import com.project.hems.hems_api_contracts.contract.program.ProgramConfigurationUpdateRequestDto;
-import com.project.hems.hems_api_contracts.contract.program.ProgramConfigurationUpdateResponseDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteEnrollSuccessResponse;
 
 import jakarta.validation.Valid;
 
-@FeignClient(name = "PROGRAM-ENROLLMENT-MANAGER")
+@FeignClient(name = "program-enrollment-manager")
 public interface ProgramManagerFeignClientService {
 
     @GetMapping("/get-all-programs")
@@ -41,12 +34,6 @@ public interface ProgramManagerFeignClientService {
             @RequestBody @Valid Program program
     );
 
-    @PostMapping("/configure-program/{programId}")
-    ResponseEntity<ProgramConfigurationResponseDto> configureProgram(
-            @RequestBody ProgramConfigurationRequestDto dto,
-            @PathVariable("programId") UUID programId
-    );
-
     @PostMapping("/find-program-by-site")
     ResponseEntity<List<Program>> findProgramBySiteId(
             @RequestParam("siteId") UUID siteId
@@ -61,12 +48,6 @@ public interface ProgramManagerFeignClientService {
     ResponseEntity<SiteEnrollSuccessResponse> enrollSiteInProgram(
             @RequestParam("siteId") UUID siteId,
             @RequestParam("programId") UUID programId
-    );
-
-    @PutMapping("/update-program/{programId}")
-    ResponseEntity<ProgramConfigurationUpdateResponseDto> updateProgram(
-            @PathVariable("programId") UUID programId,
-            @RequestBody ProgramConfigurationUpdateRequestDto requestDto
     );
 
     @PostMapping("/activate-program/{programId}")

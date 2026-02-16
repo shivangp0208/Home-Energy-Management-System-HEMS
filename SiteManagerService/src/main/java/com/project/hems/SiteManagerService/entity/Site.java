@@ -2,10 +2,7 @@ package com.project.hems.SiteManagerService.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -14,58 +11,41 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "sites")
-@Data
-@ToString(exclude = { "owner", "solar", "battery", "address" })
+@Getter
+@Setter
+@ToString
 public class Site {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    // @Id
-    // @GeneratedValue(strategy = GenerationType.IDENTITY)
-    // private Long id;
+    @Column(name = "id", updatable = false, unique = true, nullable = false)
+    private UUID siteId;
 
-    @Column(name = "vpp_id",nullable = true)
-    private UUID vppId;
-
-
-    @ManyToOne
-    @JoinColumn(name = "owner")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
     @JsonBackReference
-    @NotNull(message = "owner entity number cannot be null")
+    @ToString.Exclude
     private Owner owner;
 
-    @NotNull(message = "active status is required")
+    @Column(name = "is_active")
     private boolean isActive;
 
-    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL) // one site have many solar panel
-    @JsonManagedReference // parent side
-    @NotEmpty(message = "solar entity number cannot be empty")
-    private List<Solar> solar;
-
-    @OneToOne(mappedBy = "site", cascade = CascadeType.ALL) // aa discuaa karvu ke ama One site have many battery hoi
-                                                            // sake and
-    // solar class ni under inverter max capacity nu su matlab??
-    // and battery class ni under quantity?? battery info toh ek j battery ni hase
-    // ne
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    @NotNull(message = "battery entity cannot be null")
-    private Battery battery;
+    @ToString.Exclude
+    private List<Solar> solar = new ArrayList<>();
 
-    @OneToOne(mappedBy = "site", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    @NotNull(message = "address entity cannot be null")
+    @ToString.Exclude
+    private List<Battery> batteries = new ArrayList<>();
+
+    @OneToOne(mappedBy = "site", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @ToString.Exclude
     private Address address;
 
-    // private List<UUID> enrollProgramIds;//ahiya apde direct List<Program> na kari
-    // sakiee..
-    //@ElementCollection
-    //@Embedded
-    //@CollectionTable(name = "site_programs", joinColumns = @JoinColumn(name = "site_id"))
-    //@Column(name = "program")
-    //@NotEmpty(message = "must be one program id is needed")
-    //private List<AddProgramConfigInSite> enrollProgram=new ArrayList<>();
+    @ElementCollection
+    @Column(name = "program_id")
+    private List<UUID> enrollProgramIds = new ArrayList<>();
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SiteProgram> enrollProgram = new ArrayList<>();
 }

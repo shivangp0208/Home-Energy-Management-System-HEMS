@@ -60,7 +60,14 @@ public class MeterEntity {
     @Column(name = "energy_priority_id")
     @Enumerated(EnumType.STRING)
     @NotNull(message = "energy priority field cannot be null")
-    private List<EnergyPriority> energyPriorities;
+    private List<EnergyPriority> loadEnergyPriorities;
+
+    @ElementCollection(targetClass = EnergyPriority.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "energy_priority", joinColumns = @JoinColumn(name = "meter_id"))
+    @Column(name = "energy_priority_id")
+    @Enumerated(EnumType.STRING)
+    @NotNull(message = "energy priority field cannot be null")
+    private List<EnergyPriority> surplusEnergyPriorities;
 
     @Builder.Default
     @Column(precision = 15, scale = 4)

@@ -2,42 +2,41 @@ package com.project.hems.SiteManagerService.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "owners")
-@Data
-@ToString(exclude = "sites")
+@Getter
+@Setter
+@ToString
 public class Owner {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @Column(name = "id", nullable = false, updatable = false, unique = true)
+    private UUID ownerId;
 
-    //wrote validation here
-    @NotEmpty(message = "owner name cannot be empty")
-    @Size(max = 50, message = "Name length must not exceed 50")
+    @Column(name = "owner_name", nullable = false)
     private String ownerName;
 
-    @NotEmpty(message = "email name cannot be empty")
-    @Email(message = "email should be valid")
-    @Column(nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Size(max=10,message = "minimum 10 digit must be needed")
-    @NotEmpty(message = "phone number cannot be empty")
+    @Column(name = "phone_no", nullable = false)
     private String phoneNo;
 
-    @OneToMany(mappedBy = "owner",cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<Site> sites;
+    @ToString.Exclude 
+    private List<Site> sites = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<OwnerIdentities> Owneridentities;
+    @ToString.Exclude 
+    private List<OwnerIdentities> ownerIdentities = new ArrayList<>();
 
 }

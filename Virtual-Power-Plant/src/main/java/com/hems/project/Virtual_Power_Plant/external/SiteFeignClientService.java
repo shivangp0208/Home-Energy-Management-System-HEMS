@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
-import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 
 
 @FeignClient(name = "SITE-SERVICE-HEMS")
@@ -18,10 +18,10 @@ public interface SiteFeignClientService {
         public ResponseEntity<List<OwnerDto>> getAllOwner();
 
          @GetMapping("/api/v1/site/fetch-all-site/v2")
-       public ResponseEntity<List<SiteResponseDto>> getAllSitesV2();
+       public ResponseEntity<List<SiteDto>> getAllSitesV2();
 
           @GetMapping("/api/v1/site/fetch-site-by-region/{city}")
-    public ResponseEntity<List<SiteResponseDto>> getAllSiteByRegion(@PathVariable("city") String city);
+    public ResponseEntity<List<SiteDto>> getAllSiteByRegion(@PathVariable("city") String city);
 
      @GetMapping("/api/v1/site/fetch-all-region")
     public ResponseEntity<List<String>> fethcAllAvailableRegion();

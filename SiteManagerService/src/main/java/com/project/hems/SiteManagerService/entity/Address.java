@@ -1,51 +1,45 @@
 package com.project.hems.SiteManagerService.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "address")
-@Data
+@Getter
+@Setter
+@ToString
 public class Address {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @Column(name = "id", updatable = false, unique = true, nullable = false)
+    private UUID addressId;
 
-    @NotBlank(message = "addressLine1 cannot be empty")
-    @Size(min = 7, max = 30, message = "addressLine1 length must be between 7 and 30")
+    @Column(name = "address_line_1", nullable = false, updatable = true)
     private String addressLine1;
 
-    @Size(min = 7, max = 30, message = "addressLine2 length must be between 7 and 30")
+    @Column(name = "address_line_2", updatable = true)
     private String addressLine2;
 
-    @NotBlank(message = "city cannot be empty")
-    @Size(max = 25, message = "city length must not exceed 25")
+    @Column(name = "city", updatable = true, nullable = false)
     private String city;
 
-    @NotBlank(message = "state cannot be empty")
-    @Size(max = 25, message = "state length must not exceed 25")
+    @Column(name = "state", updatable = true, nullable = false)
     private String state;
 
-    @NotBlank(message = "postalCode cannot be empty")
-    @Size(max = 10, message = "postalCode length must not exceed 10")
+    @Column(name = "postal_code", updatable = true, nullable = false)
     private String postalCode;
 
-    @NotBlank(message = "county cannot be empty")
-    @Size(max = 25, message = "county length must not exceed 25")
-    private String county;
+    @Column(name = "country", updatable = true, nullable = false)
+    private String country;
 
-
-    @OneToOne
-    @JoinColumn(name = "site_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "site_id", nullable = false, updatable = false)
     @JsonBackReference
-    @NotNull(message = "site entity cannot be null")
     private Site site;
 
-
-
 }
-

@@ -35,16 +35,18 @@ public class EnergyPhysicsEngine {
                         MeterSnapshot meter,
                         double solarW,
                         double loadW,
-                        List<EnergyPriority> priorityOrder,
+                        List<EnergyPriority> loadpriorityOrder,
+                        List<EnergyPriority> surpluspriorityOrder,
                         @Nullable ActiveControlState control) {
 
                 log.info(
-                                "EnergyBalance START | siteId={} meterId={} solarW={} loadW={} priority={} control={}",
+                                "EnergyBalance START | siteId={} meterId={} solarW={} loadW={} loadPriority={} surplusPriority={} control={}",
                                 meter.getSiteId(),
                                 meter.getMeterId(),
                                 solarW,
                                 loadW,
-                                priorityOrder,
+                                loadpriorityOrder,
+                                surpluspriorityOrder,
                                 control != null ? control.getBatteryControl() : "NONE");
 
                 double remainingLoadW = loadW;
@@ -54,7 +56,7 @@ public class EnergyPhysicsEngine {
                 double gridFlowW = 0.0;
 
                 // 1. Serve LOAD by priority
-                for (EnergyPriority priority : priorityOrder) {
+                for (EnergyPriority priority : loadpriorityOrder) {
 
                         if (remainingLoadW <= 0) {
                                 log.debug("Load fully served, skipping remaining priorities");
@@ -114,7 +116,7 @@ public class EnergyPhysicsEngine {
                 log.debug("SURPLUS detected={}W", surplusW);
 
                 if (surplusW > 0) {
-                        for (EnergyPriority priority : priorityOrder) {
+                        for (EnergyPriority priority : surpluspriorityOrder) {
 
                                 if (surplusW <= 0) {
                                         log.debug("Surplus fully handled");

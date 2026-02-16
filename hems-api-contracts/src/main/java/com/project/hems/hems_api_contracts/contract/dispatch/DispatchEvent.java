@@ -39,9 +39,6 @@ public class DispatchEvent {
     @Positive(message = "durationSec must be greater than 0")
     private long durationSec;
 
-    @NotEmpty(message = "energyPriority cannot be empty")
-    private List<@NotNull EnergyPriority> energyPriority;
-
     @Size(min = 1, max = 255, message = "reason must be at most 255 characters")
     private String reason;
 

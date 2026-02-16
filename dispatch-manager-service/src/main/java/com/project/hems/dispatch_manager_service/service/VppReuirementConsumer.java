@@ -47,7 +47,6 @@ public class VppReuirementConsumer {
             DispatchEventType.EXPORT_POWER,
             110L,
             900L,
-            List.of(EnergyPriority.BATTERY, EnergyPriority.GRID),
             "test export"
             );
             dispatchEventProducer.sendDispatchCommands(dispatchEvent);

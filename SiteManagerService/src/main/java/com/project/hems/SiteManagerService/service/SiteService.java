@@ -1,292 +1,226 @@
 package com.project.hems.SiteManagerService.service;
 
-import com.project.hems.SiteManagerService.dto.AssignVppRequest;
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
-import com.project.hems.SiteManagerService.dto.EnrollSiteInVppResponse;
-import com.project.hems.SiteManagerService.dto.SiteRequestDto;
-import com.project.hems.SiteManagerService.entity.*;
+import com.project.hems.SiteManagerService.entity.Battery;
+import com.project.hems.SiteManagerService.entity.Owner;
+import com.project.hems.SiteManagerService.entity.Site;
+import com.project.hems.hems_api_contracts.contract.program.Program;
+import com.project.hems.hems_api_contracts.contract.site.*;
+
+import jakarta.transaction.Transactional;
+
+import com.project.hems.SiteManagerService.exception.ProgramNotValidException;
 import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
 import com.project.hems.SiteManagerService.service.impl.SiteServiceImpl;
-import com.project.hems.SiteManagerService.util.ValueMapper;
-import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
-import com.project.hems.hems_api_contracts.contract.program.Program;
-import com.project.hems.hems_api_contracts.contract.site.SiteCreationEvent;
-import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class SiteService implements SiteServiceImpl {
 
-    private final SiteRepo siteRepo;
-    private final OwnerRepo ownerRepo;
-    private final ValueMapper valueMapper;
-    private final KafkaTemplate<String, SiteCreationEvent> kafkaTemplate;
+        private final SiteRepo siteRepo;
+        private final OwnerRepo ownerRepo;
+        private final KafkaTemplate<String, SiteCreationEvent> kafkaTemplate;
+        private final ModelMapper mapper;
 
-    @Value("${property.config.kafka.site-creation-topic}")
-    public String siteCreationTopic;
+        @Value("${property.config.kafka.site-creation-topic}")
+        public String siteCreationTopic;
 
-    public Site createSite(SiteRequestDto dto, String userSub) {
+        @Transactional
+        public SiteDto createSite(SiteDto siteDto, String userSub) {
+                log.info("createSite: Creating site for ownerId={} by userSub={}", siteDto.getOwner(), userSub);
 
-        log.info("createSite: Creating site for ownerId={} by userSub={}", dto.getOwnerId(), userSub);
+                // in dto apde id store kariee chiee owner entity ni so apde ema thi fetch
+                // karine obj banavsu
+                log.info("creating site start ownerId={} userSub={}", siteDto.getOwner(), userSub);
+                log.info("fetch owner is exists or not with ownerId = {}", siteDto.getOwner());
+                Owner owner = ownerRepo.findById(siteDto.getOwner().getOwnerId())
+                                .orElseThrow(() -> {
+                                        log.warn("createSite: Owner not found, ownerId={}",
+                                                        siteDto.getOwner().getOwnerId());
+                                        return new ResourceNotFoundException(
+                                                        "Owner not found first add Owner then add Site");
+                                });
 
-        // in dto apde id store kariee chiee owner entity ni so apde ema thi fetch
-        // karine obj banavsu
-    log.info("creating site start ownerId={} userSub={}", dto.getOwnerId(), userSub);
-    log.info("fetch owner is exists or not with ownerId = {}",dto.getOwnerId());
-        Owner owner = ownerRepo.findById(dto.getOwnerId())
-                .orElseThrow(() -> {
-                    log.warn("createSite: Owner not found, ownerId={}", dto.getOwnerId());
-                    return new ResourceNotFoundException("Owner not found first add Owner then add Site");
-                });
+                // Save owner first in new created site
+                log.debug("createSite: Owner fetched with ownerId={}", owner.getOwnerId());
 
-        // Save owner first in new created site
-        Owner savedOwner = ownerRepo.save(owner);
-        log.debug("createSite: Owner fetched and saved, ownerId={}", savedOwner.getId());
+                Site siteEnity = mapper.map(siteDto, Site.class);
 
-        // now we create new Site obj and eni under badhu set karsu
+                log.debug("createSite: after mapping site dto to entity = {}", siteEnity);
 
-        Site site = new Site();
-        site.setOwner(savedOwner);
-        site.setActive(true);
-       // site.setEnrollProgramIds(dto.getProgramId());
+                siteEnity.getOwner().getSites().add(siteEnity);
+                siteEnity.getSolar().forEach(solarEn -> solarEn.setSite(siteEnity));
+                siteEnity.getAddress().setSite(siteEnity);
+                siteEnity.getBatteries().forEach(battery -> battery.setSite(siteEnity));
 
-        // now have child na table jode thi badhu laisu save karsu then site ma save
-        // karsu
-        // solar
-        if (dto.getSolars() != null) {
-            log.debug("createSite: Mapping {} solar units", dto.getSolars().size());
-            List<Solar> solarList = dto.getSolars().stream()
-                    .map(solarDto -> {
-                        Solar solar = valueMapper.solarDtoToModel(solarDto, site);
-                        return solar;
-                    }).toList();
-            site.setSolar(solarList);
+                log.debug("createSite: after setting site entity to each dto in site entity = {}", siteEnity);
+
+                Site savedSite = siteRepo.save(siteEnity);
+                log.info("Creating site success siteId={} ownerId={} solarCount={} batteryIncluded={} addressIncluded={}",
+                                savedSite.getSiteId(),
+                                savedSite.getOwner(),
+                                savedSite.getSolar() != null ? savedSite.getSolar().size() : 0,
+                                savedSite.getBatteries() != null,
+                                savedSite.getAddress() != null);
+
+                owner.getSites().add(savedSite);
+                ownerRepo.save(owner);
+
+                log.info("create kafka SiteCreationEvent");
+                SiteCreationEvent siteCreationEvent = SiteCreationEvent.builder()
+                                .siteId(savedSite.getSiteId())
+                                .batteryCapacityW(savedSite.getBatteries()
+                                                .stream()
+                                                .map(Battery::getCapacityWh)
+                                                .reduce((res, curr) -> res + curr)
+                                                .orElse(0.0))
+                                .build();
+
+                kafkaTemplate.send(siteCreationTopic, siteCreationEvent);
+                log.info("createSite: Kafka event sent, topic={}, siteId={}", siteCreationTopic, savedSite.getSiteId());
+
+                return mapper.map(savedSite, SiteDto.class);
         }
 
-        // battery
-        if (dto.getBattery() != null) {
-            log.debug("createSite: Mapping battery details");
-            Battery battery = valueMapper.batteryDtoToModel(dto.getBattery(), site);
-            site.setBattery(battery);
+        public SiteDto fetchSiteById(UUID siteId) {
+                log.info("fetchSiteById: Fetching site asynchronously, siteId={}", siteId);
+
+                Site site = siteRepo.findById(siteId)
+                                .orElseThrow(() -> {
+                                        log.warn("fetchSiteById: Site not found, siteId={}", siteId);
+                                        return new ResourceNotFoundException(
+                                                        "site is not found with site id :- " + siteId);
+                                });
+
+                return mapper.map(site, SiteDto.class);
         }
 
-        // address
-        if (dto.getAddress() != null) {
-            log.debug("createSite: Mapping address details");
-            Address address = valueMapper.addressDtoToModel(dto.getAddress(), site);
-            site.setAddress(address);
+        //
+        public List<SiteDto> fetchAllSite() {
+                log.info("fetchAllSite: Fetching all sites");
 
+                List<Site> sites = siteRepo.findAll();
+
+                List<SiteDto> siteDtos = sites.stream()
+                                .map(entity -> mapper.map(entity, SiteDto.class))
+                                .toList();
+
+                return siteDtos;
         }
 
-        Site savedSite = siteRepo.save(site);
-        log.info("Creating site success siteId={} ownerId={} solarCount={} batteryIncluded={} addressIncluded={}",
-            savedSite.getId(),
-            dto.getOwnerId(),
-            savedSite.getSolar() != null ? savedSite.getSolar().size() : 0,
-            savedSite.getBattery() != null,
-            savedSite.getAddress() != null
-        );
-        // todo:-
-        // site ni pan dto banavine work karvu siteResponseDto che toh e pass karvo
-        log.info("create kafka SiteCreationEvent");
-        UUID id = savedSite.getId();
-        SiteCreationEvent siteCreationEvent = SiteCreationEvent.builder()
-                .siteId(id)
-                .batteryCapacityW(savedSite.getBattery().getCapacityWh())
-                .build();
+        public List<SiteDto> fetchAllSiteV2() {
+                log.info("fetchAllSiteV2: Fetching all sites as response DTO");
 
-        kafkaTemplate.send(siteCreationTopic, siteCreationEvent);
-        log.info("createSite: Kafka event sent, topic={}, siteId={}", siteCreationTopic, id);
+                List<Site> sites = siteRepo.findAll();
+                List<SiteDto> siteDto = sites.stream()
+                                .map(entity -> mapper.map(entity, SiteDto.class))
+                                .toList();
 
-        return savedSite;
-    }
-
-    @Async
-    public Site fetchSiteById(UUID siteId) {
-        log.info("fetchSiteById: Fetching site asynchronously, siteId={}", siteId);
-
-        Site site = siteRepo.findById(siteId)
-                .orElseThrow(() -> {
-                    log.warn("fetchSiteById: Site not found, siteId={}", siteId);
-                    return new ResourceNotFoundException("site is not found with site id :- " + siteId);
-                });
-
-        log.trace("fetchSiteById: running on thread :- " + Thread.currentThread());
-        log.debug("fetchSiteById: Running on thread={}", Thread.currentThread());
-
-        return site;
-    }
-
-    //
-    public List<Site> fetchAllSite() {
-        log.info("fetchAllSite: Fetching all sites");
-
-        List<Site> sites = siteRepo.findAll();
-        log.trace("fetchAllSite: running on thread :- " + Thread.currentThread());
-        log.debug("fetchAllSite: Running on thread={}", Thread.currentThread());
-
-        // CompletableFuture<Integer> firstTask = CompletableFuture.supplyAsync(() -> {
-        //     return 42;
-        // });
-
-        // CompletableFuture<String> secondTask = firstTask.thenApply(result -> {
-        //     return "Result based on Task 1: " + result;
-        // });
-
-        log.debug("fetchAllSite: Dummy async tasks triggered");
-        return sites;
-    }
-
-    public List<SiteResponseDto> fetchAllSiteV2() {
-        log.info("fetchAllSiteV2: Fetching all sites as response DTO");
-
-        List<Site> sites = siteRepo.findAll();
-        List<SiteResponseDto> siteResponseDtos = sites.stream()
-                .map(valueMapper::siteModelToResponseDto)
-                .toList();
-
-        log.debug("fetchAllSiteV2: Total sites fetched={}", siteResponseDtos.size());
-        return siteResponseDtos;
-    }
-
-    //pagination in fetchAllSiteV2 this api 
-    public Page<SiteResponseDto> findAllSiteV2WithPagination(int offset,int pageSize){
-       return siteRepo.findAll(PageRequest.of(offset, pageSize)).map(valueMapper::siteModelToResponseDto);
-    }
-
-    //pagination in fetchAllSiteV2 this api with sorting based on input key
-    public Page<SiteResponseDto> findAllSiteV2WithPaginationAndSorting(int offset,int pageSize,String field){
-       return siteRepo.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field))).map(valueMapper::siteModelToResponseDto);
-    }
-
-    //cursor based paginaton in fetchAllSiteV2
-    public CursorSiteResponse<SiteResponseDto> getSites(UUID cursor,int size){
-        //default page=0 and size=10
-         Pageable pageable=PageRequest.of(0, size);
-
-         //fetch next page record
-         List<SiteResponseDto> sites = siteRepo.fetchNextPage(cursor, pageable).stream().map(valueMapper::siteModelToResponseDto).toList();
-
-         //check if we have more record
-         boolean hasNext = sites.size() == size;
-
-         //define the next cursor
-         UUID nextCursor= hasNext?sites.get(sites.size()-1).getSiteId():null;
-
-         
-        return new CursorSiteResponse<>(
-            sites,
-            size,
-            nextCursor,
-            hasNext
-        );
-    }
-
-
-
-    // @Async
-    // @Transactional(readOnly = true)
-    // public CompletableFuture<List<SiteResponseDto>> fetchAllSites() {
-    //
-    // List<SiteResponseDto> dtoList = siteRepo.findAll()
-    // .stream()
-    // .map(valueMapper::siteModelToResponseDto)
-    // .toList();
-    //
-    // return CompletableFuture.completedFuture(dtoList);
-    // }
-
-    public List<SiteResponseDto> fetchSiteByRegion(String city) {
-        log.info("fetchSiteByRegion: Fetching sites for city={}", city);
-
-        List<Site> sites = siteRepo.findByAddress_City(city);
-        List<SiteResponseDto> siteResponseDtos = sites.stream()
-                .map(valueMapper::siteModelToResponseDto)
-                .toList();
-
-        log.debug("fetchSiteByRegion: Found {} sites for city={}", siteResponseDtos.size(), city);
-        return siteResponseDtos;
-    }
-
-    public List<String> fetchAllRegion(){
-        List<String> allRegion = siteRepo.findAllRegion();
-        return allRegion;
-    }
-
-     @Transactional
-    public EnrollSiteInVppResponse assignSiteToVpp(UUID siteId, AssignVppRequest request) {
-
-        Site site = siteRepo.findById(siteId)
-                .orElseThrow(() -> new RuntimeException("site not found: " + siteId));
-
-        // if already assigned, avoid override (optional)
-        if (site.getVppId() != null && !site.getVppId().equals(request.getVppId())) {
-            throw new RuntimeException("site already assigned to another VPP: " + site.getVppId());
+                log.debug("fetchAllSiteV2: Total sites fetched={}", siteDto.size());
+                return siteDto;
         }
 
-        site.setVppId(request.getVppId());
-        siteRepo.save(site);
+        // pagination in fetchAllSiteV2 this api
+        public Page<SiteDto> findAllSiteV2WithPagination(int offset, int pageSize) {
+                return siteRepo.findAll(PageRequest.of(offset, pageSize))
+                                .map(entity -> mapper.map(entity, SiteDto.class));
+        }
 
-        return new EnrollSiteInVppResponse(
-                siteId,
-                request.getVppId(),
-                request.getVppName(),
-                "site assigned to VPP successfully"
-        );
-    }
+        // pagination in fetchAllSiteV2 this api with sorting based on input key
+        public Page<SiteDto> findAllSiteV2WithPaginationAndSorting(int offset, int pageSize, String field) {
+                return siteRepo.findAll(PageRequest.of(offset, pageSize)
+                                .withSort(Sort.by(field)))
+                                .map(entity -> mapper.map(entity, SiteDto.class));
+        }
 
-    //enroll site in program
-    //aa apde program service ni under controller call thsase enroll in site tyare call kari desu
-    public Map<UUID,String> addProgramDetailInSite(UUID siteId,
-                                                   AddProgramConfigInSite dto) {
+        // cursor based paginaton in fetchAllSiteV2
+        public CursorSiteResponse<SiteDto> getSites(UUID cursor, int size) {
+                // default page=0 and size=10
+                Pageable pageable = PageRequest.of(0, size);
 
-        Site site = siteRepo.findById(siteId)
-                .orElseThrow(() -> new RuntimeException("site not found"));
+                // fetch next page record
+                List<SiteDto> sites = siteRepo.fetchNextPage(cursor, pageable)
+                                .stream()
+                                .map(entity -> mapper.map(entity, SiteDto.class))
+                                .toList();
 
-        SiteProgram siteProgram = SiteProgram.builder()
-                .programId(dto.getProgramId())
-                .programName(dto.getProgramName())
-                .startDateTime(dto.getStartDateTime())
-                .endDateTime(dto.getEndDateTime())
-                .programPriority(dto.getProgramPriority())
-                .programType(dto.getProgramType())
-                .programStatus(dto.getProgramStatus())
-                .programDescription(
-                        (Map<String, Object>) dto.getProgramDescription()
-                )
-                .site(site)
-                .build();
+                // check if we have more record
+                boolean hasNext = sites.size() == size;
 
-        site.getEnrollProgram().add(siteProgram);
+                // define the next cursor
+                UUID nextCursor = hasNext ? sites.get(sites.size() - 1).getSiteId() : null;
 
-        siteRepo.save(site);
+                return new CursorSiteResponse<>(
+                                sites,
+                                size,
+                                nextCursor,
+                                hasNext);
+        }
 
-        return Map.of(siteId, "program added successfully");
-    }
+        public List<SiteDto> fetchSiteByRegion(String city) {
+                log.info("fetchSiteByRegion: Fetching sites for city={}", city);
 
-    }
+                List<Site> sites = siteRepo.findByAddress_City(city);
+                List<SiteDto> SiteDtos = sites.stream()
+                                .map(entity -> mapper.map(entity,
+                                                SiteDto.class))
+                                .toList();
 
+                log.debug("fetchSiteByRegion: Found {} sites for city={}", SiteDtos.size(), city);
+                return SiteDtos;
+        }
+
+        public List<SiteDto> fetchSiteByProgram(UUID programId) {
+                log.info("fetchSiteByRegion: Fetching sites with program id ={}", programId);
+
+                List<Site> sites = siteRepo.findAllSitesByEnrollProgramIds(programId);
+                List<SiteDto> SiteDtos = sites.stream()
+                                .map(entity -> mapper.map(entity,
+                                                SiteDto.class))
+                                .toList();
+
+                log.debug("fetchSiteByRegion: Found {} sites enrolled in program id ={}", SiteDtos.size(), programId);
+                return SiteDtos;
+        }
+
+        public List<String> fetchAllRegion() {
+                List<String> allRegion = siteRepo.findAllRegion();
+                return allRegion;
+        }
+
+        public SiteDto enrollSiteInProgram(UUID siteId, Program program) {
+                log.info("enrollSiteInProgram: enrolling site with site id {} in program {}", siteId, program);
+
+                Site siteEntity = siteRepo.findById(siteId).orElseThrow(() -> new ResourceNotFoundException(
+                                "unable to find site detail for site id = " + siteId));
+
+                if (program == null || program.getProgramId() == null) {
+                        throw new ProgramNotValidException(
+                                        "invalid program detail for enrollment in site, program id is not provided" +
+                                                        program);
+                }
+                siteEntity.getEnrollProgramIds().add(program.getProgramId());
+
+                Site updatedSite = siteRepo.save(siteEntity);
+
+                return mapper.map(updatedSite, SiteDto.class);
+        }
+}

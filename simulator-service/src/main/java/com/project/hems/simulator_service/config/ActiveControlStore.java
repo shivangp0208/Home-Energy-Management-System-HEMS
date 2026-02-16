@@ -21,8 +21,10 @@ public class ActiveControlStore {
 
     // siteId -> active control
     private final ConcurrentHashMap<UUID, ActiveControlState> activeControls = new ConcurrentHashMap<>();
-    public static final List<EnergyPriority> energyPriorities = List.of(EnergyPriority.SOLAR, EnergyPriority.GRID,
+    public static final List<EnergyPriority> loadEnergyPriorities = List.of(EnergyPriority.SOLAR, EnergyPriority.GRID,
             EnergyPriority.BATTERY);
+    public static final List<EnergyPriority> surplusEnergyPriorities = List.of(EnergyPriority.BATTERY,
+            EnergyPriority.GRID);
 
     public void applyDispatch(UUID siteId, ActiveControlState control) {
         log.info("applyDispatch: applying dispatch command " + control + " for siteId " + siteId);

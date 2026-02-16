@@ -1,6 +1,5 @@
 package com.project.hems.program_enrollment_manager.service;
 
-import com.netflix.discovery.converters.Auto;
 import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
 import com.project.hems.program_enrollment_manager.external.SiteServiceFeignClientService;
 import org.springframework.beans.factory.annotation.Autowired;

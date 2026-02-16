@@ -79,7 +79,8 @@ public class MeterController {
                 command.getDispatchId(),
                 command.getBatteryControl(),
                 command.getGridControl(),
-                command.getEnergyPriority(),
+                command.getLoadEnergyPriority(),
+                command.getSurplusEnergyPriority(),
                 command.getValidUntil());
 
         activeControlStore.applyDispatch(command.getSiteId(), control);

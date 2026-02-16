@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.hems.project.Virtual_Power_Plant.external.SiteFeignClientService;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
-import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ public class SiteCreationService {
     private final SiteFeignClientService service;
 
     
-    public ResponseEntity<List<SiteResponseDto>> fetchAllSites(){
+    public ResponseEntity<List<SiteDto>> fetchAllSites(){
        return service.getAllSitesV2();
     }
 
@@ -26,7 +26,7 @@ public class SiteCreationService {
           return service.getAllOwner();
         }
 
-        public ResponseEntity<List<SiteResponseDto>> fetchSitesByRegion(String city){
+        public ResponseEntity<List<SiteDto>> fetchSitesByRegion(String city){
           return service.getAllSiteByRegion(city);
         }  
 

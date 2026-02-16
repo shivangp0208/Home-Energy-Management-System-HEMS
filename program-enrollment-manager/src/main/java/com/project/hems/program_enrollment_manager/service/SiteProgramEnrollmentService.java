@@ -1,27 +1,28 @@
 package com.project.hems.program_enrollment_manager.service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.project.hems.hems_api_contracts.contract.program.AddProgramConfigInSite;
+import org.modelmapper.ModelMapper;
+import org.springframework.lang.NonNull;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+
 import org.springframework.stereotype.Service;
 
-import com.project.hems.hems_api_contracts.contract.vpp.SiteEnrollSuccessResponse;
-import com.project.hems.program_enrollment_manager.entity.ProgramConfigurationEntity;
+import com.project.hems.hems_api_contracts.contract.program.Program;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
 import com.project.hems.program_enrollment_manager.entity.SiteProgramEnrollmentEntity;
-import com.project.hems.program_enrollment_manager.model.ProgramConfigurationUpdateRequestDto;
-import com.project.hems.program_enrollment_manager.model.ProgramConfigurationUpdateResponseDto;
-import com.project.hems.program_enrollment_manager.model.SiteStatus;
-import com.project.hems.program_enrollment_manager.repository.ProgramConfigurationRepo;
+import com.project.hems.program_enrollment_manager.model.SiteProgramEnrollment;
 import com.project.hems.program_enrollment_manager.repository.ProgramRepository;
 import com.project.hems.program_enrollment_manager.repository.SiteProgramEnrollmentRepo;
+import com.project.hems.program_enrollment_manager.web.exception.ProgramExpiredException;
+import com.project.hems.program_enrollment_manager.web.exception.ProgramNotFoundException;
+import com.project.hems.program_enrollment_manager.web.exception.SiteAlreadyEnroledException;
+import com.project.hems.program_enrollment_manager.web.exception.SiteNotFoundException;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,113 +33,77 @@ public class SiteProgramEnrollmentService {
 
     private final SiteProgramEnrollmentRepo siteProgramEnrollmentRepo;
     private final ProgramRepository programRepository;
-    private final ProgramConfigurationRepo programConfigurationRepo;
-    private final SiteManagerService siteManagerService;
+    private final SiteFeignClientService siteFeignClientService;
+    private final ModelMapper mapper;
 
-    //this service is work for checking which site enroll in which program
-    //which site enroll in past which program and which date that join and which date vpp release that site 
+    // this service is work for checking which site enroll in which program
+    // which site enroll in past which program and which date that join and which
+    // date vpp release that site
 
-    //find which program enroll in which site 
-    public List<ProgramEntity> findProgramBySite(UUID siteId ){
-        List<ProgramEntity> programsBySiteId = siteProgramEnrollmentRepo.findProgramsBySiteId(siteId);
-        return programsBySiteId;
+    // find which program enroll in which site
+    // public List<Program> findProgramBySite(UUID siteId) {
+    // List<ProgramEntity> programsBySiteId =
+    // siteProgramEnrollmentRepo.findProgramsBySiteId(siteId);
+    // return programsBySiteId.stream()
+    // .map(entity -> mapper.map(entity, Program.class))
+    // .toList();
+    // }
+
+    // find which site enroll in which program
+    public Program findSiteIdByProgramId(UUID programId) {
+        ProgramEntity programEntity = programRepository.findById(programId).orElseThrow(
+                () -> new ProgramNotFoundException("unable to find program detail with program detail = " + programId));
+
+        Program program = mapper.map(programEntity, Program.class);
+        program.getSites().forEach(site -> {
+            site = siteFeignClientService.getSite(site.getSiteId()).getBody();
+        });
+
+        return program;
     }
 
-
-    //find which site enroll in which program 
-    public List<UUID> findSiteIdByProgramId(UUID programId){
-        List<UUID> siteIdByProgramId = siteProgramEnrollmentRepo.findSiteIdByProgramId(programId);;
-        return siteIdByProgramId;
-    }
-
-
-    //enroll site in particular program
+    // TODO: implement the logic for checking program conflict for a site
+    // enroll site in particular program
     @Transactional
-    public SiteEnrollSuccessResponse enrollSiteinProgram(UUID siteId,UUID programId){
-        //first check is program and site is available 
-        log.info("programId is {} and siteId is {} ",programId,siteId);
-        ProgramEntity programEntity = programRepository.findById(programId).orElseThrow(()->
-                    new RuntimeException(" program is not found")
-                );
+    public SiteProgramEnrollment enrollSiteinProgram(UUID siteId, @NonNull UUID programId) {
+        // first check is program and site is available
+        log.info("programId is {} and siteId is {} ", programId, siteId);
 
-        //find program config based on programId
-        ProgramConfigurationEntity programConfigurationEntity=programConfigurationRepo.findByProgram_programId(programId)
-                .orElseThrow(()-> new RuntimeException("program configuration is not found for programId"+programId));
+        ProgramEntity programEntity = programRepository.findById(programId)
+                .orElseThrow(() -> new ProgramNotFoundException(
+                        "unable to find program detail for program id = " + programId));
 
-    
-        //now we check program start and end time ke valid che date ni range ma che ke nai
-        LocalDateTime now=LocalDateTime.now();
-        // LocalDateTime endDateTime = programEntity.getEndDateTime();;
-         if(now.isBefore(programEntity.getStartDateTime()) ||now.isAfter(programEntity.getEndDateTime())) {
-        throw new RuntimeException("Program is not active currently");
-    }
+        if (siteProgramEnrollmentRepo
+                .existsBySiteAndProgram(siteId, programEntity)) {
+            log.error("enrollSiteinProgram: site with site id " + siteId + " is already enroled in program "
+                    + programId);
+            throw new SiteAlreadyEnroledException(
+                    "site with site id " + siteId + " is already enroled in program " + programId);
+        }
 
+        @Valid
+        SiteDto siteDto = siteFeignClientService.getSite(siteId).getBody();
+        if (siteDto == null) {
+            log.error("enrollSiteinProgram unable to find site detail with site id = " + siteId);
+            throw new SiteNotFoundException("unable to find site detail with site id = " + siteId);
+        }
 
-        SiteProgramEnrollmentEntity siteProgramEnrollmentEntity=SiteProgramEnrollmentEntity.builder()
-                                .enrollmentDate(LocalDateTime.now())
-                                .program(programEntity)
-                                .siteStatus(SiteStatus.ACTIVE)
-                                .siteId(siteId)
-                                .build();
-        SiteProgramEnrollmentEntity savedEnrollmentEntity = siteProgramEnrollmentRepo.save(siteProgramEnrollmentEntity);;
+        // now we check program start and end time ke valid che date ni range ma che ke
+        // nai
+        if (LocalDate.now().isAfter(programEntity.getEndDate())) {
+            throw new ProgramExpiredException(
+                    "program with program id " + programId + " had expired on " + programEntity.getEndDate());
+        }
 
-        //now have ahiya site service ni method call karine site table ma pan update kari daisu
-        AddProgramConfigInSite programConfig=AddProgramConfigInSite.builder()
-                .programId(programId)
-                .programPriority(programConfigurationEntity.getPriority())
-                .programStatus(programEntity.getProgramStatus())
-                .programType(programEntity.getProgramType())
-                .programName(programEntity.getProgramName())
-                .programDescription(programConfigurationEntity.getProgramDescription())
-                .endDateTime(programEntity.getEndDateTime())
-                .startDateTime(programEntity.getStartDateTime())
-                .build();
+        SiteProgramEnrollmentEntity enrolmentEntity = new SiteProgramEnrollmentEntity();
+        enrolmentEntity.setProgram(programEntity);
+        enrolmentEntity.setSite(siteDto.getSiteId());
 
-        siteManagerService.addProgramInSite(siteId,programConfig);
-        log.info("program is successfully add in site");
+        SiteProgramEnrollmentEntity savedEntity = siteProgramEnrollmentRepo.save(enrolmentEntity);
+        SiteProgramEnrollment savedEnrolment = mapper.map(savedEntity, SiteProgramEnrollment.class);
+        savedEnrolment.setSite(siteDto);
 
-        SiteEnrollSuccessResponse siteEnrollSuccessResponse=SiteEnrollSuccessResponse.builder()
-        .enrollTime(Instant.now())
-        .message("successfully site "+ siteId +" enroll in program "+programId)
-        .programId(programId)
-        .siteId(siteId)
-        .success(true)
-        .build();
-
-        return siteEnrollSuccessResponse;
-    }
-
-
-    public ProgramConfigurationUpdateResponseDto updateProgram(ProgramConfigurationUpdateRequestDto programConfigurationRequestDto,UUID programId) {
-        //find program from programId
-       ProgramEntity program = programRepository.findById(programId).orElseThrow(()-> new RuntimeException("program not found"));;
-    
-       //find programConfiguration from programId
-       ProgramConfigurationEntity programConfig = programConfigurationRepo.findByProgram_programId(programId).orElseThrow(()->
-        new RuntimeException("program Configuration not found"));
-    
-       Optional.ofNullable(programConfigurationRequestDto.getType()).ifPresent(program::setProgramType);
-       Optional.ofNullable(programConfigurationRequestDto.getStartDateTime()).ifPresent(program::setStartDateTime);
-       Optional.ofNullable(programConfigurationRequestDto.getEndDateTime()).ifPresent(program::setEndDateTime);
-
-       Optional.ofNullable(programConfigurationRequestDto.getProgramDescription()).ifPresent(programConfig::setProgramDescription);
-       Optional.ofNullable(programConfigurationRequestDto.getPriority()).ifPresent(programConfig::setPriority);
-       
-       //we update updatedTime of programConfiguration
-       programConfig.setUpdatedAt(LocalDateTime.now());
-
-       //save program first
-       programRepository.save(program);
-       log.info("updated program is saved successfully");
-       programConfigurationRepo.save(programConfig);
-       log.info("updated program config is saved successfully. configId = {}",program.getProgramId());
-
-       ProgramConfigurationUpdateResponseDto programConfigurationResponseDto=ProgramConfigurationUpdateResponseDto
-                                                .builder()
-                                                .programId(programId)
-                                                .message("program updated successfully and programId = "+programId)
-                                                .build();
-        return programConfigurationResponseDto;
-
+        siteFeignClientService.addPrograminSite(siteId, mapper.map(programEntity, Program.class));
+        return savedEnrolment;
     }
 }

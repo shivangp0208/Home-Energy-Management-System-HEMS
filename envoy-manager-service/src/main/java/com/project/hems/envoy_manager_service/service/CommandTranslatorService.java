@@ -62,18 +62,16 @@ public class CommandTranslatorService {
         log.debug("Command validity set. timestamp={}, validUntil={}", now, validUntil);
 
         // 4. Map Priorities directly
-        commandBuilder.energyPriority(dispatchEvent.getEnergyPriority());
         commandBuilder.reason(dispatchEvent.getReason());
 
         log.debug("Energy priority={}, reason={}",
-                dispatchEvent.getEnergyPriority(),
                 dispatchEvent.getReason());
 
         // 5. Initialize Default Controls (Safety First!)
         BatteryControlBuilder batteryControlBuilder = BatteryControl.builder();
         GridControlBuilder gridControlBuilder = GridControl.builder();
 
-        // set default values
+        // TODO: create a program description and call that program description from here using feign client
         batteryControlBuilder.minSocPercent(20.0);
         batteryControlBuilder.maxSocPercent(100.0);
         gridControlBuilder.allowImport(true);

@@ -1,29 +1,29 @@
 package com.project.hems.program_enrollment_manager.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class SwaggerConfig {
 
     @Bean
-    public OpenAPI swaggerConfiguration(){
+    public OpenAPI myCustomerConfig() {
 
-        Server localServer=new Server()
+        Server programServer = new Server()
                 .url("http://localhost:8089")
-                .description("Local");
+                .description("Development");
+
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("Program Enrollment Manager Microservice APIs")
-                        .description("by Jills & Shivang"))
-                .servers(List.of(localServer));
-
+                        .title("Program manager microservice APIs")
+                        .description("This Service is built to manage programs and site enrollment in that program"))
+                .servers(List.of(programServer));
     }
-
 }

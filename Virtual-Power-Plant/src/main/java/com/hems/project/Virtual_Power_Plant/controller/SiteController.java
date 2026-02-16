@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hems.project.Virtual_Power_Plant.service.SiteCreationService;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
-import com.project.hems.hems_api_contracts.contract.site.SiteResponseDto;
-
-import lombok.NoArgsConstructor;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +33,7 @@ public class SiteController {
     @Operation(summary = "Fetch all sites",
             description = "Retrieves all registered sites from Site Manager Service via Feign client.")
     @GetMapping("/fetch-all-site")
-    public ResponseEntity<List<SiteResponseDto>> fetchAllSite(){
+    public ResponseEntity<List<SiteDto>> fetchAllSite(){
         log.info("received request in VppService: fetch all site");
         return service.fetchAllSites();
     }
@@ -73,7 +71,7 @@ public class SiteController {
             description = "Retrieves all sites filtered by a specific region (city).")
     @ApiResponse(responseCode = "200", description = "Sites fetched successfully by region")
     @GetMapping("/fetch-site-by-region/{city}")
-    public ResponseEntity<List<SiteResponseDto>> fetchAllSiteByRegion(@PathVariable String city){
+    public ResponseEntity<List<SiteDto>> fetchAllSiteByRegion(@PathVariable String city){
         log.info("received request in VppService : fetch sites by region city={}", city);
         return service.fetchSitesByRegion(city);
     }

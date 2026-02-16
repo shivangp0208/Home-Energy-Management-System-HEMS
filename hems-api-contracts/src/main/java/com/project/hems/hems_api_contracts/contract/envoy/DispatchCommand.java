@@ -37,7 +37,10 @@ public class DispatchCommand {
     private Instant validUntil;
 
     @NotEmpty
-    private List<EnergyPriority> energyPriority;
+    private List<EnergyPriority> loadEnergyPriority;
+    
+    @NotEmpty
+    private List<EnergyPriority> surplusEnergyPriority;
 
     @NotNull
     private BatteryControl batteryControl;
