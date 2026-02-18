@@ -32,4 +32,6 @@ public interface SiteService {
 
     SiteDto enrollSiteInProgram(UUID siteId, Program program);
 
+    Boolean checkSiteAvailable(UUID siteId);
+
 }

@@ -1,34 +1,11 @@
 spring:
   application:
     name: Email-Service
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: hems07293@gmail.com
-    password: lhld nvzc ofui lukz
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+  config:
+    import: "optional:configserver:http://localhost:8095"
 
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: user
-    password: Hems#Einfochips
-
-server:
-  port: 8088
-
-
-
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8091/eureka
+management:
+  endpoints:
+    web:
+      exposure:
+        include: busrefresh,refresh,health,info

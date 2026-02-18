@@ -36,6 +36,9 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Home-Energy-Management-System-HEMS.CONFIG-SERVER" options="-parameters" />
+      <module name="Home-Energy-Management-System-HEMS.CONFIG-SERVER.main" options="-parameters" />
+      <module name="Home-Energy-Management-System-HEMS.CONFIG-SERVER.test" options="-parameters" />
       <module name="Home-Energy-Management-System-HEMS.Email-Service" options="-parameters" />
       <module name="Home-Energy-Management-System-HEMS.Email-Service.main" options="-parameters" />
       <module name="Home-Energy-Management-System-HEMS.Email-Service.test" options="-parameters" />

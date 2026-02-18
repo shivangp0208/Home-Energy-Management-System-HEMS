@@ -2,6 +2,8 @@ package com.project.hems.SiteManagerService;
 
 import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.entity.Site;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 
@@ -14,6 +16,13 @@ public class Main {
     //and if we not use static then badha jode alag alag copy hase
     private static int a = 10;
 
+    @Value("${einfochips.key}")
+    public String key;
+
+    @PostConstruct
+    public void print() {
+        System.out.println("Key = " + key);
+    }
     // @Async
     public static void main(String[] args) throws InterruptedException {
 //        Main a=new Main();
@@ -55,7 +64,8 @@ public class Main {
 //        owner.getSites().add(site2);
 //
 //        System.out.println(owner);
-
-
     }
+
+
+
 }

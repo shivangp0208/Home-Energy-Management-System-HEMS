@@ -9,6 +9,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/CONFIG-SERVER" />
             <option value="$PROJECT_DIR$/Email-Service" />
             <option value="$PROJECT_DIR$/ServiceRegistry-HEMS" />
             <option value="$PROJECT_DIR$/SiteManagerService" />

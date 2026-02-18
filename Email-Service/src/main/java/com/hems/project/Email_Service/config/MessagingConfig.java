@@ -19,7 +19,7 @@ public class MessagingConfig {
 
     @Bean
     public Queue queue(){
-        return new Queue(QUEUE);
+        return new Queue(QUEUE,true);
     }
 
     @Bean

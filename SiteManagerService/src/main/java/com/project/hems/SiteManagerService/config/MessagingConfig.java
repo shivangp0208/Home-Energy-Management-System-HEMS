@@ -5,12 +5,14 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 
 
 @Configuration
+@RefreshScope
 public class MessagingConfig {
 
     public static final String QUEUE="email_service_queue";
@@ -19,7 +21,7 @@ public class MessagingConfig {
 
     @Bean
     public Queue queue(){
-        return new Queue(QUEUE);
+        return new Queue(QUEUE,true);
     }
 
     @Bean

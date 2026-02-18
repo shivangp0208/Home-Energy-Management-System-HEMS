@@ -29,6 +29,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -221,5 +222,15 @@ public class SiteServiceImpl implements com.project.hems.SiteManagerService.serv
         Site updatedSite = siteRepo.save(siteEntity);
 
         return mapper.map(updatedSite, SiteDto.class);
+    }
+
+    @Override
+    public Boolean checkSiteAvailable(UUID siteId) {
+         Optional<Site> site = siteRepo.findById(siteId);
+         if(site.isEmpty()){
+             return false;
+         }else{
+             return true;
+         }
     }
 }

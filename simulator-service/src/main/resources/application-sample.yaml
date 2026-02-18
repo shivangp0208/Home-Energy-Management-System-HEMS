@@ -28,14 +28,8 @@ spring:
         jwt:
           issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
 
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8091/eureka
+  config:
+    import: optional:configserver:http://localhost:8095
 
 server:
   port: 9010

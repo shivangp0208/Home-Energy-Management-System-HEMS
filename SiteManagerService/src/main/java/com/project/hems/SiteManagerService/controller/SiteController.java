@@ -1,5 +1,9 @@
 package com.project.hems.SiteManagerService.controller;
 
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.PropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.project.hems.SiteManagerService.config.MessagingConfig;
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.SiteManagerService.service.EmailServiceImpl;
@@ -22,6 +26,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +49,7 @@ public class SiteController {
     @Operation(summary = "create site", description = "create a new site with site details and return the created site")
     @ApiResponse(responseCode = "201", description = "site created successfully")
     @PostMapping("/create-site")
-    public ResponseEntity<SiteDto> createSite(
+    public ResponseEntity<MappingJacksonValue> createSite(
             @RequestBody @Valid SiteDto siteRequestDto,
             @AuthenticationPrincipal Jwt jwt) {
 
@@ -81,7 +86,21 @@ public class SiteController {
         log.info("Site created successfully. siteId={}, userSub={}",
                 site.getSiteId(), userSub);
 
-        return new ResponseEntity<>(site, HttpStatus.CREATED);
+        PropertyFilter filter=SimpleBeanPropertyFilter.filterOutAllExcept(
+                "siteId",
+                "isActive"
+        );
+
+        //here we define filter je apdne joiee che response ma
+        FilterProvider provider = new SimpleFilterProvider()
+                .addFilter("siteFilter",filter);
+
+
+        MappingJacksonValue mapping=new MappingJacksonValue(site);
+
+        mapping.setFilters(provider);
+
+        return new ResponseEntity<>(mapping, HttpStatus.CREATED);
     }
 
     @Operation(summary = "fetch site by id", description = "retrieve a single site by its id")
@@ -250,6 +269,18 @@ public class SiteController {
     public ResponseEntity<MailSuccessfullResponseDto> sendMail(@RequestBody MailSuccessfullRequestDto dto){
          ResponseEntity<MailSuccessfullResponseDto> mailSuccessfullResponseDtoResponseEntity = emailService.sendMail(dto);
          return mailSuccessfullResponseDtoResponseEntity;
+    }
+
+    //check siteIs exists or not based on siteId
+    @PostMapping("/check-site-available/{siteId}")
+    public ResponseEntity<Boolean> checkSiteIsAvailableOtNot(@PathVariable UUID siteId){
+         Boolean flag = siteService.checkSiteAvailable(siteId);
+         if(flag) {
+             return new ResponseEntity<>(flag, HttpStatus.OK);
+         }else{
+             return new ResponseEntity<>(flag, HttpStatus.NOT_FOUND);
+         }
+
     }
 
 
