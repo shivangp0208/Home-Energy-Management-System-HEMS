@@ -6,12 +6,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
+import java.util.Objects;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(feign.FeignException.class)
-    public ResponseEntity<?> handleFeignException(FeignException ex) {
+    public ResponseEntity<Map<String, Object>> handleFeignException(FeignException ex) {
 
         return ResponseEntity
                 .status(ex.status())

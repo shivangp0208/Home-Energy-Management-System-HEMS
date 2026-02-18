@@ -23,19 +23,14 @@ spring:
     listener:
       ack-mode: MANUAL
 
+  config:
+    import: optional:configserver:http://localhost:8095
+
 property:
   kafka:
     vpp-snapshots-topic: VPP_ENERGY_SNAPSHOTS
 
 
-eureka:
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:8091/eureka
-  instance:
-    prefer-ip-address: true
 
 
 

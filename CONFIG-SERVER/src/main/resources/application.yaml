@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: CONFIG-SERVER
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/hems07293-arch/Microservice-config-server
+          username: hems07293-arch
+          password:
+          clone-on-start: true
+  rabbitmq:
+    port: 5672
+    host: localhost
+    username: user
+    password: Hems#Einfochips
+#this means badha actutor na endpoint expose kari do like actuator/health, /info, /env and all
+# and main /busrefresh
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+
+server:
+  port: 8095
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8091/eureka

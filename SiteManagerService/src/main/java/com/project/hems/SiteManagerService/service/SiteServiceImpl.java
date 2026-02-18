@@ -13,7 +13,7 @@ import com.project.hems.SiteManagerService.exception.ProgramNotValidException;
 import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
-import com.project.hems.SiteManagerService.service.impl.SiteServiceImpl;
+import com.project.hems.SiteManagerService.service.impl.SiteService;
 import com.project.hems.SiteManagerService.util.SiteHelperMethods;
 
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SiteService implements SiteServiceImpl {
+public class SiteServiceImpl implements SiteService {
 
         private final SiteRepo siteRepo;
         private final OwnerRepo ownerRepo;
@@ -47,16 +47,16 @@ public class SiteService implements SiteServiceImpl {
 
         @Transactional
         public SiteDto createSite(SiteDto siteDto, String userSub) {
-                log.info("createSite: Creating site for ownerId={} by userSub={}", siteDto.getOwner(), userSub);
+                log.info("createSite: Creating site for ownerId={} by userSub={}", siteDto, userSub);
 
                 // in dto apde id store kariee chiee owner entity ni so apde ema thi fetch
                 // karine obj banavsu
-                log.info("creating site start ownerId={} userSub={}", siteDto.getOwner(), userSub);
-                log.info("fetch owner is exists or not with ownerId = {}", siteDto.getOwner());
-                Owner owner = ownerRepo.findById(siteDto.getOwner().getOwnerId())
+                log.info("creating site start ownerId={} userSub={}", siteDto, userSub);
+                log.info("fetch owner is exists or not with ownerId = {}", siteDto);
+                Owner owner = ownerRepo.findById(siteDto.getOwnerId())
                                 .orElseThrow(() -> {
                                         log.warn("createSite: Owner not found, ownerId={}",
-                                                        siteDto.getOwner().getOwnerId());
+                                                        siteDto.getOwnerId());
                                         return new ResourceNotFoundException(
                                                         "Owner not found first add Owner then add Site");
                                 });

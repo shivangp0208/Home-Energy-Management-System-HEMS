@@ -1,3 +1,38 @@
+
+//auth0 terminoligy:-
+1️⃣ domain
+
+👉 The base URL of your Auth0 tenant (your Auth0 server address).
+👉 All authentication and management API requests are sent to this domain.
+
+2️⃣ client-id
+
+👉 Identifies your application to Auth0 (like a username for your app).
+👉 Used when requesting tokens from Auth0.
+
+3️⃣ client-secret
+
+👉 Secret key of your application (like a password).
+👉 Used with client-id to securely request a Management (M2M) token.
+
+4️⃣ audience
+
+👉 Tells Auth0 which API you want access to (e.g., Management API).
+👉 Required so Auth0 issues a token for the correct resource.
+
+5️⃣ Management Token (M2M Token)
+
+👉 Special admin token used by backend to manage users, roles, etc.
+👉 Needed because normal user tokens cannot perform admin operations.
+
+6️⃣ Why Machine-to-Machine (M2M) App?
+
+👉 Used for secure server-to-server communication (no user involved).
+👉 Allows backend to perform admin actions safely using client credentials.
+
+
+
+
 🧨 STEP 1: Close IntelliJ completely
 
 No projects open.
@@ -1149,3 +1184,20 @@ Import from external grid
 👉 Import means collecting energy from enrolled sites via dispatch
 👉 Export means sending extra aggregated energy to external grid
 👉 Battery acts as buffer between site energy and grid export
+
+-------
+Load balancing:-
+distribute your incoming request to the multiple server(it means in multiple server we put our app instance so)
+load balancer see if load is increase then it dsribute ...
+Advantage:-
+if client direct server jode connect hase and if kai faliure avse server side so e direct impact karse client
+ne so we make load balancer between server and client so if kai break thayy serrver ma toh automatically load balancer
+bija server ma redirect kari dey further requests ne ...
+
+static LB vs dynamic LB
+
+
+
+
+
+

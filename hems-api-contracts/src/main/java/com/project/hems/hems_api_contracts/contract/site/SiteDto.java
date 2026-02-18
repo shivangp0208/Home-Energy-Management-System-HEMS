@@ -1,5 +1,6 @@
 package com.project.hems.hems_api_contracts.contract.site;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import lombok.Data;
 import lombok.ToString;
 
@@ -16,13 +17,13 @@ import com.project.hems.hems_api_contracts.contract.program.Program;
 
 @Data
 @ToString
-@JsonFilter("siteFilter")
+@JsonFilter("siteFilter") //dynamic filter we make for filter out some filed in response
 public class SiteDto {
 
     private UUID siteId;
 
-    @NotNull(message = "Owner is required")
-    private OwnerDto owner;
+    @NotNull(message = "OwnerId is required")
+    private UUID ownerId;
 
     private boolean siteStatus;
 

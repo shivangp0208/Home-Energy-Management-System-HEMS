@@ -46,14 +46,8 @@ spring:
       host: localhost
       port: 6379
 
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:8091/eureka
+  config:
+    import: optional:configserver:http://localhost:8095
 
 server:
   port: 8082

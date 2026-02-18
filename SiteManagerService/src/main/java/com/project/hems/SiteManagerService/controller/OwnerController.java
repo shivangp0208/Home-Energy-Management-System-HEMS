@@ -1,6 +1,6 @@
 package com.project.hems.SiteManagerService.controller;
 
-import com.project.hems.SiteManagerService.service.OwnerService;
+import com.project.hems.SiteManagerService.service.OwnerServiceImpl;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +25,7 @@ import java.util.UUID;
 @Tag(name = "owner apis", description = "create, update, delete, and fetch owner details")
 public class OwnerController {
 
-    private final OwnerService ownerService;
+    private final OwnerServiceImpl ownerService;
 
     @Operation(summary = "create owner", description = "create a new owner using request body and return the saved owner details")
     @ApiResponse(responseCode = "201", description = "owner created successfully")

@@ -1,7 +1,16 @@
 package com.project.hems.SiteManagerService.controller;
 
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.PropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.project.hems.SiteManagerService.config.MessagingConfig;
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
-import com.project.hems.SiteManagerService.service.SiteService;
+import com.project.hems.SiteManagerService.service.EmailServiceImpl;
+import com.project.hems.SiteManagerService.service.SiteServiceImpl;
+import com.project.hems.SiteManagerService.util.EmailTemplateUtil;
+import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
+import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullResponseDto;
 import com.project.hems.hems_api_contracts.contract.program.Program;
 import com.project.hems.hems_api_contracts.contract.program.ProgramFeignDto;
 import com.project.hems.hems_api_contracts.contract.site.SiteDto;
@@ -14,9 +23,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +42,9 @@ import java.util.UUID;
 @Tag(name = "site apis", description = "read, create, update, delete, and manage site details")
 public class SiteController {
 
-    private final SiteService siteService;
+    private final SiteServiceImpl siteService;
+    private final EmailServiceImpl emailService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Transactional
     @Operation(summary = "create site", description = "create a new site with site details and return the created site")
@@ -50,16 +63,46 @@ public class SiteController {
         }
 
         String userSub = jwt.getSubject();
-        String email = jwt.getClaim("https://hems.com/email");
+        String email = jwt.getClaim("http://hems.com/email");
 
         log.debug("Creating site for userSub={}, email={}", userSub, email);
 
         SiteDto site = siteService.createSite(siteRequestDto, userSub);
 
+        System.out.println("email"+email);
+
+        MailSuccessfullRequestDto dto =
+                EmailTemplateUtil.buildSiteCreatedMail(
+                        email,
+                        String.valueOf(site.getSiteId()),
+                        userSub
+                );
+
+        //System.out.println("site id"+String.valueOf(site.getSiteId()));
+
+        //emailService.sendMail(dto);
+        log.info("successfully send mail dto to Queue");
+        rabbitTemplate.convertAndSend(MessagingConfig.EXCHANGE,MessagingConfig.ROUTING_KEY,dto);
+
+
         log.info("Site created successfully. siteId={}, userSub={}",
                 site.getSiteId(), userSub);
 
-        return new ResponseEntity<>(site, HttpStatus.CREATED);
+        PropertyFilter filter=SimpleBeanPropertyFilter.filterOutAllExcept(
+                "siteId",
+                "isActive"
+        );
+
+        //here we define filter je apdne joiee che response ma
+        FilterProvider provider = new SimpleFilterProvider()
+                .addFilter("siteFilter",filter);
+
+
+        MappingJacksonValue mapping=new MappingJacksonValue(site);
+
+        mapping.setFilters(provider);
+
+        return new ResponseEntity<>(mapping, HttpStatus.CREATED);
     }
 
     @Operation(summary = "fetch site by id", description = "retrieve a single site by its id")
@@ -208,5 +251,26 @@ public class SiteController {
         log.info("PUT req to add program = {} in site with siteId = {}", program, siteId);
         return siteService.enrollSiteInProgram(siteId, program);
     }
+
+    //send email if site is created successfully
+    @PutMapping("/send-email")
+    public ResponseEntity<MailSuccessfullResponseDto> sendMail(@RequestBody MailSuccessfullRequestDto dto){
+         ResponseEntity<MailSuccessfullResponseDto> mailSuccessfullResponseDtoResponseEntity = emailService.sendMail(dto);
+         return mailSuccessfullResponseDtoResponseEntity;
+    }
+
+    //check siteIs exists or not based on siteId
+    @PostMapping("/check-site-available/{siteId}")
+    public ResponseEntity<Boolean> checkSiteIsAvailableOtNot(@PathVariable UUID siteId){
+         Boolean flag = siteService.checkSiteAvailable(siteId);
+         if(flag) {
+             return new ResponseEntity<>(flag, HttpStatus.OK);
+         }else{
+             return new ResponseEntity<>(flag, HttpStatus.NOT_FOUND);
+         }
+
+    }
+
+
 
 }

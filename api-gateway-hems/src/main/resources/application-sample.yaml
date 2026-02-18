@@ -46,14 +46,8 @@ spring:
               predicates:
               - Path=/vpp/**
 
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8091/eureka
+  config:
+    import: optional:configserver:http://localhost:8095
 
 server:
   port: 8090
