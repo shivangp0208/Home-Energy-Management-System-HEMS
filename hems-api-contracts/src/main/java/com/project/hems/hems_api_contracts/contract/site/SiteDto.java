@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.project.hems.hems_api_contracts.contract.program.Program;
 
 @Data
@@ -25,8 +25,7 @@ public class SiteDto {
     @NotNull(message = "OwnerId is required")
     private UUID ownerId;
 
-    @JsonProperty("isActive")
-    private boolean isActive;
+    private boolean siteStatus;
 
     @NotEmpty(message = "At least one solar configuration is required")
     @Valid

@@ -9,6 +9,7 @@ import com.project.hems.hems_api_contracts.contract.program.ProgramStatus;
 import com.project.hems.hems_api_contracts.contract.program.ProgramType;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -18,6 +19,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -51,6 +53,7 @@ public class ProgramEntity {
     @Column(name = "status")
     private ProgramStatus programStatus;
 
+    @CollectionTable(name = "site_program_enrollment", joinColumns = @JoinColumn(name = "program_id"))
     @ElementCollection(fetch = FetchType.LAZY)
     @Column(name = "site_id")
     private List<UUID> sites = new ArrayList<>();

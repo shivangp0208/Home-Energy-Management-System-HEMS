@@ -8,7 +8,7 @@ public interface OwnerService {
 
      OwnerDto createOwner(OwnerDto ownerDto, String userSub, String email);
 
-     OwnerDto getOwnerDetail(UUID id) ;
+     OwnerDto getOwnerDetail(UUID id);
 
      OwnerDto updateOwnerDetail(UUID ownerId, OwnerDto ownerDto);
 

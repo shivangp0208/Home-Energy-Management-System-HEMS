@@ -12,6 +12,8 @@ import com.project.hems.program_enrollment_manager.service.SiteProgramEnrollment
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/program")
+@Slf4j
 public class ProgramController {
 
         private final ProgramService programService;
@@ -41,12 +44,13 @@ public class ProgramController {
         @GetMapping("/programs")
         @ResponseStatus(HttpStatus.OK)
         public Page<Program> getAllPrograms(
+                        @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite,
                         @RequestParam(name = "pageNumber", required = false, defaultValue = "0") int pageNumber,
                         @RequestParam(name = "pageSize", required = false, defaultValue = "5") int pageSize) {
 
                 PageRequest pageReq = PageRequest.of(pageNumber, pageSize);
 
-                return programService.findAllPrograms(pageReq);
+                return programService.findAllPrograms(pageReq, includeSite);
         }
 
         @Operation(summary = "get program by id", description = "retrieve a single program using its unique programId")
@@ -54,22 +58,18 @@ public class ProgramController {
         @ApiResponse(responseCode = "404", description = "program with given id not found")
         @GetMapping("/programs/{programId}")
         public ResponseEntity<Program> getOneProgram(
+                        @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite,
                         @PathVariable(name = "programId", required = true) @NonNull UUID programId) {
-                Program programById = programService.findProgramById(programId);
+                Program programById = programService.findProgramById(programId, includeSite);
                 return new ResponseEntity<>(programById, HttpStatus.OK);
-        }
-
-        @GetMapping("/programs/{programId}/sites")
-        public ResponseEntity<Program> getAllSitesByProgramId(
-                        @PathVariable(name = "programId", required = true) UUID programId) {
-                Program programDetail = siteProgramEnrollmentService.findSiteIdByProgramId(programId);
-                return new ResponseEntity<>(programDetail, HttpStatus.OK);
         }
 
         @Operation(summary = "create new program", description = "create a new program with provided details")
         @ApiResponse(responseCode = "201", description = "program created successfully")
         @PostMapping("/create-program")
-        public ResponseEntity<Program> createNewProgram(@RequestBody @Valid Program program) {
+        public ResponseEntity<Program> createNewProgram(
+                        @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite,
+                        @RequestBody @Valid Program program) {
                 Program saveNewProgram = programService.createNewProgram(program);
                 return new ResponseEntity<>(saveNewProgram, HttpStatus.CREATED);
         }
@@ -78,35 +78,19 @@ public class ProgramController {
         @ApiResponse(responseCode = "200", description = "program configuration updated successfully")
         @PutMapping("/update-program/{programId}")
         public ResponseEntity<Program> updateProgram(
+                        @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite,
                         @PathVariable(name = "programId", required = true) @NonNull UUID programId,
                         @RequestBody Program program) {
-                Program updatedProgram = programService.updateProgram(programId, program);
+                Program updatedProgram = programService.updateProgram(programId, program, includeSite);
                 return new ResponseEntity<>(updatedProgram, HttpStatus.CREATED);
         }
-
-        // here we find which site is enroll in which program
-        // @Operation(summary = "find programs by site", description = "find all programs a particular site is enrolled in")
-        // @ApiResponse(responseCode = "200", description = "list of programs returned successfully")
-        // @GetMapping("/find-program-by-site")
-        // public ResponseEntity<List<Program>> findProgramBySiteId(@RequestParam UUID siteId) {
-        //         List<Program> programBySite = siteProgramEnrollmentService.findProgramBySite(siteId);
-        //         return new ResponseEntity<>(programBySite, HttpStatus.OK);
-        // }
-
-        // here we in particular program how many site is enroll
-        // @Operation(summary = "find sites by program", description = "find all site ids enrolled in a particular program")
-        // @ApiResponse(responseCode = "200", description = "list of site ids returned successfully")
-        // @GetMapping("/find-site-by-program")
-        // public ResponseEntity<List<UUID>> findSiteIdByProgram(@RequestParam UUID programId) {
-        //         List<UUID> listSiteIds = siteProgramEnrollmentService.findSiteIdByProgramId(programId);
-        //         return new ResponseEntity<>(listSiteIds, HttpStatus.OK);
-        // }
 
         // here we find enroll site in particular program
         @Operation(summary = "enroll site in program", description = "enroll a site in a specific program")
         @ApiResponse(responseCode = "200", description = "site enrolled in program successfully")
         @PostMapping("/enroll-site-in-program")
         public ResponseEntity<SiteProgramEnrollment> enrollSiteinProgram(
+                        @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite,
                         @RequestParam(name = "siteId", required = true) UUID siteId,
                         @RequestParam(name = "programId", required = true) @NonNull UUID programId) {
                 SiteProgramEnrollment enrollSiteinProgram = siteProgramEnrollmentService.enrollSiteinProgram(siteId,
@@ -117,8 +101,10 @@ public class ProgramController {
         // activate program
         @Operation(summary = "activate program", description = "activate a program by its programId")
         @ApiResponse(responseCode = "200", description = "program activated successfully")
-        @PatchMapping("/activate-paogram/{programId}")
-        public ResponseEntity<Program> activateProgram(@PathVariable @NonNull UUID programId) {
+        @PatchMapping("/activate-program/{programId}")
+        public ResponseEntity<Program> activateProgram(
+                        @PathVariable(name = "programId", required = true) @NonNull UUID programId,
+                        @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite) {
                 Program activatedProgram = programService.activateProgram(programId);
                 return new ResponseEntity<>(activatedProgram, HttpStatus.OK);
         }
@@ -126,10 +112,20 @@ public class ProgramController {
         // deactivate program
         @Operation(summary = "deactivate program", description = "deactivate a program by its programId")
         @ApiResponse(responseCode = "200", description = "program deactivated successfully")
-        @PatchMapping("/deactivate-paogram/{programId}")
-        public ResponseEntity<Program> deactivateProgram(@PathVariable @NonNull UUID programId) {
+        @PatchMapping("/deactivate-program/{programId}")
+        public ResponseEntity<Program> deactivateProgram(
+                        @PathVariable(name = "programId", required = true) @NonNull UUID programId,
+                        @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite) {
                 Program deactivatedProgram = programService.deactivateProgram(programId);
                 return new ResponseEntity<>(deactivatedProgram, HttpStatus.OK);
+        }
+
+        @GetMapping("/fetch-programs-by-site/{siteId}")
+        public List<Program> getAllProgramBySiteId(
+                        @PathVariable(name = "siteId", required = false) UUID siteId,
+                        @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite) {
+                log.info("GET req to fetch all programs under site with siteId = " + siteId);
+                return programService.findAllProgramsBySites(siteId, includeSite);
         }
 
 }

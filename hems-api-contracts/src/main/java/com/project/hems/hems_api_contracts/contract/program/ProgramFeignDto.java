@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 
@@ -18,8 +17,8 @@ import lombok.ToString;
 
 @Data
 @ToString
-@JsonFilter("programFilter")
-public class Program {
+@NotNull
+public class ProgramFeignDto {
 
     private UUID programId;
 
@@ -42,7 +41,7 @@ public class Program {
     private ProgramType programType;
 
     @NotNull(message = "program description is required and cannot be null")
-    private ProgramDescription programDescription;
+    private ProgramDescFeignDto programDescription;
 
     private ProgramStatus programStatus;
 

@@ -1,6 +1,6 @@
 package com.project.hems.program_enrollment_manager.service;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import com.project.hems.hems_api_contracts.contract.program.ProgramStatus;
@@ -16,6 +16,7 @@ import com.project.hems.program_enrollment_manager.entity.ProgramDescEntity;
 import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
 import com.project.hems.hems_api_contracts.contract.program.Program;
 import com.project.hems.program_enrollment_manager.repository.ProgramRepository;
+import com.project.hems.program_enrollment_manager.util.ProgramHelperMethods;
 import com.project.hems.program_enrollment_manager.web.exception.ProgramNotFoundException;
 import com.project.hems.program_enrollment_manager.web.exception.ProgramStateConflictException;
 
@@ -30,30 +31,26 @@ public class ProgramService {
 
     private final ProgramRepository programRepository;
     private final ModelMapper mapper;
-    private final SiteFeignClientService siteFeignClientService;
+    private final ProgramHelperMethods programHelperMethods;
 
     // find All Program
-    public Page<Program> findAllPrograms(@NonNull Pageable pageReq) {
+    public Page<Program> findAllPrograms(@NonNull Pageable pageReq, boolean includeSite) {
         return programRepository.findAll(pageReq)
-                .map(entity -> mapper.map(entity, Program.class));
+                .map(entity -> programHelperMethods.getProgramFromEntity(entity, includeSite));
+    }
+
+    // find All Program
+    public List<Program> findAllProgramsBySites(UUID siteId, boolean includeSite) {
+        log.debug("findAllProgramsBySites: finding all program with siteId = {}", siteId);
+        return programRepository.findAllProgramEnrolledBySites(siteId)
+                .stream()
+                .map(entity -> programHelperMethods.getProgramFromEntity(entity, includeSite))
+                .toList();
     }
 
     // find programById
-    public Program findProgramById(@NonNull UUID programId) {
-
-        Optional<ProgramEntity> optionalProgram = programRepository.findById(programId);
-
-        if (optionalProgram.isEmpty()) {
-            log.error("findProgramById: unable to find program detail for given program id = " + programId);
-            throw new ProgramNotFoundException(
-                    "unable to find program detail for given program id = " + programId.toString());
-        }
-
-        Program program = mapper.map(optionalProgram.get(), Program.class);
-        program.setSites(siteFeignClientService.getAllSitesInProgram(programId).getBody());
-        
-        return program;
-
+    public Program findProgramById(@NonNull UUID programId, boolean includeSite) {
+        return programHelperMethods.getProgramByProgramId(programId, includeSite);
     }
 
     // save new program
@@ -70,7 +67,7 @@ public class ProgramService {
     }
 
     // update program
-    public Program updateProgram(@NonNull UUID programId, @Valid Program program) {
+    public Program updateProgram(@NonNull UUID programId, @Valid Program program, boolean includeSites) {
         ProgramEntity programEntity = programRepository.findById(programId).orElseThrow(
                 () -> {
                     log.error("unable to find program detail with program id = " + programId);
@@ -81,14 +78,16 @@ public class ProgramService {
         programEntity.setStartDate(program.getStartDate());
         programEntity.setEndDate(program.getEndDate());
         programEntity.setProgramType(program.getProgramType());
-        programEntity.setProgramDescription(mapper.map(program.getProgramDescription(), ProgramDescEntity.class));
+
+        ProgramDescEntity existingDesc = programEntity.getProgramDescription();
+        mapper.map(program.getProgramDescription(), existingDesc);
 
         programEntity.getProgramDescription().setProgram(programEntity);
 
         ProgramEntity savedProgram = programRepository.save(programEntity);
 
         log.info("updateProgram: program detail updated successfully");
-        return mapper.map(savedProgram, Program.class);
+        return programHelperMethods.getProgramFromEntity(savedProgram, includeSites);
     }
 
     // activate program
