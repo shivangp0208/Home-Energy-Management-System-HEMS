@@ -26,8 +26,8 @@ public class Site {
     @ToString.Exclude
     private Owner owner;
 
-    @Column(name = "is_active")
-    private boolean isActive;
+    @Column(name = "site_status")
+    private boolean siteStatus;
 
     @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
@@ -44,6 +44,7 @@ public class Site {
     @ToString.Exclude
     private Address address;
 
+    @CollectionTable(name = "site_enroll_program_ids", joinColumns = @JoinColumn(name = "site_id"))
     @ElementCollection
     @Column(name = "program_id")
     private List<UUID> enrollProgramIds = new ArrayList<>();

@@ -37,6 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     // implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
     // implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
     implementation project(":hems-api-contracts")

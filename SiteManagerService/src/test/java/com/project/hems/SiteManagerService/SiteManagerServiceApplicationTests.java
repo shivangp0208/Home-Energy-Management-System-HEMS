@@ -36,7 +36,7 @@ class SiteManagerServiceApplicationTests {
 
 		Site site = new Site();
 		site.setSiteId(UUID.randomUUID());
-		site.setActive(true);
+		site.setSiteStatus(true);
 		site.setOwner(owner); // Circular ref
 
 		owner.setSites(Arrays.asList(site));
@@ -56,7 +56,7 @@ class SiteManagerServiceApplicationTests {
 		// 1. Arrange: Create DTO
 		SiteDto dto = new SiteDto();
 		dto.setSiteId(UUID.randomUUID());
-		dto.setActive(true);
+		dto.setSiteStatus(true);
 
 		SolarDto solarDto = new SolarDto();
 		solarDto.setTotalPanelCapacityW(5000.0);
@@ -67,7 +67,7 @@ class SiteManagerServiceApplicationTests {
 
 		// 3. Assert
 		assertThat(entity.getSiteId()).isEqualTo(dto.getSiteId());
-		assertThat(entity.isActive()).isTrue();
+		assertThat(entity.isSiteStatus()).isTrue();
 		assertThat(entity.getSolar()).hasSize(1);
 		assertThat(entity.getSolar().get(0).getTotalPanelCapacityW()).isEqualTo(5000.0);
 	}

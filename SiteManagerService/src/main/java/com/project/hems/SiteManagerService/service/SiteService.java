@@ -4,7 +4,7 @@ import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.SiteManagerService.entity.Battery;
 import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.entity.Site;
-import com.project.hems.hems_api_contracts.contract.program.Program;
+import com.project.hems.hems_api_contracts.contract.program.ProgramFeignDto;
 import com.project.hems.hems_api_contracts.contract.site.*;
 
 import jakarta.transaction.Transactional;
@@ -14,6 +14,7 @@ import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
 import com.project.hems.SiteManagerService.service.impl.SiteServiceImpl;
+import com.project.hems.SiteManagerService.util.SiteHelperMethods;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ public class SiteService implements SiteServiceImpl {
         private final OwnerRepo ownerRepo;
         private final KafkaTemplate<String, SiteCreationEvent> kafkaTemplate;
         private final ModelMapper mapper;
+        private final SiteHelperMethods siteHelperMethods;
 
         @Value("${property.config.kafka.site-creation-topic}")
         public String siteCreationTopic;
@@ -66,6 +68,7 @@ public class SiteService implements SiteServiceImpl {
 
                 log.debug("createSite: after mapping site dto to entity = {}", siteEnity);
 
+                siteEnity.setOwner(owner);
                 siteEnity.getOwner().getSites().add(siteEnity);
                 siteEnity.getSolar().forEach(solarEn -> solarEn.setSite(siteEnity));
                 siteEnity.getAddress().setSite(siteEnity);
@@ -100,17 +103,9 @@ public class SiteService implements SiteServiceImpl {
                 return mapper.map(savedSite, SiteDto.class);
         }
 
-        public SiteDto fetchSiteById(UUID siteId) {
+        public SiteDto fetchSiteById(UUID siteId, boolean includeProgram) {
                 log.info("fetchSiteById: Fetching site asynchronously, siteId={}", siteId);
-
-                Site site = siteRepo.findById(siteId)
-                                .orElseThrow(() -> {
-                                        log.warn("fetchSiteById: Site not found, siteId={}", siteId);
-                                        return new ResourceNotFoundException(
-                                                        "site is not found with site id :- " + siteId);
-                                });
-
-                return mapper.map(site, SiteDto.class);
+                return siteHelperMethods.getSiteBySiteId(siteId, includeProgram);
         }
 
         //
@@ -122,7 +117,6 @@ public class SiteService implements SiteServiceImpl {
                 List<SiteDto> siteDtos = sites.stream()
                                 .map(entity -> mapper.map(entity, SiteDto.class))
                                 .toList();
-
                 return siteDtos;
         }
 
@@ -188,17 +182,16 @@ public class SiteService implements SiteServiceImpl {
                 return SiteDtos;
         }
 
-        public List<SiteDto> fetchSiteByProgram(UUID programId) {
-                log.info("fetchSiteByRegion: Fetching sites with program id ={}", programId);
+        public List<SiteDto> fetchSiteByProgram(UUID programId, boolean includeProgram) {
+                log.info("fetchSiteByProgram: Fetching sites with program id ={}", programId);
 
                 List<Site> sites = siteRepo.findAllSitesByEnrollProgramIds(programId);
-                List<SiteDto> SiteDtos = sites.stream()
-                                .map(entity -> mapper.map(entity,
-                                                SiteDto.class))
+                log.debug("fetchSiteByProgram: Found {} sites enrolled in program id ={}", sites.size(), programId);
+                List<SiteDto> resultSites = sites
+                                .stream()
+                                .map(en -> siteHelperMethods.getSiteByEntity(en, includeProgram))
                                 .toList();
-
-                log.debug("fetchSiteByRegion: Found {} sites enrolled in program id ={}", SiteDtos.size(), programId);
-                return SiteDtos;
+                return resultSites;
         }
 
         public List<String> fetchAllRegion() {
@@ -206,7 +199,7 @@ public class SiteService implements SiteServiceImpl {
                 return allRegion;
         }
 
-        public SiteDto enrollSiteInProgram(UUID siteId, Program program) {
+        public SiteDto enrollSiteInProgram(UUID siteId, ProgramFeignDto program) {
                 log.info("enrollSiteInProgram: enrolling site with site id {} in program {}", siteId, program);
 
                 Site siteEntity = siteRepo.findById(siteId).orElseThrow(() -> new ResourceNotFoundException(

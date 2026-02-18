@@ -33,6 +33,6 @@ public interface SiteRepo extends JpaRepository<Site, UUID> {
             FROM Site s
             WHERE :programId MEMBER OF s.enrollProgramIds
             """)
-    public List<Site> findAllSitesByEnrollProgramIds(UUID programId);
+    public List<Site> findAllSitesByEnrollProgramIds(@Param("programId") UUID programId);
 
 }

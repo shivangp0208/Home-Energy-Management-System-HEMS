@@ -2,6 +2,7 @@ package com.project.hems.SiteManagerService.service.impl;
 
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.hems_api_contracts.contract.program.Program;
+import com.project.hems.hems_api_contracts.contract.program.ProgramFeignDto;
 import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 
 import org.springframework.data.domain.Page;
@@ -12,7 +13,7 @@ public interface SiteServiceImpl {
 
      SiteDto createSite(SiteDto siteDto, String userSub);
 
-     SiteDto fetchSiteById(UUID siteId);
+     SiteDto fetchSiteById(UUID siteId, boolean includeProgram);
      List<SiteDto> fetchAllSite();
      List<SiteDto> fetchAllSiteV2();
 
@@ -30,6 +31,6 @@ public interface SiteServiceImpl {
 
     // EnrollSiteInVppResponse assignSiteToVpp(UUID siteId, AssignVppRequest request);
 
-    SiteDto enrollSiteInProgram(UUID siteId, Program program);
+    SiteDto enrollSiteInProgram(UUID siteId, ProgramFeignDto program);
 
 }
