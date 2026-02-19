@@ -1,7 +1,10 @@
 package com.hems.project.Virtual_Power_Plant.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -11,7 +14,9 @@ import com.hems.project.Virtual_Power_Plant.exception.GroupAlreadyPresentExcepti
 import com.hems.project.Virtual_Power_Plant.exception.SiteGroupNotFoundException;
 import com.hems.project.Virtual_Power_Plant.exception.SiteGroupStateConflictException;
 import com.hems.project.Virtual_Power_Plant.repository.SiteGroupRepository;
+import com.netflix.infix.lang.infix.antlr.EventFilterParser.boolean_expr_return;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
+import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupReqDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +29,7 @@ public class SiteGroupService {
     private final SiteGroupRepository siteGroupRepository;
     private final ModelMapper mapper;
 
-    public SiteGroupDto createSiteGroup(SiteGroupDto siteGroupDto) {
+    public SiteGroupDto createSiteGroup(SiteGroupReqDto siteGroupDto) {
 
         if (siteGroupRepository.existsByGroupName(siteGroupDto.getGroupName())) {
             throw new GroupAlreadyPresentException("unable to create group with name " + siteGroupDto.getGroupName()
@@ -40,7 +45,7 @@ public class SiteGroupService {
         return mapper.map(savedGroup, SiteGroupDto.class);
     }
 
-    public SiteGroupDto getSiteGroupByGroupId(UUID groupId) {
+    public SiteGroupDto getSiteGroupByGroupId(UUID groupId, boolean includeSites) {
 
         SiteGroup fetchedSiteGroup = siteGroupRepository.findById(groupId)
                 .orElseThrow(
@@ -51,7 +56,7 @@ public class SiteGroupService {
         return mapper.map(fetchedSiteGroup, SiteGroupDto.class);
     }
 
-    public List<SiteGroupDto> getAllSiteGroups() {
+    public List<SiteGroupDto> getAllSiteGroups(boolean includeSites) {
 
         List<SiteGroup> groups = siteGroupRepository.findAll();
 
@@ -61,7 +66,7 @@ public class SiteGroupService {
     }
 
     // UPDATE
-    public SiteGroupDto updateSiteGroup(UUID groupId, SiteGroupDto siteGroupDto) {
+    public SiteGroupDto updateSiteGroup(UUID groupId, SiteGroupDto siteGroupDto, boolean includeSites) {
 
         SiteGroup existingGroup = siteGroupRepository.findById(groupId)
                 .orElseThrow(
@@ -81,6 +86,11 @@ public class SiteGroupService {
         existingGroup.setGroupType(siteGroupDto.getGroupType());
         existingGroup.setGroupStatus(siteGroupDto.isGroupStatus());
         existingGroup.setCreatedBy(siteGroupDto.getCreatedBy());
+        Set<UUID> updatedSites = siteGroupDto.getSitesInGroup()
+                .stream()
+                .map(siteDto -> siteDto.getSiteId())
+                .collect(Collectors.toSet());
+        existingGroup.setSitesInGroup(updatedSites);
 
         SiteGroup updatedGroup = siteGroupRepository.save(existingGroup);
 

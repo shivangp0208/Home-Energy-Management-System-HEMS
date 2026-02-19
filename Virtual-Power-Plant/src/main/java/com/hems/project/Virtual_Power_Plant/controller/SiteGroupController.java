@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hems.project.Virtual_Power_Plant.service.SiteGroupService;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
+import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupReqDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Slf4j
@@ -36,30 +38,36 @@ public class SiteGroupController {
     // to store thier token's sub claim to identify them and then at the time of
     // creating from the token we can know who created this group
     @PostMapping("/create-site-group")
-    public SiteGroupDto createSiteGroup(@RequestBody @Valid SiteGroupDto siteGroup) {
+    public SiteGroupDto createSiteGroup(
+            @RequestBody @Valid SiteGroupReqDto siteGroup,
+            @RequestParam(name = "includeSites", required = false, defaultValue = "false") boolean includeSites) {
         log.info("POST req to create a site group ");
         return siteGroupService.createSiteGroup(siteGroup);
     }
 
     @GetMapping("groups/{groupId}")
-    public SiteGroupDto getSiteGroupById(@PathVariable(name = "groupId", required = true) UUID groupId) {
+    public SiteGroupDto getSiteGroupById(
+            @PathVariable(name = "groupId", required = true) UUID groupId,
+            @RequestParam(name = "includeSites", required = false, defaultValue = "false") boolean includeSites) {
         log.info("GET request to fetch site group with id {}", groupId);
-        return siteGroupService.getSiteGroupByGroupId(groupId);
+        return siteGroupService.getSiteGroupByGroupId(groupId, includeSites);
     }
 
     @GetMapping("/groups")
-    public List<SiteGroupDto> getAllSiteGroups() {
+    public List<SiteGroupDto> getAllSiteGroups(
+            @RequestParam(name = "includeSites", required = false, defaultValue = "false") boolean includeSites) {
         log.info("GET request to fetch all site groups");
-        return siteGroupService.getAllSiteGroups();
+        return siteGroupService.getAllSiteGroups(includeSites);
     }
 
     @PutMapping("groups/{groupId}")
     public SiteGroupDto updateSiteGroup(
             @PathVariable(name = "groupId", required = true) UUID groupId,
-            @RequestBody @Valid SiteGroupDto siteGroupDto) {
+            @RequestBody @Valid SiteGroupDto siteGroupDto,
+            @RequestParam(name = "includeSites", required = false, defaultValue = "false") boolean includeSites) {
 
         log.info("PUT request to update site group with id {}", groupId);
-        return siteGroupService.updateSiteGroup(groupId, siteGroupDto);
+        return siteGroupService.updateSiteGroup(groupId, siteGroupDto, includeSites);
     }
 
     @DeleteMapping("groups/{groupId}")
@@ -68,14 +76,14 @@ public class SiteGroupController {
         log.info("DELETE request for site group with id {}", groupId);
         siteGroupService.deleteSiteGroup(groupId);
     }
-    
+
     @PatchMapping("groups/{groupId}/deactivate")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivateSiteGroup(@PathVariable(name = "groupId", required = true) UUID groupId) {
         log.info("PATCH request to deactivate site group with id {}", groupId);
         siteGroupService.deactivateSiteGroup(groupId);
     }
-    
+
     @PatchMapping("groups/{groupId}/activate")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void activateSiteGroup(@PathVariable(name = "groupId", required = true) UUID groupId) {

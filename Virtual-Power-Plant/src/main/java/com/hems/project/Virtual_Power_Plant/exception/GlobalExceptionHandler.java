@@ -4,6 +4,7 @@ import feign.FeignException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -22,6 +23,16 @@ public class GlobalExceptionHandler {
                         "message", "downstream service error",
                         "downstreamStatus", ex.status(),
                         "details", ex.contentUTF8()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+
+        return Map.of(
+                "message", "INVALID_ARGUMENT",
+                "error", ex.getBindingResult().getFieldError().getDefaultMessage(),
+                "code", HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(code = HttpStatus.CONFLICT)

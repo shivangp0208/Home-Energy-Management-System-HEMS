@@ -1,7 +1,10 @@
 package com.project.hems.hems_api_contracts.contract.site;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.ArrayList;
@@ -12,12 +15,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.project.hems.hems_api_contracts.contract.program.Program;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString
-@JsonFilter("siteFilter") //dynamic filter we make for filter out some filed in response
+// @JsonFilter("siteFilter") //dynamic filter we make for filter out some filed in response
 public class SiteDto {
 
     private UUID siteId;

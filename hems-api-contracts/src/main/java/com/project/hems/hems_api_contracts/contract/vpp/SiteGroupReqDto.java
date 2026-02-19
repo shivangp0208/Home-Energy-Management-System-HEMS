@@ -5,20 +5,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.project.hems.hems_api_contracts.contract.site.SiteDto;
-
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import lombok.NonNull;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonFilter("siteGroupFilter")
-public class SiteGroupDto {
+public class SiteGroupReqDto {
 
     private UUID groupId;
 
@@ -35,7 +34,7 @@ public class SiteGroupDto {
     private boolean groupStatus = true;
 
     @NotEmpty(message = "At least one site must be assigned to the group")
-    private Set<@Valid SiteDto> sitesInGroup = new HashSet<>();
+    private Set<@NonNull UUID> sitesInGroup = new HashSet<>();
 
     private LocalDateTime createdAt;
 
@@ -43,5 +42,3 @@ public class SiteGroupDto {
     @Size(max = 100, message = "CreatedBy cannot exceed 100 characters")
     private String createdBy;
 }
-
-
