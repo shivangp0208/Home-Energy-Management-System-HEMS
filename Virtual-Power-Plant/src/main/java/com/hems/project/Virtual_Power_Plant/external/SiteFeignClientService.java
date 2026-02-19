@@ -29,6 +29,6 @@ public interface SiteFeignClientService {
        ResponseEntity<List<String>> fethcAllAvailableRegion();
 
         @PostMapping("/api/v1/site/check-site-available/{siteId}")
-        ResponseEntity<Boolean> checkSiteIsAvailableOtNot(@PathVariable UUID siteId);
+        ResponseEntity<Boolean> checkSiteIsAvailableOtNot(@PathVariable("siteId") UUID siteId);
 
 }

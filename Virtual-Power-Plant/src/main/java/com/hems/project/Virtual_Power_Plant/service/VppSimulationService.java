@@ -51,7 +51,7 @@ public class VppSimulationService {
      */
     //in this we save not every different raw we fetch that and that save ..
 
-   @Scheduled(fixedRate = 60000)
+//    @Scheduled(fixedRate = 60000)
 public void saveVppSnapshotsToDb() {
     if (vppSnapshots.isEmpty()) return;
 
@@ -72,7 +72,7 @@ public void saveVppSnapshotsToDb() {
      * Every 5 seconds simulate live readings + publish to Kafka
      * Like your friend's simulateLiveReadings()
      */
-    @Scheduled(fixedRate = 5000)
+    // @Scheduled(fixedRate = 5000)
     public void simulateLiveVppReadings() {
 
         if (vppSnapshots.isEmpty()) {

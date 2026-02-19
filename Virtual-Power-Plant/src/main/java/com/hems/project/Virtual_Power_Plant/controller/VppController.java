@@ -3,6 +3,7 @@ package com.hems.project.Virtual_Power_Plant.controller;
 import com.hems.project.Virtual_Power_Plant.dto.VppUpdateRequestDto;
 import com.hems.project.Virtual_Power_Plant.dto.VppUpdateResponseDto;
 import com.hems.project.Virtual_Power_Plant.entity.Vpp;
+import com.project.hems.hems_api_contracts.contract.dispatch.DispatchEvent;
 import com.project.hems.hems_api_contracts.contract.vpp.SignalForImport;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +24,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 //aa frontend mate che hamda emj lakhi rakhyu che frontend diff port per run kare and backend diff port per so ena mate..
 @CrossOrigin("*")
@@ -139,7 +143,12 @@ public class VppController {
         return new ResponseEntity<>(vpps, HttpStatus.OK);
     }
 
-
+    @PostMapping("/create-dispatch-event/{groupId}")
+    public DispatchEvent createDispatchEvent(@RequestBody DispatchEvent dispatchEvent) {
+        
+        return dispatchEvent;
+    }
+    
 
    
 }
