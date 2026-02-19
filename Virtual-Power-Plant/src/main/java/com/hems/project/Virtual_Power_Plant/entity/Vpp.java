@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.hems.project.Virtual_Power_Plant.dto.VppAccessStatus;
 import com.hems.project.Virtual_Power_Plant.dto.VppOperationalStatus;
 import com.hems.project.Virtual_Power_Plant.dto.VppVerificationStatus;
 
@@ -79,7 +80,11 @@ public class Vpp {
 
     @Enumerated(EnumType.STRING)
     private VppOperationalStatus operationalStatus;
-    
+
+    @Enumerated(EnumType.STRING)
+    private VppAccessStatus accessStatus;
+
+
     @Column(name = "established_time")
     private LocalDateTime establishedTime;
 

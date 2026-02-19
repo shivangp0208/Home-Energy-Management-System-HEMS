@@ -1,5 +1,6 @@
 package com.hems.project.Email_Service.service;
 
+import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullResponseDto;
 import jakarta.mail.MessagingException;
@@ -27,18 +28,14 @@ public class MailService {
 
     private final JavaMailSender mailSender;
 
-    public MailSuccessfullResponseDto sendMail(MailSuccessfullRequestDto requestDto){
+    public MailSuccessfullResponseDto sendMail(EmailEventDto requestDto){
         System.out.println("EMAIL DTO = " + requestDto);
         SimpleMailMessage mailMessage=new SimpleMailMessage();
         mailMessage.setFrom("hems07293@gmail.com");
         mailMessage.setTo(requestDto.getTo());
         //subject nu format userId/Vppid - and some message e rete rakhvu
-        mailMessage.setSubject("""
-                   [HEMS] Site Created Successfully | Site ID: 10245
-                """);
-        mailMessage.setText("""
-                        your document is currently is under progress
-                """);
+        mailMessage.setSubject(requestDto.getSubject());
+        mailMessage.setText(requestDto.getBody());
         mailSender.send(mailMessage);
         MailSuccessfullResponseDto mailSuccessfullResponseDto=MailSuccessfullResponseDto
                 .builder()

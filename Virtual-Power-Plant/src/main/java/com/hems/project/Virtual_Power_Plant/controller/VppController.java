@@ -1,14 +1,23 @@
 package com.hems.project.Virtual_Power_Plant.controller;
 
+import com.hems.project.Virtual_Power_Plant.Config.MessagingConfig;
+import com.hems.project.Virtual_Power_Plant.dto.DocumentVerificationDto;
 import com.hems.project.Virtual_Power_Plant.dto.VppUpdateRequestDto;
 import com.hems.project.Virtual_Power_Plant.dto.VppUpdateResponseDto;
 import com.hems.project.Virtual_Power_Plant.entity.Vpp;
+import com.hems.project.Virtual_Power_Plant.entity.VppDocumentType;
+import com.hems.project.Virtual_Power_Plant.service.SupabaseStorageService;
+import com.hems.project.Virtual_Power_Plant.service.VppDocumentService;
+import com.project.hems.hems_api_contracts.contract.email.AttachmentDto;
+import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SignalForImport;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +30,16 @@ import com.hems.project.Virtual_Power_Plant.service.VppService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //aa frontend mate che hamda emj lakhi rakhyu che frontend diff port per run kare and backend diff port per so ena mate..
 @CrossOrigin("*")
@@ -35,6 +52,9 @@ import java.util.*;
 public class VppController {
 
     private final VppService vppService;
+    private final SupabaseStorageService supabaseStorageService;
+    private final VppDocumentService vppDocumentService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Value("${jills.patel}")
     public String role;
@@ -61,7 +81,12 @@ public class VppController {
         System.out.println("keyyyy is "+role);
     }
 
-
+    //find vpp by vppID
+    @GetMapping("/{vppId}")
+    public ResponseEntity<Vpp> fetchVpp(@PathVariable UUID vppId){
+         Vpp vpp = vppService.fetchVpp(vppId);
+         return new ResponseEntity<>(vpp,HttpStatus.OK);
+    }
 
     //create vpp when use assign role to vpp then by default we create empty vpp raw in database
     //so aa eno endpoint che
@@ -84,13 +109,15 @@ public class VppController {
     @PatchMapping("/update-vpp")
     public ResponseEntity<VppUpdateResponseDto> updateVpp(@AuthenticationPrincipal Jwt jwt,@RequestBody VppUpdateRequestDto dto){
         String email=jwt.getClaimAsString("http://hems.com/email");
-         VppUpdateResponseDto vppUpdateResponseDto = vppService.updateVpp(email,dto);
-         //todo:-
+         //VppUpdateResponseDto vppUpdateResponseDto = vppService.updateVpp(email,dto);
+         VppUpdateResponseDto vppUpdateResponseDto = vppService.updateVppV2(email, dto);
+        //todo:-
         //mail send kari sakiee ke aa vastu tame update kari che em..
          return new ResponseEntity<>(vppUpdateResponseDto,HttpStatus.OK);
     }
 
     //@PreAuthorize("hasAuthority('vpp:write')")
+    /*
     @PutMapping("/update-vpp-put")
     public ResponseEntity<VppUpdateResponseDto> updateVppPut(
             @AuthenticationPrincipal Jwt jwt,
@@ -100,6 +127,8 @@ public class VppController {
         VppUpdateResponseDto vppUpdateResponseDto = vppService.updateVpp(email, dto);
         return new ResponseEntity<>(vppUpdateResponseDto, HttpStatus.OK);
     }
+
+     */
 
 
     //todo:-
@@ -139,7 +168,110 @@ public class VppController {
         return new ResponseEntity<>(vpps, HttpStatus.OK);
     }
 
+    //upload document to verify so we put in the s3 bucket and ek controller vpp manager ma banai daisu ke
+    //vpp manager /list-all-pending document so vpp manager ne link badhi ayi jase je document verify karvana baki che e
+    //and verify thai gaya hase ene Mark kari daisu
+
+    //upload-document
+    //RBAC karvu ..
+    @PostMapping(value = "/upload/{vppId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> uploadDocuments(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID vppId,
+            @RequestParam("documentType") VppDocumentType documentType,
+            @RequestParam("file") List<MultipartFile> files
+    ) {
+        //ek check muleu che if user jode role vpp:write no hoy toh e pan aa eidpoint access kari sakse...
+        //so we use here extra check in ownership
+        String email = jwt.getClaimAsString("http://hems.com/email");
+
+        try {
+            vppService.validateOwnership(vppId, email);
+        } catch (AccessDeniedException e) {
+            throw new RuntimeException(e);
+        }
+
+        Map<String, Object> resp = vppDocumentService.uploadDocuments(vppId, files, documentType);
 
 
-   
+        //TODO:-
+        //mail send karvo through rabbitMq..
+        EmailEventDto dto = EmailEventDto.builder()
+                .to(email)
+                .subject("[HEMS] Documents uploaded successfully")
+                .body(buildBody(vppId, documentType, resp))  // resp has URLs
+                .html(false)
+                .eventType("DOCUMENT_UPLOADED")
+                .build();
+
+        rabbitTemplate.convertAndSend(
+                MessagingConfig.EXCHANGE,
+                "email.vpp.document.uploaded",
+                dto
+        );
+
+        log.info("mail send successfully {} ",dto);
+
+
+
+        return ResponseEntity.ok(resp);
+    }
+
+
+    //get all imageLink with vppId
+    @GetMapping("/fetch-image/{vppId}")
+    public ResponseEntity<Map<String,Object>> getAllImages(@PathVariable UUID vppId){
+         List<Map<String, String>> allImagesFromVppId = supabaseStorageService.getAllImagesFromVppId(vppId);
+
+         Map<String, Object> response = Map.of(
+                "message", "Fetch successfully",
+                "count", allImagesFromVppId.size(),
+                "images", allImagesFromVppId
+        );
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    //delete all image form storage based on vppId
+    @DeleteMapping("/{vppId}/images")
+    public ResponseEntity<Map<String, Object>> deleteAllImages(@PathVariable UUID vppId) {
+        supabaseStorageService.deleteAllFilesByVppId(vppId);
+        return ResponseEntity.ok(Map.of("message", "Deleted all files for vppId", "vppId", vppId));
+    }
+
+    @PreAuthorize("hasAuthority('admin:write')")
+    @PatchMapping("/update-status/{vppId}")
+    public ResponseEntity<Map<String, Object>> updateStatus(
+            @PathVariable UUID vppId,
+            @RequestBody DocumentVerificationDto dto) {
+
+        vppDocumentService.updateVerificationStatus(vppId, dto);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Verification status updated successfully"
+        ));
+    }
+
+    private String buildBody(UUID vppId, VppDocumentType type, Map<String,Object> resp) {
+        List<String> urls = (List<String>) resp.getOrDefault("imageUrls", List.of());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Your documents are uploaded and are under review.\n\n");
+        sb.append("VPP ID: ").append(vppId).append("\n");
+        sb.append("Document Type: ").append(type).append("\n\n");
+        sb.append("Uploaded files:\n");
+
+        for (int i = 0; i < urls.size(); i++) {
+            sb.append(i + 1).append(". ").append(urls.get(i)).append("\n");
+        }
+        return sb.toString();
+    }
+
+
+
+
+
+
+
+
+
 }

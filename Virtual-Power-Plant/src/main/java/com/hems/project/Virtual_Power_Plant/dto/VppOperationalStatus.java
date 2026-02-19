@@ -14,6 +14,7 @@ public enum VppOperationalStatus {
 
     MAINTENANCE,    // Planned maintenance
 
-    FAULT           // Unexpected failure (trip, grid fault, etc)
+    FAULT,           // Unexpected failure (trip, grid fault, etc)
+
 
 }
