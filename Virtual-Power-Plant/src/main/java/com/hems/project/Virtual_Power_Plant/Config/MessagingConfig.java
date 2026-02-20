@@ -1,23 +1,19 @@
-package com.project.hems.SiteManagerService.config;
+package com.hems.project.Virtual_Power_Plant.Config;
 
-import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-
 
 @Configuration
-@RefreshScope
 public class MessagingConfig {
 
     public static final String QUEUE="email_service_queue";
     public static final String EXCHANGE="email_service_exchange";
-    public static final String ROUTING_KEY="email.site.created";
+    public static final String ROUTING_KEY="email.vpp.document.uploaded";
 
     @Bean
     public Queue queue(){
@@ -25,7 +21,7 @@ public class MessagingConfig {
     }
 
     @Bean
-    public TopicExchange exchange(){
+    public Exchange exchange(){
         return new TopicExchange(EXCHANGE);
     }
 
@@ -41,7 +37,7 @@ public class MessagingConfig {
 
     @Bean
     public AmqpTemplate amqpTemplate(ConnectionFactory connectionFactory){
-        final RabbitTemplate rabbitTemplate=new RabbitTemplate(connectionFactory);
+        RabbitTemplate rabbitTemplate=new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter());
         return rabbitTemplate;
     }

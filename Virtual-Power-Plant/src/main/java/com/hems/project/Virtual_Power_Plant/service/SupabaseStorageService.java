@@ -109,4 +109,61 @@ public class SupabaseStorageService {
             .toList();
        }
 
+    public void deleteAllFilesByVppId(UUID vppId) {
+
+        List<Map<String, String>> files = getAllImagesFromVppId(vppId);
+        if (files.isEmpty()) return;
+
+        List<String> prefixes = files.stream()
+                .map(m -> vppId + "/" + m.get("fileName"))
+                .toList();
+
+        //bulk delete karva mate
+        String deleteUrl = supabaseUrl + "/storage/v1/object/" + bucket;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(supabaseKey);
+        headers.set("apikey", supabaseKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> body = Map.of("prefixes", prefixes);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+        restTemplate.exchange(
+                deleteUrl,
+                HttpMethod.DELETE,
+                request,
+                String.class
+        );
+    }
+
+
+
+    public void deleteFiles(UUID vppId, List<String> fileNames) {
+
+        if (fileNames == null || fileNames.isEmpty()) return;
+
+        List<String> prefixes = fileNames.stream()
+                .map(name -> vppId + "/" + name)
+                .toList();
+
+        String url = supabaseUrl + "/storage/v1/object/" + bucket.trim();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + supabaseKey);
+        headers.set("apikey", supabaseKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> req =
+                new HttpEntity<>(Map.of("prefixes", prefixes), headers);
+
+        restTemplate.exchange(url, HttpMethod.DELETE, req, String.class);
+    }
+
+
+
+
+
+
 }

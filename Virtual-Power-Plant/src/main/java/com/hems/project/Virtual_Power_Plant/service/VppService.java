@@ -1,12 +1,15 @@
 package com.hems.project.Virtual_Power_Plant.service;
 
+import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import com.hems.project.Virtual_Power_Plant.Config.VppMapper;
 import com.hems.project.Virtual_Power_Plant.dto.*;
 import com.hems.project.Virtual_Power_Plant.entity.Vpp;
 import com.hems.project.Virtual_Power_Plant.repository.VppRepository;
+import jakarta.transaction.Transactional;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +36,7 @@ public class VppService {
     private final ProgramManagerFeignClientService programManagerFeignClientService;
     private final VppRepository vppRepository;
     private final SiteCreationService siteCreationService;
-
+    private final VppMapper vppMapper;
 
 
     public String importPower(SignalForImport signalForImport){
@@ -78,6 +81,7 @@ public class VppService {
                         .name("default VPP name")
                         .region("default region")
                         .totalSolarCapacityW(0.0)
+                        .lastUpdatedTime(LocalDateTime.now())
                         .totalBatteryCapacityWh(0.0)
                         .availableBatteryCapacityWh(0.0)
                         .verificationStatus(VppVerificationStatus.DRAFT)
@@ -89,6 +93,7 @@ public class VppService {
             }
 
 
+            /*
             public VppUpdateResponseDto updateVpp(String email,VppUpdateRequestDto dto){
                 //fetch vpp is there or not based on email
                  Vpp vpp = vppRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("vpp not found for email " + email));
@@ -119,6 +124,7 @@ public class VppService {
                 Optional.ofNullable(dto.getOperationalStatus()).ifPresent(vpp::setOperationalStatus);
                 Optional.ofNullable(dto.getEstablishedTime()).ifPresent(vpp::setEstablishedTime);
                 Optional.ofNullable(dto.getSiteCollection()).ifPresent(vpp::setSiteCollection);
+                vpp.setLastUpdatedTime(LocalDateTime.now());
 
                  Vpp updatedVpp = vppRepository.save(vpp);
 
@@ -138,11 +144,25 @@ public class VppService {
                         .totalSites(updatedVpp.getTotalSites())
                         .operationalStatus(updatedVpp.getOperationalStatus())
                         .establishedTime(updatedVpp.getEstablishedTime())
-                        .siteCollection(updatedVpp.getSiteCollection())
+                         .lastUpdatedTime(updatedVpp.getLastUpdatedTime())
+                         .siteCollection(updatedVpp.getSiteCollection())
                         .build();
 
                 return response;
             }
+
+             */
+
+    @Transactional
+    public VppUpdateResponseDto updateVppV2(String email, VppUpdateRequestDto dto) {
+
+        Vpp vpp = vppRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("VPP not found"));
+        vppMapper.updateVppFromDto(dto, vpp);
+
+        return vppMapper.toDto(vpp);
+    }
+
 
     public boolean deleteVpp(UUID vppId) {
         if (vppRepository.existsById(vppId)) {
@@ -158,6 +178,39 @@ public class VppService {
     }
 
     //get all vpp and aa bhi only admin ke super admin j joi sakse
+
+
+    //check is vpp is available based on id
+    public void validateVppExists(UUID vppId) {
+        if (!vppRepository.existsById(vppId)) {
+            throw new ResourceNotFoundException("VPP not found with id: " + vppId);
+        }
+    }
+
+    public void validateOwnership(UUID vppId, String email) throws AccessDeniedException {
+        Vpp vpp = vppRepository.findById(vppId)
+                .orElseThrow(()-> new RuntimeException("Vpp is not found with id "+vppId));
+
+        if (!vpp.getEmail().equals(email)) {
+            throw new AccessDeniedException("You cannot access this VPP");
+        }
+    }
+
+    public Vpp fetchVpp(UUID vppId) {
+        Vpp vpp = vppRepository.findById(vppId)
+                .orElseThrow(()-> new RuntimeException("Vpp is not found with id "+vppId));
+
+        return vpp;
+    }
+
+
+    //make method jena thi apde verification statyus of document and time set kari sakiee
+
+
+
+    //TODO:-
+    //future ma id na jagyaee token perthi e apde check karvu hoy toh enu e banai rakhvu
+
 
 
     //TODO:-

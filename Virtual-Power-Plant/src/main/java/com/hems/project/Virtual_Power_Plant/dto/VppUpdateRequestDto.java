@@ -2,6 +2,7 @@ package com.hems.project.Virtual_Power_Plant.dto;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

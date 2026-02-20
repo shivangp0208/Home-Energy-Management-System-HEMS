@@ -1,6 +1,7 @@
 package com.hems.project.Email_Service.controller;
 
 import com.hems.project.Email_Service.service.MailService;
+import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullResponseDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +25,7 @@ public class MailController {
     private final MailService mailService;
 
     @PostMapping("/send-mail")
-    public ResponseEntity<MailSuccessfullResponseDto> sendMail(@RequestBody MailSuccessfullRequestDto dto){
+    public ResponseEntity<MailSuccessfullResponseDto> sendMail(@RequestBody EmailEventDto dto){
         MailSuccessfullResponseDto mailSuccessfullResponseDto = mailService.sendMail(dto);
         return new ResponseEntity<>(mailSuccessfullResponseDto, HttpStatus.OK);
     }

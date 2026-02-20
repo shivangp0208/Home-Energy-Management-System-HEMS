@@ -9,6 +9,7 @@ import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.SiteManagerService.service.EmailServiceImpl;
 import com.project.hems.SiteManagerService.service.SiteServiceImpl;
 import com.project.hems.SiteManagerService.util.EmailTemplateUtil;
+import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullResponseDto;
 import com.project.hems.hems_api_contracts.contract.program.Program;
@@ -71,18 +72,26 @@ public class SiteController {
 
         System.out.println("email"+email);
 
-        MailSuccessfullRequestDto dto =
+        MailSuccessfullRequestDto oldDto =
                 EmailTemplateUtil.buildSiteCreatedMail(
                         email,
                         String.valueOf(site.getSiteId()),
                         userSub
                 );
 
+        EmailEventDto eventDto = EmailEventDto.builder()
+                .to(oldDto.getTo())
+                .subject(oldDto.getSubject())
+                .body(oldDto.getBody())
+                .html(false)
+                .eventType("SITE_CREATED")
+                .build();
+
         //System.out.println("site id"+String.valueOf(site.getSiteId()));
 
         //emailService.sendMail(dto);
         log.info("successfully send mail dto to Queue");
-        rabbitTemplate.convertAndSend(MessagingConfig.EXCHANGE,MessagingConfig.ROUTING_KEY,dto);
+        rabbitTemplate.convertAndSend(MessagingConfig.EXCHANGE,MessagingConfig.ROUTING_KEY,eventDto);
 
 
         log.info("Site created successfully. siteId={}, userSub={}",

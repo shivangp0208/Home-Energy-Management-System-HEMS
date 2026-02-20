@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -35,7 +34,7 @@ public class VppUpdateResponseDto {
     private Double maxPowerGenerationCapacityW;
 
     private Integer totalSites;
-
+    private LocalDateTime lastUpdatedTime;
 
     private VppOperationalStatus operationalStatus;
 

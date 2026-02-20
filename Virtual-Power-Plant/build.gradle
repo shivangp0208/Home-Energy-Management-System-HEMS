@@ -38,6 +38,10 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+	//This dependency is basically a bridge that helps MapStruct correctly understand Lombok-generated stuff (especially builders) during compilation.
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 	implementation project(':hems-api-contracts')
 
 	runtimeOnly 'org.postgresql:postgresql'

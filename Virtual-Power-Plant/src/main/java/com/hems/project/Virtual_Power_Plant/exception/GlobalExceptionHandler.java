@@ -64,4 +64,16 @@ public class GlobalExceptionHandler {
                 "error", ex.getMessage(),
                 "code", HttpStatus.CONFLICT.value());
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> resourceNotFound(ResourceNotFoundException ex) {
+
+        return ResponseEntity
+                .status(ex.getStatus())
+                .body(Map.of(
+                        "message", ex.getMessage(),
+                        "downstreamStatus", ex.getStatus(),
+                        "code",ex.getStatusCode()
+                ));
+    }
 }

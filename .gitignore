@@ -3,3 +3,9 @@ build/
 .DS_Store
 .vscode/
 .idea/
+**/application.yaml
+**/application-prod.yaml
+**/application-qa.yaml
+**/application.yml
+**/application-prod.yml
+**/application-qa.yml
