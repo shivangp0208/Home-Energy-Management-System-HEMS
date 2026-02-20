@@ -29,6 +29,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -44,7 +45,8 @@ public class SiteServiceImpl implements SiteService {
 
         @Value("${property.config.kafka.site-creation-topic}")
         public String siteCreationTopic;
-
+        
+        @Override
         @Transactional
         public SiteDto createSite(SiteDto siteDto, String userSub) {
                 log.info("createSite: Creating site for ownerId={} by userSub={}", siteDto, userSub);
@@ -99,16 +101,18 @@ public class SiteServiceImpl implements SiteService {
 
                 kafkaTemplate.send(siteCreationTopic, siteCreationEvent);
                 log.info("createSite: Kafka event sent, topic={}, siteId={}", siteCreationTopic, savedSite.getSiteId());
-
+                
                 return mapper.map(savedSite, SiteDto.class);
         }
-
+        
+        @Override
         public SiteDto fetchSiteById(UUID siteId, boolean includeProgram) {
                 log.info("fetchSiteById: Fetching site asynchronously, siteId={}", siteId);
                 return siteHelperMethods.getSiteBySiteId(siteId, includeProgram);
         }
 
         //
+        @Override
         public List<SiteDto> fetchAllSite() {
                 log.info("fetchAllSite: Fetching all sites");
 
@@ -119,7 +123,8 @@ public class SiteServiceImpl implements SiteService {
                                 .toList();
                 return siteDtos;
         }
-
+        
+        @Override
         public List<SiteDto> fetchAllSiteV2() {
                 log.info("fetchAllSiteV2: Fetching all sites as response DTO");
 
@@ -133,12 +138,14 @@ public class SiteServiceImpl implements SiteService {
         }
 
         // pagination in fetchAllSiteV2 this api
+        @Override
         public Page<SiteDto> findAllSiteV2WithPagination(int offset, int pageSize) {
                 return siteRepo.findAll(PageRequest.of(offset, pageSize))
                                 .map(entity -> mapper.map(entity, SiteDto.class));
         }
 
         // pagination in fetchAllSiteV2 this api with sorting based on input key
+        @Override
         public Page<SiteDto> findAllSiteV2WithPaginationAndSorting(int offset, int pageSize, String field) {
                 return siteRepo.findAll(PageRequest.of(offset, pageSize)
                                 .withSort(Sort.by(field)))
@@ -146,6 +153,7 @@ public class SiteServiceImpl implements SiteService {
         }
 
         // cursor based paginaton in fetchAllSiteV2
+        @Override
         public CursorSiteResponse<SiteDto> getSites(UUID cursor, int size) {
                 // default page=0 and size=10
                 Pageable pageable = PageRequest.of(0, size);
@@ -169,6 +177,7 @@ public class SiteServiceImpl implements SiteService {
                                 hasNext);
         }
 
+        @Override
         public List<SiteDto> fetchSiteByRegion(String city) {
                 log.info("fetchSiteByRegion: Fetching sites for city={}", city);
 
@@ -199,6 +208,7 @@ public class SiteServiceImpl implements SiteService {
                 return allRegion;
         }
 
+        @Override
         public SiteDto enrollSiteInProgram(UUID siteId, ProgramFeignDto program) {
                 log.info("enrollSiteInProgram: enrolling site with site id {} in program {}", siteId, program);
 
@@ -215,5 +225,15 @@ public class SiteServiceImpl implements SiteService {
                 Site updatedSite = siteRepo.save(siteEntity);
 
                 return mapper.map(updatedSite, SiteDto.class);
+        }
+
+        @Override
+        public Boolean checkSiteAvailable(UUID siteId) {
+                Optional<Site> site = siteRepo.findById(siteId);
+                if (site.isEmpty()) {
+                        return false;
+                } else {
+                        return true;
+                }
         }
 }

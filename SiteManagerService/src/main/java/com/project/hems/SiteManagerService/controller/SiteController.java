@@ -97,21 +97,7 @@ public class SiteController {
         log.info("Site created successfully. siteId={}, userSub={}",
                 site.getSiteId(), userSub);
 
-        PropertyFilter filter=SimpleBeanPropertyFilter.filterOutAllExcept(
-                "siteId",
-                "isActive"
-        );
-
-        //here we define filter je apdne joiee che response ma
-        FilterProvider provider = new SimpleFilterProvider()
-                .addFilter("siteFilter",filter);
-
-
-        MappingJacksonValue mapping=new MappingJacksonValue(site);
-
-        mapping.setFilters(provider);
-
-        return new ResponseEntity<>(mapping, HttpStatus.CREATED);
+        return new ResponseEntity<>(site, HttpStatus.CREATED);
     }
 
     @Operation(summary = "fetch site by id", description = "retrieve a single site by its id")

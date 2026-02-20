@@ -10,6 +10,7 @@ import com.hems.project.Virtual_Power_Plant.service.SupabaseStorageService;
 import com.hems.project.Virtual_Power_Plant.service.VppDocumentService;
 import com.project.hems.hems_api_contracts.contract.email.AttachmentDto;
 import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
+import com.project.hems.hems_api_contracts.contract.dispatch.DispatchEvent;
 import com.project.hems.hems_api_contracts.contract.vpp.SignalForImport;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,6 +41,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 //aa frontend mate che hamda emj lakhi rakhyu che frontend diff port per run kare and backend diff port per so ena mate..
 @CrossOrigin("*")
@@ -273,5 +277,11 @@ public class VppController {
 
 
 
+    @PostMapping("/create-dispatch-event/{groupId}")
+    public DispatchEvent createDispatchEvent(@RequestBody DispatchEvent dispatchEvent) {
+        
+        return dispatchEvent;
+    }
+    
 
 }
