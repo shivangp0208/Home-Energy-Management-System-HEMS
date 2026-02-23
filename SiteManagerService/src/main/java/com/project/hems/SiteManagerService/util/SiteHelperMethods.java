@@ -27,7 +27,8 @@ public class SiteHelperMethods {
         log.debug("getSiteByEntity: fetching site dto using site entity");
         SiteDto siteDto = mapper.map(entity, SiteDto.class);
         if (includeProgram) {
-            log.debug("getSiteByEntity: includeProgram is "+includeProgram+" so fetching all program detials from feign client");
+            log.debug("getSiteByEntity: includeProgram is " + includeProgram
+                    + " so fetching all program detials from feign client");
             siteDto.setEnrollProgramIds(
                     programFeignClientService.getAllProgramBySiteId(false, entity.getSiteId()));
         }
@@ -36,7 +37,7 @@ public class SiteHelperMethods {
     }
 
     public SiteDto getSiteBySiteId(UUID siteId, boolean includeProgram) {
-        log.debug("getSiteBySiteId");
+        log.debug("getSiteBySiteId: fetching site dto using site id");
         Site site = siteRepo.findById(siteId)
                 .orElseThrow(() -> {
                     log.error("getSiteBySiteId: Site not found, siteId={}", siteId);
@@ -45,7 +46,10 @@ public class SiteHelperMethods {
                 });
 
         SiteDto siteDto = mapper.map(site, SiteDto.class);
+        log.debug("getSiteBySiteId: success mapping the site entity to site dto");
         if (includeProgram) {
+            log.debug("getSiteByEntity: includeProgram is " + includeProgram
+                    + " so fetching all program detials from feign client");
             siteDto.setEnrollProgramIds(programFeignClientService.getAllProgramBySiteId(false,
                     siteId));
         }

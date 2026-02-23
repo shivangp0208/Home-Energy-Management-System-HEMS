@@ -4,6 +4,8 @@ import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.hems_api_contracts.contract.program.Program;
 import com.project.hems.hems_api_contracts.contract.program.ProgramFeignDto;
 import com.project.hems.hems_api_contracts.contract.site.SiteDto;
+import com.project.hems.hems_api_contracts.contract.site.SiteReqDto;
+import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
 
 import org.springframework.data.domain.Page;
 import java.util.List;
@@ -11,7 +13,7 @@ import java.util.UUID;
 
 public interface SiteService {
 
-    SiteDto createSite(SiteDto siteDto, String userSub);
+    SiteDto createSite(SiteReqDto siteDto, String userSub);
 
     SiteDto fetchSiteById(UUID siteId, boolean includeProgram);
 

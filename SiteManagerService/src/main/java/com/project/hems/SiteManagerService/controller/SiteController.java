@@ -1,9 +1,5 @@
 package com.project.hems.SiteManagerService.controller;
 
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.PropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.project.hems.SiteManagerService.config.MessagingConfig;
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.SiteManagerService.service.EmailServiceImpl;
@@ -12,10 +8,9 @@ import com.project.hems.SiteManagerService.util.EmailTemplateUtil;
 import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullResponseDto;
-import com.project.hems.hems_api_contracts.contract.program.Program;
 import com.project.hems.hems_api_contracts.contract.program.ProgramFeignDto;
 import com.project.hems.hems_api_contracts.contract.site.SiteDto;
-
+import com.project.hems.hems_api_contracts.contract.site.SiteReqDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,17 +18,16 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -53,7 +47,7 @@ public class SiteController {
     @PostMapping("/create-site")
     public ResponseEntity<SiteDto> createSite(
             @RequestParam(name = "includeProgram", required = false, defaultValue = "false") boolean includeProgram,
-            @RequestBody @Valid SiteDto siteRequestDto,
+            @RequestBody @Valid SiteReqDto siteRequestDto,
             @AuthenticationPrincipal Jwt jwt) {
 
         log.info("POST req to create site with site detail = {}", siteRequestDto);
@@ -70,14 +64,12 @@ public class SiteController {
 
         SiteDto site = siteService.createSite(siteRequestDto, userSub);
 
-        System.out.println("email"+email);
+        System.out.println("email" + email);
 
-        MailSuccessfullRequestDto oldDto =
-                EmailTemplateUtil.buildSiteCreatedMail(
-                        email,
-                        String.valueOf(site.getSiteId()),
-                        userSub
-                );
+        MailSuccessfullRequestDto oldDto = EmailTemplateUtil.buildSiteCreatedMail(
+                email,
+                String.valueOf(site.getSiteId()),
+                userSub);
 
         EmailEventDto eventDto = EmailEventDto.builder()
                 .to(oldDto.getTo())
@@ -87,12 +79,11 @@ public class SiteController {
                 .eventType("SITE_CREATED")
                 .build();
 
-        //System.out.println("site id"+String.valueOf(site.getSiteId()));
+        // System.out.println("site id"+String.valueOf(site.getSiteId()));
 
-        //emailService.sendMail(dto);
+        // emailService.sendMail(dto);
         log.info("successfully send mail dto to Queue");
-        rabbitTemplate.convertAndSend(MessagingConfig.EXCHANGE,MessagingConfig.ROUTING_KEY,eventDto);
-
+        rabbitTemplate.convertAndSend(MessagingConfig.EXCHANGE, MessagingConfig.ROUTING_KEY, eventDto);
 
         log.info("Site created successfully. siteId={}, userSub={}",
                 site.getSiteId(), userSub);
@@ -247,25 +238,51 @@ public class SiteController {
         return siteService.enrollSiteInProgram(siteId, program);
     }
 
-    //send email if site is created successfully
+    // send email if site is created successfully
     @PutMapping("/send-email")
-    public ResponseEntity<MailSuccessfullResponseDto> sendMail(@RequestBody MailSuccessfullRequestDto dto){
-         ResponseEntity<MailSuccessfullResponseDto> mailSuccessfullResponseDtoResponseEntity = emailService.sendMail(dto);
-         return mailSuccessfullResponseDtoResponseEntity;
+    public ResponseEntity<MailSuccessfullResponseDto> sendMail(@RequestBody MailSuccessfullRequestDto dto) {
+        ResponseEntity<MailSuccessfullResponseDto> mailSuccessfullResponseDtoResponseEntity = emailService
+                .sendMail(dto);
+        return mailSuccessfullResponseDtoResponseEntity;
     }
 
-    //check siteIs exists or not based on siteId
+    // check siteIs exists or not based on siteId
     @PostMapping("/check-site-available/{siteId}")
-    public ResponseEntity<Boolean> checkSiteIsAvailableOtNot(@PathVariable UUID siteId){
-         Boolean flag = siteService.checkSiteAvailable(siteId);
-         if(flag) {
-             return new ResponseEntity<>(flag, HttpStatus.OK);
-         }else{
-             return new ResponseEntity<>(flag, HttpStatus.NOT_FOUND);
-         }
+    public ResponseEntity<Boolean> checkSiteIsAvailableOtNot(
+            @PathVariable(name = "siteId", required = true) UUID siteId) {
+        Boolean flag = siteService.checkSiteAvailable(siteId);
+        if (flag) {
+            return new ResponseEntity<>(flag, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(flag, HttpStatus.NOT_FOUND);
+        }
 
     }
 
+    // this is a api to check for all site id given to it in a set and verify their
+    // existence and returning the non-valid site id
+    @PostMapping("/check-sites-available")
+    @ResponseStatus(code = HttpStatus.OK)
+    public List<UUID> verifyAllSites(@RequestBody Set<UUID> siteIds) {
+        log.info("GET req to verify all site and give non-valid site as return type");
+        List<UUID> siteList = siteIds.stream()
+                .filter(siteId -> !siteService.checkSiteAvailable(siteId))
+                .toList();
+        System.out.println(siteList.size());
+        return siteList;
+    }
 
+    @PostMapping("/sites/batch")
+    public Set<SiteDto> getAllSiteDetail(
+            @RequestBody List<UUID> siteIds,
+            @RequestParam(name = "includeProgram", required = false, defaultValue = "false") boolean includeProgram) {
+
+        System.out.println("printing all siteid received in this controller");
+        for (UUID id : siteIds) {
+            System.out.println("site id = " + id);
+        }
+        log.info("POST req to map the site id to their detail and return that siteDetail list");
+        return siteService.getAllSiteFromBatch(siteIds, includeProgram);
+    }
 
 }

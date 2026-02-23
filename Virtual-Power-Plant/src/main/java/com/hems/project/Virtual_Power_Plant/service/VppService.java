@@ -1,26 +1,22 @@
 package com.hems.project.Virtual_Power_Plant.service;
 
 import java.nio.file.AccessDeniedException;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import com.hems.project.Virtual_Power_Plant.Config.VppMapper;
 import com.hems.project.Virtual_Power_Plant.dto.*;
 import com.hems.project.Virtual_Power_Plant.entity.Vpp;
 import com.hems.project.Virtual_Power_Plant.repository.VppRepository;
 import jakarta.transaction.Transactional;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.hems.project.Virtual_Power_Plant.external.ProgramManagerFeignClientService;
+import com.hems.project.Virtual_Power_Plant.external.SiteFeignClientService;
 import com.project.hems.hems_api_contracts.contract.vpp.SignalForImport;
-import com.project.hems.hems_api_contracts.contract.vpp.SiteEnrollRequest;
-import com.project.hems.hems_api_contracts.contract.vpp.SiteEnrollSuccessResponse;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,9 +30,10 @@ public class VppService {
     public String vppRequirement;
 
     private final ProgramManagerFeignClientService programManagerFeignClientService;
+    private final SiteFeignClientService siteFeignClientService;
     private final VppRepository vppRepository;
-    private final SiteCreationService siteCreationService;
-    private final VppMapper vppMapper;
+    // private final VppMapper vppMapper;
+    private final ModelMapper mapper;
 
 
     public String importPower(SignalForImport signalForImport){
@@ -53,7 +50,7 @@ public class VppService {
          List<UUID> siteIds = dto.getSiteIds();
          siteIds.forEach((siteId)->{
              //fieng client no no call lagavo padse
-             siteCreationService.checkSiteIsAvailable(siteId);
+             siteFeignClientService.checkSiteIsAvailableOtNot(siteId);
          });
         Map<String, List<UUID>> siteCollection = vpp.getSiteCollection();
 
@@ -158,9 +155,10 @@ public class VppService {
 
         Vpp vpp = vppRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("VPP not found"));
-        vppMapper.updateVppFromDto(dto, vpp);
+        // vppMapper.updateVppFromDto(dto, vpp);
 
-        return vppMapper.toDto(vpp);
+        // return vppMapper.vpptoVppUpdateResponseDto(vpp);
+        return mapper.map(vpp,VppUpdateResponseDto.class);
     }
 
 
