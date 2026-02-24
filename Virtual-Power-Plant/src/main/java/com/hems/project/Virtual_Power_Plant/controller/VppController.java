@@ -209,8 +209,8 @@ public class VppController {
                 .build();
 
         rabbitTemplate.convertAndSend(
-                MessagingConfig.EXCHANGE,
-                "email.vpp.document.uploaded",
+                MessagingConfig.MAIN_EXCHANGE,
+                MessagingConfig.ROUTING_KEY,
                 dto
         );
 

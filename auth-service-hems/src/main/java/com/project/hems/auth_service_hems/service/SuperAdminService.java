@@ -5,7 +5,6 @@ import com.project.hems.auth_service_hems.exception.UserHasAlreadyRoleException;
 import com.project.hems.auth_service_hems.exception.UserHasNotRoleException;
 import com.project.hems.auth_service_hems.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,6 @@ public class SuperAdminService {
     @Value("${auth0.audience}")
     private String audience;
 
-    @Autowired
     private final RestTemplate restTemplate;
 
     public void AssignRoleToUser(String email,String roleName){
