@@ -18,27 +18,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequiredArgsConstructor
 public class SiteCreationService {
 
-    private final SiteFeignClientService service;
+  // private final SiteFeignClientService service;
 
-    
-    public ResponseEntity<List<SiteDto>> fetchAllSites(){
-       return service.getAllSitesV2();
-    }
+  // public ResponseEntity<List<SiteDto>> fetchAllSites() {
+  //   return service.getAllSitesV2();
+  // }
 
-        public ResponseEntity<List<OwnerDto>> fetchAllOnwer(){
-          return service.getAllOwner();
-        }
+  // public ResponseEntity<List<OwnerDto>> fetchAllOnwer() {
+  //   return service.getAllOwner();
+  // }
 
-        public ResponseEntity<List<SiteDto>> fetchSitesByRegion(String city){
-          return service.getAllSiteByRegion(city);
-        }  
+  // public ResponseEntity<List<SiteDto>> fetchSitesByRegion(String city) {
+  //   return service.getAllSiteByRegion(city);
+  // }
 
-        public ResponseEntity<List<String>> fetchAllRegion(){
-          return service.fethcAllAvailableRegion();
-        }
+  // public ResponseEntity<List<String>> fetchAllRegion() {
+  //   return service.fethcAllAvailableRegion();
+  // }
 
-            public ResponseEntity<Boolean> checkSiteIsAvailable(UUID siteId){
-                 ResponseEntity<Boolean> booleanResponseEntity = service.checkSiteIsAvailableOtNot(siteId);
-                 return booleanResponseEntity;
-            }
+  // public ResponseEntity<Boolean> checkSiteIsAvailable(UUID siteId) {
+  //   ResponseEntity<Boolean> booleanResponseEntity = service.checkSiteIsAvailableOtNot(siteId);
+  //   return booleanResponseEntity;
+  // }
 }

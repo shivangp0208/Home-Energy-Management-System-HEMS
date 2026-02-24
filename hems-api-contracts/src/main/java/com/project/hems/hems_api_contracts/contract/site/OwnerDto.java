@@ -1,6 +1,7 @@
 package com.project.hems.hems_api_contracts.contract.site;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import jakarta.validation.constraints.Size;
 
 @Data
 @ToString
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class OwnerDto {
 
     private UUID ownerId;

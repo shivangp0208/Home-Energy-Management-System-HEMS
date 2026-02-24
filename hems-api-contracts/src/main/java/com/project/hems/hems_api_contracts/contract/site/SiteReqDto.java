@@ -1,35 +1,27 @@
 package com.project.hems.hems_api_contracts.contract.site;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.project.hems.hems_api_contracts.contract.program.Program;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-
-import com.project.hems.hems_api_contracts.contract.program.Program;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@JsonFilter("siteFilter") // dynamic filter we make for filter out some filed in response
-public class SiteDto {
+public class SiteReqDto {
 
     private UUID siteId;
 
     @NotNull(message = "OwnerId is required")
-    private OwnerDto owner;
+    private UUID owner;
 
     private boolean siteStatus;
 
@@ -47,4 +39,5 @@ public class SiteDto {
 
     @ToString.Exclude
     private List<Program> enrollProgramIds = new ArrayList<>();
+
 }

@@ -6,6 +6,7 @@ import com.project.hems.SiteManagerService.entity.Owner;
 import com.project.hems.SiteManagerService.entity.Site;
 import com.project.hems.hems_api_contracts.contract.program.ProgramFeignDto;
 import com.project.hems.hems_api_contracts.contract.site.*;
+import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
 
 import jakarta.transaction.Transactional;
 
@@ -28,8 +29,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -45,20 +48,20 @@ public class SiteServiceImpl implements SiteService {
 
         @Value("${property.config.kafka.site-creation-topic}")
         public String siteCreationTopic;
-        
+
         @Override
         @Transactional
-        public SiteDto createSite(SiteDto siteDto, String userSub) {
+        public SiteDto createSite(SiteReqDto siteDto, String userSub) {
                 log.info("createSite: Creating site for ownerId={} by userSub={}", siteDto, userSub);
 
                 // in dto apde id store kariee chiee owner entity ni so apde ema thi fetch
                 // karine obj banavsu
                 log.info("creating site start ownerId={} userSub={}", siteDto, userSub);
                 log.info("fetch owner is exists or not with ownerId = {}", siteDto);
-                Owner owner = ownerRepo.findById(siteDto.getOwnerId())
+                Owner owner = ownerRepo.findById(siteDto.getOwner())
                                 .orElseThrow(() -> {
                                         log.warn("createSite: Owner not found, ownerId={}",
-                                                        siteDto.getOwnerId());
+                                                        siteDto.getOwner());
                                         return new ResourceNotFoundException(
                                                         "Owner not found first add Owner then add Site");
                                 });
@@ -89,6 +92,9 @@ public class SiteServiceImpl implements SiteService {
                 owner.getSites().add(savedSite);
                 ownerRepo.save(owner);
 
+                SiteDto savedSiteDto = mapper.map(savedSite, SiteDto.class);
+                savedSiteDto.setOwner(mapper.map(owner, OwnerDto.class));
+
                 log.info("create kafka SiteCreationEvent");
                 SiteCreationEvent siteCreationEvent = SiteCreationEvent.builder()
                                 .siteId(savedSite.getSiteId())
@@ -101,10 +107,10 @@ public class SiteServiceImpl implements SiteService {
 
                 kafkaTemplate.send(siteCreationTopic, siteCreationEvent);
                 log.info("createSite: Kafka event sent, topic={}, siteId={}", siteCreationTopic, savedSite.getSiteId());
-                
-                return mapper.map(savedSite, SiteDto.class);
+
+                return savedSiteDto;
         }
-        
+
         @Override
         public SiteDto fetchSiteById(UUID siteId, boolean includeProgram) {
                 log.info("fetchSiteById: Fetching site asynchronously, siteId={}", siteId);
@@ -123,7 +129,7 @@ public class SiteServiceImpl implements SiteService {
                                 .toList();
                 return siteDtos;
         }
-        
+
         @Override
         public List<SiteDto> fetchAllSiteV2() {
                 log.info("fetchAllSiteV2: Fetching all sites as response DTO");
@@ -236,4 +242,18 @@ public class SiteServiceImpl implements SiteService {
                         return true;
                 }
         }
+
+        public Set<SiteDto> getAllSiteFromBatch(List<UUID> siteIds, boolean includeProgram) {
+                Set<SiteDto> resultSites = new HashSet<>();
+                for (UUID id : siteIds) {
+                        SiteDto siteBySiteId = siteHelperMethods.getSiteBySiteId(id, includeProgram);
+                        log.debug("getAllSiteFromBatch: fecthed and mapped the site dto with siteid " + id);
+                        resultSites.add(siteBySiteId);
+                        log.debug("getAllSiteFromBatch: added successfully site dto with siteid " + id
+                                        + " to result set of siteDto");
+                }
+                log.debug("getAllSiteFromBatch: success getting and converting all site detail from db");
+                return resultSites;
+        }
+
 }

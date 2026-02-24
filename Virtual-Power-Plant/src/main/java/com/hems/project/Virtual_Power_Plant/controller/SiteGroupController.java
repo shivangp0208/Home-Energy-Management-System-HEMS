@@ -2,7 +2,9 @@ package com.hems.project.Virtual_Power_Plant.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hems.project.Virtual_Power_Plant.external.SiteFeignClientService;
 import com.hems.project.Virtual_Power_Plant.service.SiteGroupService;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupReqDto;
 
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class SiteGroupController {
 
     private final SiteGroupService siteGroupService;
+    private final SiteFeignClientService siteFeignClientService;
 
     // TODO: for fetching the admin detail we have to first create a AdminIdentites
     // to store thier token's sub claim to identify them and then at the time of
@@ -61,9 +64,10 @@ public class SiteGroupController {
     }
 
     @PutMapping("groups/{groupId}")
+    @ResponseStatus(HttpStatus.OK)
     public SiteGroupDto updateSiteGroup(
             @PathVariable(name = "groupId", required = true) UUID groupId,
-            @RequestBody @Valid SiteGroupDto siteGroupDto,
+            @RequestBody @Valid SiteGroupReqDto siteGroupDto,
             @RequestParam(name = "includeSites", required = false, defaultValue = "false") boolean includeSites) {
 
         log.info("PUT request to update site group with id {}", groupId);
@@ -90,5 +94,4 @@ public class SiteGroupController {
         log.info("PATCH request to activate site group with id {}", groupId);
         siteGroupService.activateSiteGroup(groupId);
     }
-
 }

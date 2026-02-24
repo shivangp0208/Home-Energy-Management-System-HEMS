@@ -11,10 +11,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface VppMapper {
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateVppFromDto(VppUpdateRequestDto dto, @MappingTarget Vpp entity);
+    // @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    // void updateVppFromDto(VppUpdateRequestDto dto, @MappingTarget Vpp entity);
 
-    VppUpdateResponseDto toDto(Vpp entity);
+    VppUpdateResponseDto vpptoVppUpdateResponseDto(Vpp entity);
 
 }
 
