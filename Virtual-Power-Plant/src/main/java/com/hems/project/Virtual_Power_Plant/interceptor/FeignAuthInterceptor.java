@@ -8,6 +8,8 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.extern.slf4j.Slf4j;
 
+//jyare feign call thase koi biji service mate toh j aa interceptor work karse..
+//and spring automatically ane run karse e request biji service ne mokle ena pehla
 @Component
 @Slf4j
 public class FeignAuthInterceptor implements RequestInterceptor {
@@ -29,3 +31,18 @@ public class FeignAuthInterceptor implements RequestInterceptor {
     }       
 }
 
+//so spring jyare biji service ne call karvanu che e request build kari ley toh last step ma ane
+//run kare
+/*
+Controller (VPP)
+   ↓
+Service
+   ↓
+FeignClient method call
+   ↓
+Feign builds request
+   ↓
+FeignAuthInterceptor.apply()  ← HERE
+   ↓
+HTTP request sent to Site
+ */

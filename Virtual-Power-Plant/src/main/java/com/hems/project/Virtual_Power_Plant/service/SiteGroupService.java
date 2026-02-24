@@ -14,7 +14,6 @@ import com.hems.project.Virtual_Power_Plant.exception.GroupAlreadyPresentExcepti
 import com.hems.project.Virtual_Power_Plant.exception.SiteGroupNotFoundException;
 import com.hems.project.Virtual_Power_Plant.exception.SiteGroupStateConflictException;
 import com.hems.project.Virtual_Power_Plant.repository.SiteGroupRepository;
-import com.netflix.infix.lang.infix.antlr.EventFilterParser.boolean_expr_return;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupReqDto;
 

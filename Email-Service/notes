@@ -1,0 +1,109 @@
+#threadCount?? because if we have 3 schedule run at same time then we dont block so we use thread count 5
+#so each run on diff state so on time mail send successfully
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: ALWAYS
+    properties:
+      org:
+        quartz:
+          threadPool:
+            threadCount: 5
+ and why we use jdbc ??
+ so ema be option che jdbc and in memory
+ so in memory use karsu so app restart thase toh je job scheduled hase e jati rehse
+ so we use database so database ma presist rehse
+ 1.initialize-schema: ALWAYS and this means every time app restart thase toh table drop thase
+ and farithi new table banse
+ 2.initialize-schema: NEVER kyarey nai bane apde manually database ma jaine run karvi padse script
+    embedded
+ 3.initialize-schema: EMBEDDED means only create for H2/HSQL
+
+
+ -------------
+     //one job have many trigger
+     //but one trigger only have one job
+
+ terms:-
+ 1. Scheduler
+ The Primary API for scheduling, unscheduling, adding, and removing Jobs.
+
+ 2. Job
+ The interface to be implemented by classes that represent a ‘job’ in Quartz. It has a single method called execute() where you write the work that needs to be performed by the Job.
+
+ 3. JobDetail
+ A JobDetail represents an instance of a Job. It also contains additional data in the form of a JobDataMap that is passed to the Job when it is executed.
+
+ Every JobDetail is identified by a JobKey that consists of a name and a group. The name must be unique within a group.
+
+ 4. Trigger
+ A Trigger, as the name suggests, defines the schedule at which a given Job will be executed. A Job can have many Triggers, but a Trigger can only be associated with one Job.
+
+ Every Trigger is identified by a TriggerKey that comprises of a name and a group. The name must be unique within a group.
+
+ Just like JobDetails, Triggers can also send parameters/data to the Job.
+
+ 5. JobBuilder
+ JobBuilder is a fluent builder-style API to construct JobDetail instances.
+
+ 6. TriggerBuilder
+ TriggerBuilder is used to instantiate Triggers.
+
+
+---------------------------------------------------
+public class EmailJob extends QuartzJobBean {
+
+     @Override
+     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+         //so aa class km override karyo apde?
+         /*
+          * Why do we override this method?
+          *
+          * This method contains the actual logic that should run
+          * when the scheduled Quartz job is triggered.
+          *
+          * When we schedule the job using scheduler.scheduleJob(),
+          * Quartz stores the JobDetail and Trigger (in memory or DB).
+          *
+          * When the trigger fires at the scheduled time,
+          * Quartz automatically invokes this method.
+          *
+          * The JobDataMap contains the data we passed during scheduling,
+          * and here we retrieve that data to execute the task (send email).
+          so aa context ma e jobDataMap ma set karelo data run time per ave toh tya thi apde lainee mail send kariee..
+          */
+ }
+
+ ----------------
+ IN RABBIT MQ WHAT IT MEANS BY RPC:-
+ What Is a Reply Message in RabbitMQ?
+ Reply message = response sent back to original sender through a queue
+ It is used in something called:
+ RPC (Remote Procedure Call) over messaging
+
+ so normally we do :-
+ producer  -> queue   -> consumer
+ normally we do this
+ @RabbitListener(queues = MessagingConfig.DLQ_QUEUE)
+ public void consumeDlq(EmailEventDto dto,Channel channel,Message message){
+
+
+ but in this if consumer listner method kai return kare it means e pachu consumer to procuder mokalvanu
+ che evu lage MQTT ne
+  @RabbitListener(queues = MessagingConfig.DLQ_QUEUE)
+  public ResponseEntity<?> consumeDlq(EmailEventDto dto,Channel channel,Message message){
+  so ama apde kai retrun kariee toh Rabbit ne evu lage ke pachu have ane procuder ne mokalvanu che
+        Use Case	                     Why Reply Needed
+        Payment validation	             Need success/failure
+        Inventory check	                 Need stock count
+        OTP verification	             Need confirmation
+        Microservice to microservice     sync call	Need result
+    but for REPLAY apde set karvu pade producer side thi
+    reply-to property AA SET KARVU PADE
+    otherwise set karya vagar return karse consumer site thi toh error apse
+
+
+
+
+
+ ----------------

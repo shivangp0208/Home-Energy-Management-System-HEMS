@@ -9,6 +9,7 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,4 +37,20 @@ public class MailController {
         return new ResponseEntity<>(mailSuccessfullResponseDto, HttpStatus.OK);
 
     }
+
+    //shceduled email..
+    //like admin need to send real time update so they send with predefine time..
+    //note:- normal sceduler static hoy means apde time na api sakiee e static daily ej time per chale
+    //but if we need ke atla vage ne atli minite e user e kedhu so e possile nathi
+    //@Scheduled(cron = "") ama
+    //here we implement using quartz scheduler..
+
+
+
+
+
+    //todo:-
+    //if some one payment is pending so that also we send like ke aa user ne 5 vage mail nakhi devo ..
+
+
 }

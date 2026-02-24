@@ -2,8 +2,11 @@ package com.hems.project.Virtual_Power_Plant.service;
 
 import com.hems.project.Virtual_Power_Plant.dto.VppAccessStatus;
 import com.hems.project.Virtual_Power_Plant.entity.Vpp;
+import com.hems.project.Virtual_Power_Plant.exception.RegionNotMatchException;
 import com.hems.project.Virtual_Power_Plant.repository.VppRepository;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -20,7 +23,7 @@ public class VppOpsService {
                     .orElseThrow(() -> new RuntimeException("VPP not found"));
 
             if (!vpp.getRegion().equalsIgnoreCase(managerRegion)) {
-                throw new RuntimeException("Not allowed you are in different region");
+                throw new RegionNotMatchException(managerRegion,"not allowed you are in different region", HttpStatus.FORBIDDEN);
             }
 
             vpp.setAccessStatus(status);

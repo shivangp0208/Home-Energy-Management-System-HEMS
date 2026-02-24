@@ -44,10 +44,13 @@ package com.project.hems.api_gateway_hems.filter;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+
+import java.time.Duration;
 
 @Configuration
 public class TokenLoggingFilter {
@@ -76,6 +79,7 @@ public class TokenLoggingFilter {
                                 })
                                 .then(chain.filter(exchange));
                     }
+
 
                     // ✅ Bearer token calls (resource server)
                     if (auth instanceof JwtAuthenticationToken jwt) {

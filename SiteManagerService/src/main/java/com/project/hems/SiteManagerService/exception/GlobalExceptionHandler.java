@@ -1,6 +1,8 @@
 package com.project.hems.SiteManagerService.exception;
 
 import com.project.hems.SiteManagerService.dto.ExceptionDto;
+import feign.Feign;
+import feign.FeignException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,15 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(feign.FeignException.class)
+  public ResponseEntity<Map<String,Object>> handleFiengaException(FeignException ex){
+    Map<String,Object> resp=new HashMap<>();
+    return ResponseEntity.status(ex.status())
+            .body(Map.of(
+                    "message", "downstream service error",
+                    "downstreamStatus", ex.status(),
+                    "details", ex.contentUTF8()));
+  }
   @ExceptionHandler(value = ResourceNotFoundException.class)
   public ResponseEntity<ExceptionDto> handleResourceNotFound(ResourceNotFoundException ex) {
     ExceptionDto exceptionDto = new ExceptionDto(ex.getMessage(), HttpStatus.NOT_FOUND, 404);
@@ -45,4 +56,6 @@ public class GlobalExceptionHandler {
     ExceptionDto exceptionDto = new ExceptionDto(ex.getMessage(), HttpStatus.BAD_REQUEST, 404);
     return new ResponseEntity<>(exceptionDto, HttpStatus.BAD_REQUEST);
   }
+
+
 }

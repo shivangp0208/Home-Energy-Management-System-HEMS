@@ -76,4 +76,17 @@ public class GlobalExceptionHandler {
                         "code",ex.getStatusCode()
                 ));
     }
+
+
+    @ExceptionHandler(RegionNotMatchException.class)
+    public ResponseEntity<?> handleRegionNotMatchException(RegionNotMatchException ex) {
+        return ResponseEntity
+                .status(ex.getStatus())
+                .body(java.util.Map.of(
+                        "message", ex.getMessage(),
+                        "status", ex.getStatus().name(),
+                        "code", ex.getStatus().value(),
+                        "region", ex.getRegionName()
+                ));
+    }
 }

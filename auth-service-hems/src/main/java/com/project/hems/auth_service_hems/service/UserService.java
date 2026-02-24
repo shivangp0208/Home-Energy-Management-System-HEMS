@@ -5,25 +5,24 @@ import com.project.hems.auth_service_hems.model.UserIdentitie;
 import com.project.hems.auth_service_hems.repository.UserIdentitieRepo;
 import com.project.hems.auth_service_hems.repository.UserRepo;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class UserService {
     // @Autowired
     // private RedisTemplate<String,String> redisTemplate;//to talk with redis
 
-    @Autowired
-    private UserRepo userRepo;
-    @Autowired
-    private UserIdentitieRepo userIdentitieRepo;
+    private final UserRepo userRepo;
+    private final UserIdentitieRepo userIdentitieRepo;
     //
     // public User loginOrRegister(User user,String userSub){
     // //first we find if same user hase database ma with same method so entry nai
