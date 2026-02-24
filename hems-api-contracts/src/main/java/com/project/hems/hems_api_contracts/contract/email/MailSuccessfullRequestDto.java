@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MailSuccessfullRequestDto {
+
     private String body;
     private String subject;
     private String to;
+    private String filePath;
+
 }

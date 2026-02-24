@@ -1,7 +1,7 @@
 package com.project.hems.auth_service_hems.controller;
 
 import com.project.hems.auth_service_hems.model.User;
-import com.project.hems.auth_service_hems.service.UserService;
+import com.project.hems.auth_service_hems.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 // @Controller("/auth")
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     // change user to userDto in response
     // @PostMapping("/create-user")

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.springframework.http.HttpStatus;
 
-import com.project.hems.program_enrollment_manager.web.exception.site.SiteArgumentException;
-import com.project.hems.program_enrollment_manager.web.exception.site.SiteResourceNotFoundException;
+import com.project.hems.program_enrollment_manager.exception.site.SiteArgumentException;
+import com.project.hems.program_enrollment_manager.exception.site.SiteResourceNotFoundException;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;

@@ -1,6 +1,6 @@
 package com.hems.project.Email_Service.controller;
 
-import com.hems.project.Email_Service.service.MailService;
+import com.hems.project.Email_Service.service.impl.MailServiceImpl;
 import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullResponseDto;
@@ -9,7 +9,6 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +22,7 @@ import java.io.IOException;
 @RequestMapping("/api/v1/mail")
 public class MailController {
 
-    private final MailService mailService;
+    private final MailServiceImpl mailService;
 
     @PostMapping("/send-mail")
     public ResponseEntity<MailSuccessfullResponseDto> sendMail(@RequestBody EmailEventDto dto){

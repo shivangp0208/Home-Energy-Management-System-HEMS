@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.springframework.http.HttpStatus;
 
-import com.project.hems.envoy_manager_service.web.exception.MeterAlreadyDispatchedException;
+import com.project.hems.envoy_manager_service.exception.MeterAlreadyDispatchedException;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;

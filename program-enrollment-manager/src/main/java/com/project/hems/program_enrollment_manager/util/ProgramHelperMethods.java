@@ -4,17 +4,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.project.hems.hems_api_contracts.contract.program.Program;
 import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
 import com.project.hems.program_enrollment_manager.external.SiteFeignClientService;
 import com.project.hems.program_enrollment_manager.repository.ProgramRepository;
-import com.project.hems.program_enrollment_manager.web.exception.ProgramNotFoundException;
+import com.project.hems.program_enrollment_manager.exception.ProgramNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
