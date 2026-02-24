@@ -29,20 +29,21 @@ public class VppOpsController {
 
     private final VppOpsService vppOpsService;
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('vppm:write')")
     @PatchMapping("/{vppId}/block")
     public ResponseEntity<?> block(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID vppId) {
         //jwt na claims mathi j joi laisu
-        String region = jwt.getClaimAsString("region");
+        String region = jwt.getClaimAsString("https://hems.com/region");
         vppOpsService.setAccessStatus(region, vppId, VppAccessStatus.BLOCKED);
         return ResponseEntity.ok("Blocked");
     }
 
 
-    @PreAuthorize("hasRole('MANAGER')")
+    //@PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('vppm:write')")
     @PatchMapping("/{vppId}/unBlock")
     public ResponseEntity<?> unBlock(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID vppId) {
-        String region = jwt.getClaimAsString("region");
+        String region = jwt.getClaimAsString("https://hems.com/region");
         vppOpsService.setAccessStatus(region, vppId, VppAccessStatus.ACTIVE);
         return ResponseEntity.ok("Activated");
     }

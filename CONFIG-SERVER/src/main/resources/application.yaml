@@ -7,7 +7,7 @@ spring:
         git:
           uri: https://github.com/hems07293-arch/Microservice-config-server
           username: hems07293-arch
-          password:
+          password: ${GITHUB_PASSWORD}
           clone-on-start: true
   rabbitmq:
     port: 5672
@@ -35,3 +35,4 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8091/eureka
+
