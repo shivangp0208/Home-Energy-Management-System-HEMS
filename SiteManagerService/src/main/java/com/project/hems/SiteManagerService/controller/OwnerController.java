@@ -1,6 +1,6 @@
 package com.project.hems.SiteManagerService.controller;
 
-import com.project.hems.SiteManagerService.service.OwnerServiceImpl;
+import com.project.hems.SiteManagerService.service.impl.OwnerServiceImpl;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
 
 import io.swagger.v3.oas.annotations.Operation;

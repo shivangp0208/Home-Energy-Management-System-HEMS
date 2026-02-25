@@ -2,8 +2,8 @@ package com.project.hems.SiteManagerService.controller;
 
 import com.project.hems.SiteManagerService.config.MessagingConfig;
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
-import com.project.hems.SiteManagerService.service.EmailServiceImpl;
-import com.project.hems.SiteManagerService.service.SiteServiceImpl;
+import com.project.hems.SiteManagerService.service.impl.EmailServiceImpl;
+import com.project.hems.SiteManagerService.service.impl.SiteServiceImpl;
 import com.project.hems.SiteManagerService.util.EmailTemplateUtil;
 import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
