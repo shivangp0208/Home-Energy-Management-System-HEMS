@@ -1,6 +1,7 @@
 package com.project.hems.api_gateway_hems.service.impl;
 
 import com.project.hems.api_gateway_hems.exception.*;
+import com.project.hems.api_gateway_hems.service.Auth0ManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,302 +17,13 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.net.URLEncoder;
 
+
+//TODO:-
+//ama error handling karvu keys are not present then throw karvu and other in also..
 @Service
 public class Auth0ManagementServiceImpl {
-
-    private static final Logger log = LoggerFactory.getLogger(Auth0ManagementServiceImpl.class);
-
-    private final WebClient webClient;
-
-    @Value("${auth0.domain}") // dev-xxxx.us.auth0.com (NO https://)
-    private String auth0Domain;
-
-    @Value("${auth0-mgmt.client-id}")
-    private String mgmtClientId;
-
-    @Value("${auth0-mgmt.client-secret}")
-    private String mgmtClientSecret;
-
-    @Value("${auth0.client-id}") // regular app client_id for change_password endpoint
-    private String clientId;
-
-    private Mono<String> cachedToken;
-
-    public Auth0ManagementServiceImpl(WebClient.Builder builder) {
-        this.webClient = builder.build();
-    }
-
-    private String normalizeEmail(String raw) {
-        if (raw == null) return null;
-        String decoded = URLDecoder.decode(raw, StandardCharsets.UTF_8);
-        return decoded.trim();
-    }
-
-    private String stripProviderPrefix(String userId) {
-        if (userId == null) return null;
-        int idx = userId.indexOf('|');
-        return idx >= 0 ? userId.substring(idx + 1) : userId;
-    }
-
-    private Mono<? extends Throwable> mapAuth0Error(String action, HttpStatusCode status, String body) {
-        String msg = "[C3] Auth0 " + action + " failed. status=" + status + " body=" + body;
-
-        // Examples of useful mappings:
-        if (status.value() == 401 || status.value() == 403) {
-            return Mono.error(new Auth0Exception(msg)); // or Auth0UnauthorizedException
-        }
-        if (status.value() == 409) {
-            // identity already linked / user already exists etc.
-            return Mono.error(new Auth0Exception(msg)); // or Auth0ConflictException
-        }
-        if (status.value() == 429) {
-            return Mono.error(new Auth0Exception(msg)); // or Auth0RateLimitException
-        }
-        if (status.is5xxServerError()) {
-            return Mono.error(new Auth0Exception(msg)); // or Auth0ServerException
-        }
-        return Mono.error(new Auth0Exception(msg));
-    }
-
-
-    private Mono<String> getMgmtToken() {
-        if (cachedToken != null) return cachedToken;
-
-        String tokenUrl = "https://" + auth0Domain + "/oauth/token";
-
-        cachedToken = webClient.post()
-                .uri(tokenUrl)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of(
-                        "client_id", mgmtClientId,
-                        "client_secret", mgmtClientSecret,
-                        "audience", "https://" + auth0Domain + "/api/v2/",
-                        "grant_type", "client_credentials"
-                ))
-                .retrieve()
-                .onStatus(HttpStatusCode::isError,
-                        resp -> resp.bodyToMono(String.class)
-                                .flatMap(body -> mapAuth0Error("getMgmtToken", resp.statusCode(), body)))
-                .bodyToMono(Map.class)
-                .map(m -> (String) m.get("access_token"))
-                .doOnNext(t -> log.info("[C3] MGMT token fetched OK"))
-                .cache(Duration.ofMinutes(20))
-                .onErrorMap(ex -> {
-                    // Wrap low-level errors (timeouts, network, etc.)
-                    if (ex instanceof Auth0Exception) return ex;
-                    if (ex instanceof WebClientResponseException wex) {
-                        return new Auth0MgmtTokenException(
-                                "[C3] getMgmtToken failed. status=" + wex.getStatusCode() + " body=" + wex.getResponseBodyAsString(),
-                                wex
-                        );
-                    }
-                    return new Auth0MgmtTokenException("[C3] getMgmtToken failed", ex);
-                });
-
-        return cachedToken;
-    }
-
-    // ===================== USERS SEARCH =====================
-
-    public Mono<List<Map<String, Object>>> usersByEmail(String emailRaw) {
-        String email = normalizeEmail(emailRaw);
-        return getMgmtToken().flatMap(token -> usersByEmail(token, email));
-    }
-
-    private Mono<List<Map<String, Object>>> usersByEmail(String token, String email) {
-        log.info("[C3] usersByEmail calling for email={}", email);
-
-        return webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme("https")
-                        .host(auth0Domain)
-                        .path("/api/v2/users-by-email")
-                        .queryParam("email", email) // let WebClient encode
-                        .build()
-                )
-                .headers(h -> h.setBearerAuth(token))
-                .retrieve()
-                .onStatus(HttpStatusCode::isError,
-                        resp -> resp.bodyToMono(String.class)
-                                .flatMap(body -> mapAuth0Error("usersByEmail", resp.statusCode(), body)))
-                .bodyToMono(List.class)
-                .map(list -> (List<Map<String, Object>>) (List<?>) list)
-                .doOnNext(users -> log.info("[C3] users-by-email returned {} record(s) for {}", users.size(), email));
-    }
-
-    // ===================== CHANGE PASSWORD EMAIL =====================
-
-    public Mono<String> sendChangePasswordEmail(String emailRaw) {
-        String email = normalizeEmail(emailRaw);
-        String url = "https://" + auth0Domain + "/dbconnections/change_password";
-
-        log.info("[C3] Sending change_password email for {}", email);
-
-        return webClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of(
-                        "client_id", clientId,
-                        "email", email,
-                        "connection", "Username-Password-Authentication"
-                ))
-                .retrieve()
-                .onStatus(HttpStatusCode::isError,
-                        resp -> resp.bodyToMono(String.class)
-                                .flatMap(body -> mapAuth0Error("changePasswordEmail", resp.statusCode(), body)))
-                .bodyToMono(String.class)
-                .doOnNext(resp -> log.info("[C3] change_password response: {}", resp))
-                .onErrorMap(ex -> (ex instanceof Auth0Exception) ? ex
-                        : new Auth0ChangePasswordEmailException("[C3] change_password failed for " + email, ex));
-    }
-
-    // ===================== MAIN FLOW (SOCIAL -> PASSWORD SETUP) =====================
-
-    public Mono<Void> sendPasswordSetupForSocialUser(String emailRaw) {
-        String email = normalizeEmail(emailRaw);
-
-        return getMgmtToken()
-                .flatMap(token -> usersByEmail(token, email))
-                .flatMap(users -> {
-
-                    if (users == null || users.isEmpty()) {
-                        // If you want silent no-op, keep Mono.empty()
-                        // but better: throw so you know UI is calling wrong email.
-                        return Mono.error(new Auth0UserNotFoundException("[C3] No user found for " + email));
-                    }
-
-                    Map<String, Object> primary = users.stream()
-                            .filter(this::hasAnyNonAuth0Identity)
-                            .findFirst()
-                            .orElse(users.get(0));
-
-                    if (hasProvider(primary, "auth0")) {
-                        log.info("[C3] User already has DB identity. Sending reset email only.");
-                        return sendChangePasswordEmail(email).then();
-                    }
-
-                    String primaryUserId = (String) primary.get("user_id");
-                    if (primaryUserId == null || primaryUserId.isBlank()) {
-                        return Mono.error(new IllegalStateException("[C3] Primary user_id missing for " + email));
-                    }
-
-                    log.info("[C3] Primary social user_id={}. Creating DB identity + linking…", primaryUserId);
-
-                    return createDbUser(email)
-                            .flatMap(dbUserId -> linkDbIdentityToPrimary(primaryUserId, dbUserId))
-                            .then(sendChangePasswordEmail(email))
-                            .then();
-                })
-                .doOnSuccess(v -> log.info("[C3] Completed password setup flow for {}", email))
-                .doOnError(e -> log.error("[C3] sendPasswordSetupForSocialUser failed for {}", email, e));
-    }
-
-    private boolean hasAnyNonAuth0Identity(Map<String, Object> user) {
-        List<Map<String, Object>> identities = (List<Map<String, Object>>) user.get("identities");
-        if (identities == null) return false;
-        return identities.stream().anyMatch(i -> {
-            String provider = (String) i.get("provider");
-            return provider != null && !"auth0".equals(provider);
-        });
-    }
-
-    private boolean hasProvider(Map<String, Object> user, String provider) {
-        List<Map<String, Object>> identities = (List<Map<String, Object>>) user.get("identities");
-        if (identities == null) return false;
-        return identities.stream().anyMatch(i -> provider.equals(i.get("provider")));
-    }
-
-    // ===================== CREATE DB USER =====================
-
-    private Mono<String> createDbUser(String email) {
-        return getMgmtToken().flatMap(token -> {
-            String url = "https://" + auth0Domain + "/api/v2/users";
-            String tempPassword = "Temp@" + System.currentTimeMillis();
-
-            Map<String, Object> payload = Map.of(
-                    "connection", "Username-Password-Authentication",
-                    "email", email,
-                    "password", tempPassword,
-                    "email_verified", false
-            );
-
-            log.info("[C3] Creating DB user for {}", email);
-
-            return webClient.post()
-                    .uri(url)
-                    .headers(h -> h.setBearerAuth(token))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(payload)
-                    .retrieve()
-                    .onStatus(HttpStatusCode::isError,
-                            resp -> resp.bodyToMono(String.class)
-                                    .flatMap(body -> mapAuth0Error("createDbUser", resp.statusCode(), body)))
-                    .bodyToMono(Map.class)
-                    .map(resp -> (String) resp.get("user_id"))
-                    .doOnNext(userId -> log.info("[C3] DB user created for {} -> {}", email, userId))
-                    .onErrorMap(ex -> (ex instanceof Auth0Exception) ? ex
-                            : new Auth0CreateDbUserException("[C3] createDbUser failed for " + email, ex));
-        });
-    }
-
-    // ===================== LINK IDENTITIES =====================
-
-    private Mono<Void> linkDbIdentityToPrimary(String primaryUserId, String dbUserId) {
-        return getMgmtToken().flatMap(token -> {
-
-            String secondaryIdOnly = stripProviderPrefix(dbUserId); // auth0|abc -> abc
-
-            Map<String, Object> payload = Map.of(
-                    "provider", "auth0",
-                    "user_id", secondaryIdOnly
-            );
-
-            log.info("[C3] Linking DB identity. primaryUserId={}, dbUserId={}", primaryUserId, dbUserId);
-
-            return webClient.post()
-                    .uri(uriBuilder -> uriBuilder
-                            .scheme("https")
-                            .host(auth0Domain)
-                            .pathSegment("api", "v2", "users", primaryUserId, "identities")
-                            .build()
-                    )
-                    .headers(h -> h.setBearerAuth(token))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(payload)
-                    .retrieve()
-                    .onStatus(HttpStatusCode::isError,
-                            resp -> resp.bodyToMono(String.class)
-                                    .flatMap(body -> mapAuth0Error("linkIdentities", resp.statusCode(), body)))
-                    .bodyToMono(String.class)
-                    .doOnNext(resp -> log.info("[C3] link identities success resp={}", resp))
-                    .then()
-                    .onErrorMap(ex -> (ex instanceof Auth0Exception) ? ex
-                            : new Auth0LinkIdentityException("[C3] linkIdentities failed primary=" + primaryUserId + " db=" + dbUserId, ex));
-        });
-    }
-}
-
-/*
-package com.project.hems.api_gateway_hems.controller;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-
-@Service
-public class Auth0ManagementService {
 
     private static final Logger log = LoggerFactory.getLogger(Auth0ManagementService.class);
 
@@ -331,7 +43,7 @@ public class Auth0ManagementService {
 
     private Mono<String> cachedToken;
 
-    public Auth0ManagementService(WebClient.Builder builder) {
+    public Auth0ManagementServiceImpl(WebClient.Builder builder) {
         this.webClient = builder.build();
     }
 
@@ -582,4 +294,3 @@ public class Auth0ManagementService {
     });
 }
 }
- */

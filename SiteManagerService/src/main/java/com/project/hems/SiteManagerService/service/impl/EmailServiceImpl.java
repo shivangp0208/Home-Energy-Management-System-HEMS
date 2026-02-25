@@ -1,6 +1,7 @@
 package com.project.hems.SiteManagerService.service.impl;
 
 import com.project.hems.SiteManagerService.external.EmailFeignClientService;
+import com.project.hems.SiteManagerService.service.MailService;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullResponseDto;
 import lombok.RequiredArgsConstructor;

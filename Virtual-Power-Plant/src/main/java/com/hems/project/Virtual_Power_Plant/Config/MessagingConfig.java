@@ -42,9 +42,5 @@ public class MessagingConfig {
         RabbitTemplate rabbitTemplate=new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter());
         return rabbitTemplate;
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter mc) {
-        RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(mc);
-        return template;
     }
 }

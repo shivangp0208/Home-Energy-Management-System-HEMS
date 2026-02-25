@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "site-service", path = "/api/v1/site")
+@FeignClient(name = "SITE-SERVICE-HEMS", path = "/api/v1/site")
 public interface SiteFeignClientService {
 
         // @GetMapping("/fetch-all-owner")

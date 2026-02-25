@@ -1,14 +1,18 @@
 package com.hems.project.Virtual_Power_Plant.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.hems.project.Virtual_Power_Plant.dto.DispatchContext;
+import com.hems.project.Virtual_Power_Plant.dto.DispatchMode;
+import com.hems.project.Virtual_Power_Plant.dto.GroupDispatchRequestDto;
+import com.hems.project.Virtual_Power_Plant.dto.SiteDispatchRequestDto;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +38,7 @@ public class SiteGroupService {
     private final SiteGroupRepository siteGroupRepository;
     private final SiteFeignClientService siteFeignClientService;
     private final ModelMapper mapper;
+    private final DispatchSchedulerService quartzService;
 
     // Note: we have to check for sited id by validating them using feign client as
     // some point in frontend if admin is creating a new group and at the same time
@@ -180,4 +185,103 @@ public class SiteGroupService {
         log.info("Activated site group successfully: {}", groupId);
     }
 
+    //note:-
+    //todo:-
+    //here do db call and external remote call(fegin call) so in transcational we cannot do this
+    //in one place...because if we wrote
+    @Transactional
+    public void validateAndScheduleDispatch(GroupDispatchRequestDto request) {
+
+        SiteGroup group = siteGroupRepository.findById(request.getGroupId())
+                .orElseThrow(() ->
+                        new RuntimeException("group not found"));
+
+        if (!group.isGroupStatus()) {
+            throw new RuntimeException("group is inactive");
+        }
+
+        if (request.getScheduleTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("schedule time must be after the current time "+ LocalDateTime.now());
+        }
+
+
+
+        Set<UUID> siteIds = group.getSitesInGroup();
+
+        if (siteIds.isEmpty()) {
+            throw new RuntimeException("No sites in group");
+        }
+
+
+        List<CompletableFuture<UUID>> futures = siteIds.stream()
+                .map(siteId ->
+                        CompletableFuture.supplyAsync(() -> {
+                            Boolean isAvailable =
+                                    siteFeignClientService
+                                            .checkSiteIsAvailableOtNot(siteId)
+                                            .getBody();
+
+                            return Boolean.TRUE.equals(isAvailable) ? siteId : null;
+                        })
+                )
+                .toList();
+
+        List<UUID> validSiteIds = futures.stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .toList();
+
+        //todo:-
+        //e particular site jode power che ke nai e pan run time per check karvu padse
+//        if (totalAvailablePower < request.getPowerToExtract()) {
+//            throw new RuntimeException("not enough power available in group");
+//        }
+
+       // List<UUID> siteId, UUID eventId, DispatchMode mode, Integer targetPower,Integer targetSoc
+        //set dispatch scheduler
+        quartzService.scheduleDispatchEvent(
+                validSiteIds,
+                UUID.randomUUID(),
+                request.getEventMode(),
+                request.getTargetPowerW(),
+                request.getTargetSoc(),
+                request.getScheduleTime()
+        );
+    }
+
+    @Transactional
+    //todo:-
+    //transacation ek db connection open kare and in that we network call fieg client..
+    //so change karvu ene
+    public void validateSiteAndScheduleDispatch(@Valid SiteDispatchRequestDto request) {
+
+        final ResponseEntity<Boolean> response = siteFeignClientService.checkSiteIsAvailableOtNot(request.getSiteId());
+
+        //check site is
+        Boolean isAvailable = response.getBody();
+
+        if (Boolean.FALSE.equals(isAvailable)) {
+            log.info("site is not available");
+        }
+
+        if (request.getScheduleTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("schedule time must be after the current time "+ LocalDateTime.now());
+        }
+
+        //todo:-
+        //e particular site jode power che ke nai e pan run time per check karvu padse
+//        if (totalAvailablePower < request.getPowerToExtract()) {
+//            throw new RuntimeException("not enough power available in group");
+//        }
+
+        //set dispatch scheduler
+        quartzService.scheduleDispatchEvent(
+                List.of(request.getSiteId()),
+                UUID.randomUUID(),
+                request.getEventMode(),
+                request.getTargetPowerW(),
+                request.getTargetSoc(),
+                request.getScheduleTime()
+        );
+    }
 }

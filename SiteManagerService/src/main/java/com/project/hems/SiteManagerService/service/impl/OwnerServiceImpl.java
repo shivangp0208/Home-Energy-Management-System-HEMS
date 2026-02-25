@@ -7,6 +7,7 @@ import com.project.hems.SiteManagerService.exception.ResourceNotFoundException;
 import com.project.hems.SiteManagerService.repository.OwnerIdentityRepo;
 import com.project.hems.SiteManagerService.repository.OwnerRepo;
 import com.project.hems.SiteManagerService.repository.SiteRepo;
+import com.project.hems.SiteManagerService.service.OwnerService;
 import com.project.hems.hems_api_contracts.contract.site.OwnerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -29,9 +29,13 @@ public class KafkaConfig {
             return new NewTopic("VPP-REQUIREMENT", 1, (short)1);
     }
 
+    @Bean
+    public NewTopic dispatchTopic(){
+        return new NewTopic("dispatch-topic", 1, (short)1);
+    }
 
-  @Bean
-  public NewTopic vppSnapshotsTopic() {
+    @Bean
+    public NewTopic vppSnapshotsTopic() {
     return TopicBuilder.name(topic)
         .partitions(partitions)
         .replicas(replicas)

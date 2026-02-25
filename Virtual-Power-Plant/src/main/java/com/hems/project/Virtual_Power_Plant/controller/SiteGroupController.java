@@ -1,5 +1,7 @@
 package com.hems.project.Virtual_Power_Plant.controller;
 
+import com.hems.project.Virtual_Power_Plant.dto.GroupDispatchRequestDto;
+import com.hems.project.Virtual_Power_Plant.dto.SiteDispatchRequestDto;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hems.project.Virtual_Power_Plant.external.SiteFeignClientService;
@@ -94,4 +96,39 @@ public class SiteGroupController {
         log.info("PATCH request to activate site group with id {}", groupId);
         siteGroupService.activateSiteGroup(groupId);
     }
+
+    // controller:- dispatch command send by admin so admin select group and then send command
+    //and in this only we implement the quartz system to scedule that event so we take sceduled time..
+//    @PostMapping("/dispatch-power-group")
+//    public ResponseEntity<? extends Object> dispatchPowerFromGroup(){
+//        //todo:-
+//        //normal we send here string then change to DispatchEvent...
+//
+//        return null;
+//
+//    }
+
+    @PostMapping("/dispatch-power-group")
+    public ResponseEntity<?> dispatchPowerFromGroup(
+            @RequestBody @Valid GroupDispatchRequestDto request) {
+
+        siteGroupService.validateAndScheduleDispatch(request);
+        return ResponseEntity.ok("dispatch scheduled successfully");
+    }
+
+    @PostMapping("/dispatch-power-site")
+    public ResponseEntity<?> dispatchPowerFromSite(
+            @RequestBody @Valid SiteDispatchRequestDto request) {
+
+        siteGroupService.validateSiteAndScheduleDispatch(request);
+        return ResponseEntity.ok("dispatch scheduled successfully");
+    }
+
+
+
+
+
+    // controller: dispatch command send by admin only for fetching power from one site / not from whole group
+    //and in this only we implement the quartz system to scedule that event so we take sceduled time..
+
 }
