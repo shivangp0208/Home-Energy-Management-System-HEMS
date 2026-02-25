@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.project.hems.envoy_manager_service.web.exception.MeterAlreadyDispatchedException;
+import com.project.hems.envoy_manager_service.exception.MeterAlreadyDispatchedException;
 import com.project.hems.hems_api_contracts.contract.dispatch.DispatchEvent;
 import com.project.hems.hems_api_contracts.contract.envoy.DispatchCommand;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;

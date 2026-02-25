@@ -1,7 +1,7 @@
 package com.project.hems.auth_service_hems.controller;
 
 import com.project.hems.auth_service_hems.dto.AdminRoleRequest;
-import com.project.hems.auth_service_hems.service.SuperAdminService;
+import com.project.hems.auth_service_hems.service.SuperAdminServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class SuperAdminController {
 
-    private final SuperAdminService service;
+    private final SuperAdminServiceImpl service;
 
     //@PreAuthorize("hasRole('SUPER_ADMIN')")
     @PreAuthorize("hasAuthority('site:write')")

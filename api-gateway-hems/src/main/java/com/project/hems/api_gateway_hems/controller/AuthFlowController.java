@@ -1,5 +1,6 @@
 package com.project.hems.api_gateway_hems.controller;
 
+import com.project.hems.api_gateway_hems.service.impl.Auth0ManagementServiceImpl;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -9,9 +10,9 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class AuthFlowController {
 
-    private final Auth0ManagementService mgmt;
+    private final Auth0ManagementServiceImpl mgmt;
 
-    public AuthFlowController(Auth0ManagementService mgmt) {
+    public AuthFlowController(Auth0ManagementServiceImpl mgmt) {
         this.mgmt = mgmt;
     }
 
