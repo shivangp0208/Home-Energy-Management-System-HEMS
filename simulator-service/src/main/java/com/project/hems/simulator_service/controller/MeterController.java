@@ -1,9 +1,7 @@
 package com.project.hems.simulator_service.controller;
 
-import com.project.hems.hems_api_contracts.contract.envoy.DispatchCommand;
+import com.project.hems.hems_api_contracts.contract.dispatch.DeviceCommand;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
-import com.project.hems.simulator_service.config.ActiveControlStore;
-import com.project.hems.simulator_service.model.ActiveControlState;
 import com.project.hems.simulator_service.service.MeterManagementService;
 import com.project.hems.simulator_service.exception.MeterStatusNotFoudException;
 
@@ -35,7 +33,6 @@ public class MeterController {
 
     private final MeterManagementService meterManagementService;
     private final Map<String, MeterSnapshot> meterReadings;
-    private final ActiveControlStore activeControlStore;
 
     @Operation(summary = "get meter data", description = "retrieve meter data for a specific site by siteId")
     @ApiResponse(responseCode = "200", description = "meter data fetched successfully")
@@ -73,17 +70,17 @@ public class MeterController {
     @Operation(summary = "apply dispatch command", description = "apply a dispatch command received from envoy to active control store")
     @ApiResponse(responseCode = "202", description = "dispatch command accepted successfully")
     @PostMapping("/dispatch")
-    public ResponseEntity<DispatchCommand> applyDispatch(@RequestBody @Valid DispatchCommand command) {
+    public ResponseEntity<DeviceCommand> applyDispatch(@RequestBody @Valid DeviceCommand command) {
         log.info("applyDispatch: POST req for applying dispatch command received from envoy " + command);
-        ActiveControlState control = new ActiveControlState(
-                command.getDispatchId(),
-                command.getBatteryControl(),
-                command.getGridControl(),
-                command.getLoadEnergyPriority(),
-                command.getSurplusEnergyPriority(),
-                command.getValidUntil());
+        // ActiveControlState control = new ActiveControlState(
+        //         command.getDispatchId(),
+        //         command.getBatteryControl(),
+        //         command.getGridControl(),
+        //         command.getLoadEnergyPriority(),
+        //         command.getSurplusEnergyPriority(),
+        //         command.getValidUntil());
 
-        activeControlStore.applyDispatch(command.getSiteId(), control);
+        // activeControlStore.applyDispatch(command.getSiteId(), control);
 
         return new ResponseEntity<>(command, HttpStatus.ACCEPTED);
     }

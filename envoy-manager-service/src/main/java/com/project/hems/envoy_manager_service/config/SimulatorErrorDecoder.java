@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.springframework.http.HttpStatus;
 
-import com.project.hems.envoy_manager_service.exception.MeterAlreadyDispatchedException;
+import com.project.hems.envoy_manager_service.exception.DuplicateCommandException;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;
@@ -31,7 +31,7 @@ public class SimulatorErrorDecoder implements ErrorDecoder {
         switch (status) {
             case CONFLICT:
                 log.error("decode: " + responseBody);
-                return new MeterAlreadyDispatchedException(responseBody);
+                return new DuplicateCommandException(responseBody);
             default:
                 return new RuntimeException("Unexpected error: " + errorMessage);
         }

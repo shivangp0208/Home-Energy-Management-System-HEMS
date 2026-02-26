@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.hems.dispatch_manager_service.service.impl.DispatchEventProducerImpl;
-import com.project.hems.hems_api_contracts.contract.dispatch.DispatchEvent;
+import com.project.hems.dispatch_manager_service.service.DispatchCommandProducer;
+import com.project.hems.hems_api_contracts.contract.vpp.DispatchEventDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class DispatchController {
 
-    private final DispatchEventProducerImpl dispatchEventProducer;
+    private final DispatchCommandProducer dispatchCommandProducer;
 
     @Operation(
             summary = "send dispatch command",
@@ -32,9 +32,9 @@ public class DispatchController {
     @ApiResponse(responseCode = "200", description = "dispatch command sent successfully")
     @ApiResponse(responseCode = "400", description = "invalid dispatch event payload")
     @PostMapping("/send-command")
-    public void sendDispatchCommand(@RequestBody @Valid DispatchEvent dispatchEvent) {
+    public void sendDispatchCommand(@RequestBody @Valid DispatchEventDto dispatchEvent) {
         log.info("sendDispatchCommand: sending post request to send the dispatch command");
-        dispatchEventProducer.sendDispatchCommands(dispatchEvent);
+        dispatchCommandProducer.processBulkDispatchEvent(dispatchEvent);
     }
 
 }

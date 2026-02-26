@@ -1,4 +1,4 @@
-package com.project.hems.simulator_service.config;
+package com.project.hems.envoy_manager_service.service;
 
 import java.time.Instant;
 import java.util.List;
@@ -8,10 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Component;
 
+import com.project.hems.envoy_manager_service.exception.DuplicateCommandException;
+import com.project.hems.envoy_manager_service.model.ActiveControlState;
 import com.project.hems.hems_api_contracts.contract.EnergyPriority;
-import com.project.hems.simulator_service.model.ActiveControlState;
-
-import com.project.hems.simulator_service.exception.MeterAlreadyDispatchedException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,11 +31,11 @@ public class ActiveControlStore {
         Optional<ActiveControlState> activeControl = getActiveControl(siteId);
         if (activeControl.isPresent()) {
             log.debug("applyDispatch: active control state already present for particular siteId");
-            if (activeControl.get().getDispatchId().equals(control.getDispatchId())) {
+            if (activeControl.get().getEventId().equals(control.getEventId())) {
                 log.error("applyDispatch: meter already in dispatch mode with dispatchId = {} and for siteId = {}",
-                        activeControl.get().getDispatchId(), siteId);
-                throw new MeterAlreadyDispatchedException("meter already in dispatch mode with dispatchId "
-                        + activeControl.get().getDispatchId() + " and for siteId " + siteId);
+                        activeControl.get().getEventId(), siteId);
+                throw new DuplicateCommandException("meter already in dispatch mode with dispatchId "
+                        + activeControl.get().getEventId() + " and for siteId " + siteId);
             }
         }
 

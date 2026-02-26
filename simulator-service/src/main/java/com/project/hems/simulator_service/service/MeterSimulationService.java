@@ -2,9 +2,9 @@ package com.project.hems.simulator_service.service;
 
 import com.project.hems.hems_api_contracts.contract.EnergyPriority;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
-import com.project.hems.simulator_service.config.ActiveControlStore;
 import com.project.hems.simulator_service.domain.MeterEntity;
-import com.project.hems.simulator_service.model.ActiveControlState;
+import com.project.hems.simulator_service.model.DeviceCommandStore;
+import com.project.hems.simulator_service.model.DeviceCommandStore.DeviceState;
 import com.project.hems.simulator_service.repository.MeterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -36,7 +36,7 @@ public class MeterSimulationService {
         private final KafkaTemplate<String, Object> kafkaTemplate;
         private final EnergyPhysicsEngine energyPhysicsEngine;
         private final EnvironmentSimulator environmentSimulator;
-        private final ActiveControlStore activeControlStore;
+        private final DeviceCommandStore deviceCommandStore;
 
         private String rawEnergyTopic;
 
@@ -96,12 +96,12 @@ public class MeterSimulationService {
                                         loadW);
 
                         // 2. Physics Engine (Priority Logic)
-                        Optional<ActiveControlState> activeControl = activeControlStore.getActiveControl(siteId);
+                        Optional<DeviceState> deviceState = deviceCommandStore.getEventState(siteId);
 
-                        List<EnergyPriority> loadpriorities = activeControl.map(ActiveControlState::getLoadEnergyPriorities)
-                                        .orElse(ActiveControlStore.loadEnergyPriorities);
-                        List<EnergyPriority> surpluspriorities = activeControl.map(ActiveControlState::getSurplusEnergyPriorities)
-                                        .orElse(ActiveControlStore.surplusEnergyPriorities);
+                        List<EnergyPriority> loadpriorities = deviceState.map(DeviceState::getLoadEnergyPriorities)
+                                        .orElse(DeviceCommandStore.loadEnergyPriorities);
+                        List<EnergyPriority> surpluspriorities = deviceState.map(DeviceState::getSurplusEnergyPriorities)
+                                        .orElse(DeviceCommandStore.surplusEnergyPriorities);
                                         
                         meter.setLoadEnergyPriorities(loadpriorities);
                         meter.setSurplusEnergyPriorities(surpluspriorities);
@@ -112,7 +112,7 @@ public class MeterSimulationService {
                                         loadW,
                                         loadpriorities,
                                         surpluspriorities,
-                                        activeControl.orElse(null));
+                                        deviceState.orElse(null));
 
                         log.debug(
                                         "simulateLiveReadings: siteId={} after physics batteryPowerW={} gridPowerW={}",

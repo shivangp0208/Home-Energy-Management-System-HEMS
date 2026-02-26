@@ -40,14 +40,4 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .build();
     }
-
-    @ExceptionHandler(MeterAlreadyDispatchedException.class)
-    @ResponseStatus(code = HttpStatus.CONFLICT)
-    public CustomizedErrorResponse handleMeterAlreadyDispatchedException(MeterAlreadyDispatchedException ex) {
-        return CustomizedErrorResponse.builder()
-                .statusCode(HttpStatus.CONFLICT.value())
-                .error("DUPLICATE_DISPATCH_COMMAND")
-                .message(ex.getMessage())
-                .build();
-    }
 }

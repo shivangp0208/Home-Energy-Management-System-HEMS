@@ -3,8 +3,8 @@ package com.project.hems.simulator_service.service;
 import com.project.hems.hems_api_contracts.contract.simulator.BatteryMode;
 import com.project.hems.hems_api_contracts.contract.simulator.ChargingStatus;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
-import com.project.hems.simulator_service.config.ActiveControlStore;
 import com.project.hems.simulator_service.domain.MeterEntity;
+import com.project.hems.simulator_service.model.DeviceCommandStore;
 import com.project.hems.simulator_service.repository.MeterRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +41,8 @@ public class MeterManagementService {
                 .batteryRemainingWh(5000.0) // Start half-full
 
                 // Initial Logic States
-                .loadEnergyPriorities(ActiveControlStore.loadEnergyPriorities)
-                .surplusEnergyPriorities(ActiveControlStore.surplusEnergyPriorities)
+                .loadEnergyPriorities(DeviceCommandStore.loadEnergyPriorities)
+                .surplusEnergyPriorities(DeviceCommandStore.surplusEnergyPriorities)
                 
                 .batterySoc(50)
                 .batteryMode(BatteryMode.AUTO)

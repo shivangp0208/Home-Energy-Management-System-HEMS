@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.hems.project.Virtual_Power_Plant.dto.DispatchContext;
-import com.hems.project.Virtual_Power_Plant.dto.DispatchMode;
 import com.hems.project.Virtual_Power_Plant.dto.GroupDispatchRequestDto;
 import com.hems.project.Virtual_Power_Plant.dto.SiteDispatchRequestDto;
 import jakarta.validation.Valid;
@@ -24,6 +23,7 @@ import com.hems.project.Virtual_Power_Plant.exception.SiteGroupStateConflictExce
 import com.hems.project.Virtual_Power_Plant.external.SiteFeignClientService;
 import com.hems.project.Virtual_Power_Plant.repository.SiteGroupRepository;
 import com.project.hems.hems_api_contracts.contract.site.SiteDto;
+import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupReqDto;
 

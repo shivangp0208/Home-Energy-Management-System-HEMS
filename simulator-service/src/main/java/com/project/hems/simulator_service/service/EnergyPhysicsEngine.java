@@ -9,7 +9,7 @@ import com.project.hems.hems_api_contracts.contract.envoy.BatteryControl;
 import com.project.hems.hems_api_contracts.contract.simulator.BatteryMode;
 import com.project.hems.hems_api_contracts.contract.simulator.ChargingStatus;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
-import com.project.hems.simulator_service.model.ActiveControlState;
+import com.project.hems.simulator_service.model.DeviceCommandStore;
 
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +21,12 @@ public class EnergyPhysicsEngine {
         private static final double DELTA_SECONDS = 5.0;
         private static final double SECONDS_TO_HOURS = 1.0 / 3600.0;
 
-        private boolean isGridImportAllowed(ActiveControlState control) {
+        private boolean isGridImportAllowed(DeviceCommandStore.DeviceState control) {
                 return control == null ? true
                                 : control.getGridControl() == null ? true : control.getGridControl().isAllowImport();
         }
 
-        private boolean isGridExportAllowed(ActiveControlState control) {
+        private boolean isGridExportAllowed(DeviceCommandStore.DeviceState control) {
                 return control == null ? false
                                 : control.getGridControl() == null ? false : control.getGridControl().isAllowExport();
         }
@@ -37,7 +37,7 @@ public class EnergyPhysicsEngine {
                         double loadW,
                         List<EnergyPriority> loadpriorityOrder,
                         List<EnergyPriority> surpluspriorityOrder,
-                        @Nullable ActiveControlState control) {
+                        @Nullable DeviceCommandStore.DeviceState control) {
 
                 log.info(
                                 "EnergyBalance START | siteId={} meterId={} solarW={} loadW={} loadPriority={} surplusPriority={} control={}",
@@ -222,7 +222,7 @@ public class EnergyPhysicsEngine {
                 return ChargingStatus.IDLE;
         }
 
-        private double getMaxDischargeW(MeterSnapshot meter, ActiveControlState control) {
+        private double getMaxDischargeW(MeterSnapshot meter, DeviceCommandStore.DeviceState control) {
                 log.debug(
                                 "MaxDischarge check | mode={} maxDischargeW={} SOC={} minSOC={}",
                                 control.getBatteryControl().getMode(),
@@ -251,7 +251,7 @@ public class EnergyPhysicsEngine {
                 return defaultMax;
         }
 
-        private double getMaxChargeW(MeterSnapshot meter, ActiveControlState control) {
+        private double getMaxChargeW(MeterSnapshot meter, DeviceCommandStore.DeviceState control) {
 
                 double defaultMax = 3000.0;
 

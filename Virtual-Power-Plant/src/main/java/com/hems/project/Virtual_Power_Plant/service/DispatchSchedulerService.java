@@ -1,7 +1,8 @@
 package com.hems.project.Virtual_Power_Plant.service;
 
-import com.hems.project.Virtual_Power_Plant.dto.DispatchMode;
 import com.hems.project.Virtual_Power_Plant.entity.DispatchEvent;
+import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;

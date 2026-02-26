@@ -4,12 +4,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.project.hems.envoy_manager_service.exception.MeterAlreadyDispatchedException;
-import com.project.hems.hems_api_contracts.contract.dispatch.DispatchEvent;
-import com.project.hems.hems_api_contracts.contract.envoy.DispatchCommand;
+import com.project.hems.envoy_manager_service.exception.DuplicateCommandException;
+import com.project.hems.hems_api_contracts.contract.dispatch.DeviceCommand;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 import com.project.hems.hems_api_contracts.contract.site.SiteCreationEvent;
-
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 public class KafkaConsumerService {
 
         private String rawEnergyTopic;
-        private String dispatchEnergyTopic;
+        private String dispatchCommandTopic;
         private String siteCreationTopic;
 
-        private final CommandTranslatorService commandTranslatorService;
         private final DispatchCommandService dispatchCommandService;
         private final SimulatorFeignClientService simulatorFeignClientService;
 
@@ -53,37 +50,35 @@ public class KafkaConsumerService {
         }
 
         @KafkaListener(topics = "${property.config.kafka.dispatch-energy-topic}", groupId = "${property.config.kafka.dispatch-energy-group-id}")
-        public void consumeDispatchEvents(DispatchEvent dispatchEvent) {
+        public void consumeDispatchCommand(DeviceCommand deviceCommand) {
 
                 log.info(
-                                "consumeDispatchEvents: received dispatch command from topic={} dispatchId={} siteId={} eventType={}",
-                                dispatchEnergyTopic,
-                                dispatchEvent.getDispatchId(),
-                                dispatchEvent.getSiteId(),
-                                dispatchEvent.getEventType());
+                                "consumedeviceCommand: received dispatch command from topic={} eventId={} siteId={}  programId={} eventType={}",
+                                dispatchCommandTopic,
+                                deviceCommand.getEventId(),
+                                deviceCommand.getSiteId(),
+                                deviceCommand.getProgramId(),
+                                deviceCommand.getMode());
 
                 log.debug(
-                                "consumeDispatchEvents: raw dispatch payload={}",
-                                dispatchEvent);
+                                "consumedeviceCommand: raw dispatch payload={}",
+                                deviceCommand);
                 try {
-                        DispatchCommand dispatchCommand = commandTranslatorService
-                                        .translateDispatchEvent(dispatchEvent);
-
                         log.debug(
-                                        "consumeDispatchEvents: translated dispatch command for siteId={} command={}",
-                                        dispatchEvent.getSiteId(),
-                                        dispatchCommand);
+                                        "consumedeviceCommand: translated dispatch command for siteId={} command={}",
+                                        deviceCommand.getSiteId(),
+                                        deviceCommand);
 
-                        dispatchCommandService.applyControlToSimulation(dispatchCommand);
+                        dispatchCommandService.applyControlToSimulation(deviceCommand);
 
                         log.info(
-                                        "consumeDispatchEvents: successfully applied control command to simulation for siteId={}",
-                                        dispatchEvent.getSiteId());
-                } catch (MeterAlreadyDispatchedException ex) {
+                                        "consumedeviceCommand: successfully applied control command to simulation for siteId={}",
+                                        deviceCommand.getSiteId());
+                } catch (DuplicateCommandException ex) {
                         log.warn(
-                                        "Dispatch already applied. Skipping event. dispatchId={}, siteId={}",
-                                        dispatchEvent.getDispatchId(),
-                                        dispatchEvent.getSiteId());
+                                        "Dispatch already applied. Skipping event. eventId={}, siteId={}",
+                                        deviceCommand.getEventId(),
+                                        deviceCommand.getSiteId());
                 }
 
         }

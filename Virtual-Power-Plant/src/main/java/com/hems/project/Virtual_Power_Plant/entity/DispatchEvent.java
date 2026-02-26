@@ -1,9 +1,12 @@
 package com.hems.project.Virtual_Power_Plant.entity;
 
-import com.hems.project.Virtual_Power_Plant.dto.DispatchEventDto;
-import com.hems.project.Virtual_Power_Plant.dto.DispatchMode;
+import com.hems.project.Virtual_Power_Plant.dto.DispatchContext;
+import com.project.hems.hems_api_contracts.contract.vpp.DispatchEventDto;
+import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -25,20 +28,22 @@ public class DispatchEvent extends QuartzJobBean {
 
     private final KafkaTemplate<String,Object> kafkaTemplate;
 
-
     @Override
     protected void executeInternal(JobExecutionContext context) {
 
         JobDataMap dataMap = context.getMergedJobDataMap();
 
         UUID eventId = UUID.fromString(dataMap.getString("eventId"));
+        UUID programId = UUID.fromString(dataMap.getString("programId"));
 
-        DispatchMode mode = DispatchMode.valueOf(
+        DispatchContext mode = DispatchMode.valueOf(
                 dataMap.getString("eventMode"));
 
         Long targetPower = dataMap.getLong("targetPowerW");
 
         Integer targetSoc = dataMap.getInt("targetSoc");
+
+        Integer durationMinutes = dataMap.getInt("durationMinutes");
 
         List<String> siteIdStrings =
                 (List<String>) dataMap.get("siteIds");
@@ -49,8 +54,10 @@ public class DispatchEvent extends QuartzJobBean {
 
         DispatchEventDto dto=DispatchEventDto.builder()
                 .eventId(eventId)
+                .programId(programId)
                 .eventMode(mode)
                 .targetPowerW(targetPower)
+                .durationMinutes(durationMinutes)
                 .targetSoc(targetSoc)
                 .validSiteIds(siteIds)
                 .build();

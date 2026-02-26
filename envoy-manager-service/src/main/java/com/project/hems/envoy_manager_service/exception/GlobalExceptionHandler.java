@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MeterStatusNotFoudException.class)
+    @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public CustomizedErrorResponse handleMeterStatusNotFoudException(MeterStatusNotFoudException ex) {
+    public CustomizedErrorResponse handleResourceNotFoundException(ResourceNotFoundException ex) {
         return CustomizedErrorResponse.builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .error("METER_NOT_FOUND")
@@ -18,11 +18,11 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(MeterAlreadyDispatchedException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public CustomizedErrorResponse handleMeterAlreadyDispatchedException(MeterAlreadyDispatchedException ex) {
+    @ExceptionHandler(DuplicateCommandException.class)
+    @ResponseStatus(code = HttpStatus.CONFLICT)
+    public CustomizedErrorResponse handleDuplicateCommandException(DuplicateCommandException ex) {
         return CustomizedErrorResponse.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(HttpStatus.CONFLICT.value())
                 .error("DUPLICATE_DISPATCH_COMMAND")
                 .message(ex.getMessage())
                 .build();

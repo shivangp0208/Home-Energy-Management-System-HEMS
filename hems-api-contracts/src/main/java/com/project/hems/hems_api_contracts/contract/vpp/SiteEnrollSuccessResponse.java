@@ -1,7 +1,6 @@
 package com.project.hems.hems_api_contracts.contract.vpp;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
 
 import lombok.Builder;

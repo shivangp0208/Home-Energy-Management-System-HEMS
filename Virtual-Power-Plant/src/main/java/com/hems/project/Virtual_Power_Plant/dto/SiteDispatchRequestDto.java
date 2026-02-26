@@ -9,6 +9,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
+
 @Data
 public class SiteDispatchRequestDto {
 

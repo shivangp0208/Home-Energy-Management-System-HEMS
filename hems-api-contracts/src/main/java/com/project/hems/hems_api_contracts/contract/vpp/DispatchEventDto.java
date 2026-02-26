@@ -1,4 +1,4 @@
-package com.hems.project.Virtual_Power_Plant.dto;
+package com.project.hems.hems_api_contracts.contract.vpp;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.UUID;
 
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -17,6 +16,9 @@ import java.util.UUID;
 public class DispatchEventDto {
 
     private UUID eventId;
+
+    @NotNull(message = "program id cannot be null")
+    private UUID programId;
 
     @NotNull(message = "eventMode cannot be null")
     private DispatchMode eventMode;
@@ -31,6 +33,10 @@ public class DispatchEventDto {
     @Min(value = 0, message = "targetSoc cannot be less than 0%")
     @Max(value = 100, message = "targetSoc cannot be more than 100%")
     private Integer targetSoc;
+
+    @NotNull(message = "Duration cannot be null")
+    @Min(value = 1, message = "Event must run for at least 1 minute")
+    private Integer durationMinutes;
 
     // If this is the payload sent to the Dispatch Service, it MUST contain the list
     // of sites.
