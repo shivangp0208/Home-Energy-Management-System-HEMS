@@ -1,4 +1,4 @@
-package com.hems.project.Virtual_Power_Plant.dto;
+package com.hems.project.ADMIN_SERVICE.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
-public class GroupDispatchRequestDto {
+public class SiteDispatchRequestDto {
 
     @NotNull
     private LocalDateTime scheduleTime;
@@ -28,5 +28,5 @@ public class GroupDispatchRequestDto {
     private Integer targetSoc;
 
     @NotNull
-    private UUID groupId;
+    private UUID siteId;
 }

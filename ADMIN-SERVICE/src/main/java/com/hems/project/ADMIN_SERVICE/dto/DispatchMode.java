@@ -1,4 +1,4 @@
-package com.hems.project.Virtual_Power_Plant.dto;
+package com.hems.project.ADMIN_SERVICE.dto;
 
 public enum DispatchMode {
     CHARGE, DISCHARGE, HOLD

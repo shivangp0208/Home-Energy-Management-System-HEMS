@@ -1,4 +1,4 @@
-package com.hems.project.Virtual_Power_Plant.dto;
+package com.hems.project.ADMIN_SERVICE.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

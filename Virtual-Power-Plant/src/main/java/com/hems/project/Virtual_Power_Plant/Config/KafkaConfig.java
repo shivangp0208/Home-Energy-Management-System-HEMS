@@ -29,10 +29,6 @@ public class KafkaConfig {
             return new NewTopic("VPP-REQUIREMENT", 1, (short)1);
     }
 
-    @Bean
-    public NewTopic dispatchTopic(){
-        return new NewTopic("dispatch-topic", 1, (short)1);
-    }
 
     @Bean
     public NewTopic vppSnapshotsTopic() {

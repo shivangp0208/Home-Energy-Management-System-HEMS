@@ -60,8 +60,6 @@ public class VppController {
     private final VppDocumentService vppDocumentService;
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${jills.patel}")
-    public String role;
 
     @Operation(
             summary = "send signal to import power",
@@ -80,10 +78,7 @@ public class VppController {
     //and when vpp detail fill kare like location,location photo and all then we put this into ai 
     //and then we like send this to vpp manager.. and e verify karse 
 
-    @GetMapping("/bus")
-    public void check(){
-        System.out.println("keyyyy is "+role);
-    }
+
 
     //find vpp by vppID
     @GetMapping("/{vppId}")
