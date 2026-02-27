@@ -16,27 +16,27 @@ import lombok.extern.slf4j.Slf4j;
 public class KafkaConfig {
 
     private String rawEnergyTopic;
-    private String dispatchEnergyTopic;
+    private String dispatchCommandTopic;
     private String siteCreationTopic;
-    private Integer rawEnergypartitionCount;
-    private Integer dispatchEnergypartitionCount;
-    private Integer siteCreationpartitionCount;
+    private Integer rawEnergyPartitionCount;
+    private Integer dispatchCommandPartitionCount;
+    private Integer siteCreationPartitionCount;
     private Integer replicaCount;
 
     @Bean
     public NewTopic rawEnergyReadings() {
         log.info("Creating Kafka topic {}", rawEnergyTopic);
         return TopicBuilder.name(rawEnergyTopic)
-                .partitions(rawEnergypartitionCount)
+                .partitions(rawEnergyPartitionCount)
                 .replicas(replicaCount)
                 .build();
     }
 
     @Bean
     public NewTopic energyDispatchCommands() {
-        log.info("Creating Kafka topic {}", dispatchEnergyTopic);
-        return TopicBuilder.name(dispatchEnergyTopic)
-                .partitions(dispatchEnergypartitionCount)
+        log.info("Creating Dispatch Command topic {} and group id {}", dispatchCommandTopic, dispatchCommandPartitionCount);
+        return TopicBuilder.name(dispatchCommandTopic)
+                .partitions(dispatchCommandPartitionCount)
                 .replicas(replicaCount)
                 .build();
     }
@@ -44,7 +44,7 @@ public class KafkaConfig {
     @Bean
     public NewTopic siteCreationTopic() {
         return TopicBuilder.name(siteCreationTopic)
-                .partitions(siteCreationpartitionCount)
+                .partitions(siteCreationPartitionCount)
                 .replicas(replicaCount)
                 .build();
     }

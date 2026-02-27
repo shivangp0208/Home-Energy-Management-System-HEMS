@@ -23,16 +23,15 @@ public class KafkaConsumerService {
     @Value("${property.config.kafka.vpp-service-topic}")
     private String vppServiceTopic;
 
-    @NotNull(message = "dispatch energy topic is null")
     @Value("${property.config.kafka.dispatch-event-topic}")
-    private String dispatchCommandTopic;
+    private String dispatchEventTopic;
 
     private final DispatchCommandProducer dispatchCommandProducer;
 
     @KafkaListener(topics = "${property.config.kafka.dispatch-event-topic}", groupId = "${property.config.kafka.dispatch-event-group-id}")
     public void consumeDispatchEvent(DispatchEventDto bulkEvent) {
 
-        log.info("consumeDispatchEvent: Received Bulk Dispatch Event: {} on kafka topic: {}", bulkEvent.getEventId());
+        log.info("consumeDispatchEvent: Received Bulk Dispatch Event: {} on kafka topic: {}", bulkEvent.getEventId(), dispatchEventTopic);
 
         dispatchCommandProducer.processBulkDispatchEvent(bulkEvent);
     }

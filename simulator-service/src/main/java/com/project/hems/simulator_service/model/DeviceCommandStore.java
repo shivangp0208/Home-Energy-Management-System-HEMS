@@ -44,8 +44,8 @@ public class DeviceCommandStore {
     public Optional<DeviceState> getEventState(UUID siteId) {
         if (activeControls.get(siteId) != null) {
             return Optional.of(activeControls.get(siteId));
+        } else {
+            return Optional.empty();
         }
-
-        return Optional.of(null);
     }
 }

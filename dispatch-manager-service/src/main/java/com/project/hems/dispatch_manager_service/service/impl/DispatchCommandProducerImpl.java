@@ -2,6 +2,7 @@ package com.project.hems.dispatch_manager_service.service.impl;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DispatchCommandProducerImpl implements DispatchCommandProducer  {
 
     @NotNull(message = "dispatch energy topic is null")
+    @Value("${property.config.kafka.dispatch-command-topic}")
     private String dispatchCommandTopic;
 
     private final KafkaTemplate<String, DeviceCommand> kafkaTemplate;

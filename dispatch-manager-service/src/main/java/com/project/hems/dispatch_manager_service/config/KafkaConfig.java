@@ -13,23 +13,32 @@ import lombok.Setter;
 @Setter
 public class KafkaConfig {
 
-    private String dispatchEnergyTopic;
-    private Integer dispatchEnergyPartitionCount;
+    private String dispatchCommandTopic;
+    private Integer dispatchCommandPartitionCount;
+    private String dispatchEventTopic;
+    private Integer dispatchEventPartitionCount;
     private String vppServiceTopic;
     private Integer vppServicePartitionCount;
     private Integer replicaCount;
 
     @Bean
-    public NewTopic dispatchEventProducers() {
-        return TopicBuilder.name(dispatchEnergyTopic)
-                .partitions(dispatchEnergyPartitionCount)
+    public NewTopic dispatchCommandTopic() {
+        return TopicBuilder.name(dispatchCommandTopic)
+                .partitions(dispatchCommandPartitionCount)
                 .replicas(replicaCount)
                 .build();
     }
 
+    @Bean
+    public NewTopic dispatchEventTopic() {
+        return TopicBuilder.name(dispatchEventTopic)
+                .partitions(dispatchEventPartitionCount)
+                .replicas(replicaCount)
+                .build();
+    }
 
     @Bean
-    public NewTopic vppReuirementProducer() {
+    public NewTopic vppReuirementTopic() {
         return TopicBuilder.name(vppServiceTopic)
                 .partitions(vppServicePartitionCount)
                 .replicas(replicaCount)

@@ -18,28 +18,37 @@ public class KafkaConfig {
     @Value("${property.config.kafka.replica-count:1}")
     private int replicas;
 
+    @Value("${property.config.kafka.dispatch-command-topic}")
+    private String dispatchCommandTopic;
+
+    @Value("${property.config.kafka.dispatch-command-topic}")
+    private int dispatchCommandPartitionCount;
+
 
     @Bean
-    public NewTopic topic(){
-        return new NewTopic("my-topic",1,(short)1);
+    public NewTopic topic() {
+        return new NewTopic("my-topic", 1, (short) 1);
     }
 
     @Bean
-    public NewTopic topic2(){
-            return new NewTopic("VPP-REQUIREMENT", 1, (short)1);
+    public NewTopic topic2() {
+        return new NewTopic("VPP-REQUIREMENT", 1, (short) 1);
     }
 
     @Bean
-    public NewTopic dispatchTopic(){
-        return new NewTopic("dispatch-topic", 1, (short)1);
+    public NewTopic dispatchTopic() {
+        return TopicBuilder.name(dispatchCommandTopic)
+                .partitions(dispatchCommandPartitionCount)
+                .replicas(replicas)
+                .build();
     }
 
     @Bean
     public NewTopic vppSnapshotsTopic() {
-    return TopicBuilder.name(topic)
-        .partitions(partitions)
-        .replicas(replicas)
-        .build();
-  }
+        return TopicBuilder.name(topic)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
+    }
 }
 

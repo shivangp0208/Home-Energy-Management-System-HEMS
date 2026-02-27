@@ -2,6 +2,7 @@ package com.project.hems.envoy_manager_service.service;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.project.hems.envoy_manager_service.exception.DuplicateCommandException;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Setter
+@Component
 @ConfigurationProperties(prefix = "property.config.kafka")
 public class KafkaConsumerService {
 
@@ -49,7 +51,7 @@ public class KafkaConsumerService {
                 // meterAggregationService.process(meterSnapshot);
         }
 
-        @KafkaListener(topics = "${property.config.kafka.dispatch-energy-topic}", groupId = "${property.config.kafka.dispatch-energy-group-id}")
+        @KafkaListener(topics = "${property.config.kafka.dispatch-command-topic}", groupId = "${property.config.kafka.dispatch-command-group-id}")
         public void consumeDispatchCommand(DeviceCommand deviceCommand) {
 
                 log.info(
