@@ -65,6 +65,7 @@ public class DispatchEvent extends QuartzJobBean {
             kafkaTemplate.send(topic, dto);
             log.info("dispatch event invoke and send to kafka topic");
         }catch (Exception ex){
+            log.info("error",ex);
             log.error("error in dispatch event invoke and send to kafka topic");
             //and kafka fall back method add karvi if kafka is down then we send manuallyy
         }
