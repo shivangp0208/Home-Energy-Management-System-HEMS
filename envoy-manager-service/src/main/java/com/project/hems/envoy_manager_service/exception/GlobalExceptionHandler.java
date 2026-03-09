@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
     public CustomizedErrorResponse handleResourceNotFoundException(ResourceNotFoundException ex) {
         return CustomizedErrorResponse.builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .error("METER_NOT_FOUND")
+                .error("NOT_FOUND")
                 .message(ex.getMessage())
                 .build();
     }

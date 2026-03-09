@@ -6,16 +6,18 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import com.project.hems.envoy_manager_service.exception.DuplicateCommandException;
-import com.project.hems.envoy_manager_service.model.ActiveControlState;
+import com.project.hems.hems_api_contracts.contract.envoy.ActiveControlState;
 import com.project.hems.hems_api_contracts.contract.EnergyPriority;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@Getter
 public class ActiveControlStore {
 
     // siteId -> active control

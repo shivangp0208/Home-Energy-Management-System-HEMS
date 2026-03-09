@@ -1,7 +1,9 @@
 package com.project.hems.simulator_service.controller;
 
 import com.project.hems.hems_api_contracts.contract.dispatch.DeviceCommand;
+import com.project.hems.hems_api_contracts.contract.envoy.ActiveControlState;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
+import com.project.hems.simulator_service.model.DeviceCommandStore;
 import com.project.hems.simulator_service.service.MeterManagementService;
 import com.project.hems.simulator_service.exception.MeterStatusNotFoudException;
 
@@ -69,20 +71,11 @@ public class MeterController {
 
     @Operation(summary = "apply dispatch command", description = "apply a dispatch command received from envoy to active control store")
     @ApiResponse(responseCode = "202", description = "dispatch command accepted successfully")
-    @PostMapping("/dispatch")
-    public ResponseEntity<DeviceCommand> applyDispatch(@RequestBody @Valid DeviceCommand command) {
-        log.info("applyDispatch: POST req for applying dispatch command received from envoy " + command);
-        // ActiveControlState control = new ActiveControlState(
-        //         command.getDispatchId(),
-        //         command.getBatteryControl(),
-        //         command.getGridControl(),
-        //         command.getLoadEnergyPriority(),
-        //         command.getSurplusEnergyPriority(),
-        //         command.getValidUntil());
-
-        // activeControlStore.applyDispatch(command.getSiteId(), control);
-
-        return new ResponseEntity<>(command, HttpStatus.ACCEPTED);
+    @PostMapping("/apply-command")
+    public ResponseEntity<Map<UUID, ActiveControlState>> applyDispatch(@RequestBody @Valid Map<UUID, ActiveControlState> activeControls) {
+        log.info("applyDispatch: POST req for applying dispatch command received from envoy " + activeControls);
+        meterManagementService.applyControl(activeControls);
+        return new ResponseEntity<>(activeControls, HttpStatus.ACCEPTED);
     }
 
 }

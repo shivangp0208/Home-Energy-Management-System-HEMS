@@ -223,18 +223,18 @@ public class EnergyPhysicsEngine {
         }
 
         private double getMaxDischargeW(MeterSnapshot meter, DeviceCommandStore.DeviceState control) {
+                double defaultMax = 3000.0;
+
+                if (control == null || control.getBatteryControl() == null) {
+                        return defaultMax;
+                }
+
                 log.debug(
                                 "MaxDischarge check | mode={} maxDischargeW={} SOC={} minSOC={}",
                                 control.getBatteryControl().getMode(),
                                 control.getBatteryControl().getMaxDischargeW(),
                                 meter.getBatterySoc(),
                                 control.getBatteryControl().getMinSocPercent());
-
-                double defaultMax = 3000.0;
-
-                if (control == null || control.getBatteryControl() == null) {
-                        return defaultMax;
-                }
 
                 BatteryControl bc = control.getBatteryControl();
 

@@ -16,7 +16,7 @@ public class EnvironmentSimulator {
         int hour = java.time.LocalTime.now().getHour();
         log.debug("calculateSolarProduction: current hour = {}", hour);
 
-        // Simple window: 6 AM to 6 PM (18:00)
+        // Simple window: 6 PM to 6 AM
         if (hour < 6 || hour >= 18) {
             log.debug("calculateSolarProduction: night time detected, solar production = 0.0");
             return 0.0;

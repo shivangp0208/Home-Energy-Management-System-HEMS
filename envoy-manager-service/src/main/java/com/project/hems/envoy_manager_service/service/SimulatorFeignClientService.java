@@ -1,7 +1,9 @@
 package com.project.hems.envoy_manager_service.service;
 
+import java.util.Map;
 import java.util.UUID;
 
+import com.project.hems.hems_api_contracts.contract.envoy.ActiveControlState;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,4 +29,7 @@ public interface SimulatorFeignClientService {
 
     @GetMapping("/get-meter-data/{siteId}")
     public ResponseEntity<MeterSnapshot> getMeterData(@PathVariable(name = "siteId", required = true) UUID siteId);
+
+    @PostMapping("/apply-command")
+    public ResponseEntity<Map<UUID, ActiveControlState>> applyDispatch(@RequestBody @Valid Map<UUID, ActiveControlState> activeControls);
 }

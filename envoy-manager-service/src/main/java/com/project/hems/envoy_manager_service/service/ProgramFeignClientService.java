@@ -4,13 +4,14 @@ import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.project.hems.hems_api_contracts.contract.program.Program;
 
-@FeignClient(name = "program-enrollment-manager")
+@FeignClient(name = "program-enrollment-manager", path = "api/v1/program")
 public interface ProgramFeignClientService {
 
     @GetMapping("/programs/{programId}")

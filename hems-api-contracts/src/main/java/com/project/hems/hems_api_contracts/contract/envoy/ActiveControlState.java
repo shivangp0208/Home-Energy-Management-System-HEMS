@@ -1,12 +1,10 @@
-package com.project.hems.envoy_manager_service.model;
+package com.project.hems.hems_api_contracts.contract.envoy;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 import com.project.hems.hems_api_contracts.contract.EnergyPriority;
-import com.project.hems.hems_api_contracts.contract.envoy.BatteryControl;
-import com.project.hems.hems_api_contracts.contract.envoy.GridControl;
 import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
 
 import lombok.AllArgsConstructor;

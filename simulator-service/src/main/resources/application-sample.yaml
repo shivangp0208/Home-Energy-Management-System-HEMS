@@ -1,25 +1,30 @@
 spring:
 
   application:
-    name: simulator-service-testing
+    name: simulator-service
+
+  cloud:
+    config:
+      import-check:
+        enabled: false
 
   datasource:
     url: jdbc:mysql://localhost:3306/simulator_service
-    username: not desclosed
-    password: not desclosed
+    username:
+    password:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
 
   kafka:
     producer:
       acks: 1
       bootstrap-servers:
-      - localhost:9092
+        - localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer  
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 
   security:
@@ -28,17 +33,33 @@ spring:
         jwt:
           issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
 
-  config:
-    import: optional:configserver:http://localhost:8095
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username:
+    password:
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8091/eureka
 
 server:
   port: 9010
 
 property:
   config:
-    kafka: 
+    kafka:
       raw-energy-group-id: raw-energy-readers
       raw-energy-topic: RAW_ENERGY_READINGS
       raw-energy-partition-count: 3
 
       replica-count: 1
+
+logging:
+  level:
+    com.project.hems.simulator_service: TRACE

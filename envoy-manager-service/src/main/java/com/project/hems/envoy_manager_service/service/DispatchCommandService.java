@@ -3,10 +3,10 @@ package com.project.hems.envoy_manager_service.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import com.project.hems.envoy_manager_service.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.project.hems.envoy_manager_service.exception.ResourceNotFoundException;
-import com.project.hems.envoy_manager_service.model.ActiveControlState;
+import com.project.hems.hems_api_contracts.contract.envoy.ActiveControlState;
 import com.project.hems.hems_api_contracts.contract.dispatch.DeviceCommand;
 import com.project.hems.hems_api_contracts.contract.envoy.BatteryControl;
 import com.project.hems.hems_api_contracts.contract.envoy.GridControl;
@@ -31,7 +31,7 @@ public class DispatchCommandService {
 
         if (program == null || program.getProgramDescription() == null) {
             log.error("Unable to find program rules for ID: {}", command.getProgramId());
-            throw new RuntimeException("Missing ProgramDescription");
+            throw new ResourceNotFoundException("Unable to find program rules for ID: " + command.getProgramId());
         }
 
         ProgramDescription rules = program.getProgramDescription();
@@ -94,7 +94,8 @@ public class DispatchCommandService {
         // 3. Save to In-Memory Store
         activeControlStore.applyDispatch(command.getSiteId(), state);
 
-        // apply this control state over the simulatr service for that site using feign client call
+        log.debug("Dispatch command sended to simulator successfully");
+        simulatorFeignClientService.applyDispatch(activeControlStore.getActiveControls());
 
         log.info("Reconfigured Site: {}. Pre-calculated Safe Target Power: {}W, Target SoC: {}%",
                 command.getSiteId(), state.getTargetPowerW(), state.getTargetSoc());
