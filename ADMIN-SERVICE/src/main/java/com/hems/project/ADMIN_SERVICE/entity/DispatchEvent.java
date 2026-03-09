@@ -1,15 +1,12 @@
-package com.hems.project.Virtual_Power_Plant.entity;
+package com.hems.project.ADMIN_SERVICE.entity;
 
-import com.hems.project.Virtual_Power_Plant.dto.DispatchContext;
-import com.project.hems.hems_api_contracts.contract.vpp.DispatchEventDto;
-import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
-
+import com.hems.project.ADMIN_SERVICE.dto.DispatchEventDto;
+import com.hems.project.ADMIN_SERVICE.dto.DispatchMode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -23,8 +20,9 @@ import java.util.UUID;
 @Component
 public class DispatchEvent extends QuartzJobBean {
 
-    @Value("${kafka.topic.schedule-topic}")
-    private String topicName;
+
+    @Value("${property.config.schedule-topic}")
+    private String topic;
 
     private final KafkaTemplate<String,Object> kafkaTemplate;
 
@@ -69,9 +67,10 @@ public class DispatchEvent extends QuartzJobBean {
     private void sendDispatchCommandToKafka(DispatchEventDto dto) {
         //send dispatch command to kafka topic:- schedule-dispatch-event
         try {
-            kafkaTemplate.send(topicName, dto);
+            kafkaTemplate.send(topic, dto);
             log.info("dispatch event invoke and send to kafka topic");
         }catch (Exception ex){
+            log.info("error",ex);
             log.error("error in dispatch event invoke and send to kafka topic");
             //and kafka fall back method add karvi if kafka is down then we send manuallyy
         }

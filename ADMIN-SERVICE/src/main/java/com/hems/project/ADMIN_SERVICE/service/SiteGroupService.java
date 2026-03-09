@@ -1,34 +1,27 @@
-package com.hems.project.Virtual_Power_Plant.service;
+package com.hems.project.ADMIN_SERVICE.service;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import com.hems.project.Virtual_Power_Plant.dto.DispatchContext;
-import com.hems.project.Virtual_Power_Plant.dto.GroupDispatchRequestDto;
-import com.hems.project.Virtual_Power_Plant.dto.SiteDispatchRequestDto;
-import jakarta.validation.Valid;
+import com.hems.project.ADMIN_SERVICE.dto.GroupDispatchRequestDto;
+import com.hems.project.ADMIN_SERVICE.dto.SiteDispatchRequestDto;
+import com.hems.project.ADMIN_SERVICE.entity.SiteGroup;
+import com.hems.project.ADMIN_SERVICE.exception.GroupAlreadyPresentException;
+import com.hems.project.ADMIN_SERVICE.exception.ResourceNotFoundException;
+import com.hems.project.ADMIN_SERVICE.exception.SiteGroupNotFoundException;
+import com.hems.project.ADMIN_SERVICE.exception.SiteGroupStateConflictException;
+import com.hems.project.ADMIN_SERVICE.external.SiteFeignClientService;
+import com.hems.project.ADMIN_SERVICE.repository.SiteGroupRepository;
+import com.project.hems.hems_api_contracts.contract.site.SiteDto;
+import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
+import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupReqDto;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.hems.project.Virtual_Power_Plant.entity.SiteGroup;
-import com.hems.project.Virtual_Power_Plant.exception.GroupAlreadyPresentException;
-import com.hems.project.Virtual_Power_Plant.exception.ResourceNotFoundException;
-import com.hems.project.Virtual_Power_Plant.exception.SiteGroupNotFoundException;
-import com.hems.project.Virtual_Power_Plant.exception.SiteGroupStateConflictException;
-import com.hems.project.Virtual_Power_Plant.external.SiteFeignClientService;
-import com.hems.project.Virtual_Power_Plant.repository.SiteGroupRepository;
-import com.project.hems.hems_api_contracts.contract.site.SiteDto;
-import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
-import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
-import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupReqDto;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -44,7 +37,7 @@ public class SiteGroupService {
     // some point in frontend if admin is creating a new group and at the same time
     // that site got deleted then it will create a unexpedted error
     @Transactional
-    public SiteGroupDto createSiteGroup(SiteGroupReqDto siteGroupDto) {
+    public SiteGroupDto createSiteGroup(SiteGroupReqDto siteGroupDto,String token) {
 
         if (siteGroupRepository.existsByGroupName(siteGroupDto.getGroupName())) {
             throw new GroupAlreadyPresentException("unable to create group with name " + siteGroupDto.getGroupName()
@@ -52,7 +45,7 @@ public class SiteGroupService {
         }
         log.debug("createSiteGroup: no duplicate group found");
 
-        List<UUID> nonValidSites = siteFeignClientService.verifyAllSites(siteGroupDto.getSitesInGroup());
+        List<UUID> nonValidSites = siteFeignClientService.verifyAllSites(token,siteGroupDto.getSitesInGroup());
         if (!nonValidSites.isEmpty()) {
             log.error("createSiteGroup: invalid site id " + nonValidSites.get(0));
             throw new ResourceNotFoundException(
@@ -189,56 +182,20 @@ public class SiteGroupService {
     //todo:-
     //here do db call and external remote call(fegin call) so in transcational we cannot do this
     //in one place...because if we wrote
+    public void handleGroupDispatch(GroupDispatchRequestDto request,String token) {
+
+        List<UUID> validSiteIds = validateGroupDispatch(request,token);
+        log.info("handle service is done 1");
+
+        scheduleGroupDispatch(request, validSiteIds);
+        log.info("handle service is done 2");
+    }
+
     @Transactional
-    public void validateAndScheduleDispatch(GroupDispatchRequestDto request) {
+    public void scheduleGroupDispatch(
+            GroupDispatchRequestDto request,
+            List<UUID> validSiteIds) {
 
-        SiteGroup group = siteGroupRepository.findById(request.getGroupId())
-                .orElseThrow(() ->
-                        new RuntimeException("group not found"));
-
-        if (!group.isGroupStatus()) {
-            throw new RuntimeException("group is inactive");
-        }
-
-        if (request.getScheduleTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("schedule time must be after the current time "+ LocalDateTime.now());
-        }
-
-
-
-        Set<UUID> siteIds = group.getSitesInGroup();
-
-        if (siteIds.isEmpty()) {
-            throw new RuntimeException("No sites in group");
-        }
-
-
-        List<CompletableFuture<UUID>> futures = siteIds.stream()
-                .map(siteId ->
-                        CompletableFuture.supplyAsync(() -> {
-                            Boolean isAvailable =
-                                    siteFeignClientService
-                                            .checkSiteIsAvailableOtNot(siteId)
-                                            .getBody();
-
-                            return Boolean.TRUE.equals(isAvailable) ? siteId : null;
-                        })
-                )
-                .toList();
-
-        List<UUID> validSiteIds = futures.stream()
-                .map(CompletableFuture::join)
-                .filter(Objects::nonNull)
-                .toList();
-
-        //todo:-
-        //e particular site jode power che ke nai e pan run time per check karvu padse
-//        if (totalAvailablePower < request.getPowerToExtract()) {
-//            throw new RuntimeException("not enough power available in group");
-//        }
-
-       // List<UUID> siteId, UUID eventId, DispatchMode mode, Integer targetPower,Integer targetSoc
-        //set dispatch scheduler
         quartzService.scheduleDispatchEvent(
                 validSiteIds,
                 UUID.randomUUID(),
@@ -249,32 +206,67 @@ public class SiteGroupService {
         );
     }
 
-    @Transactional
-    //todo:-
-    //transacation ek db connection open kare and in that we network call fieg client..
-    //so change karvu ene
-    public void validateSiteAndScheduleDispatch(@Valid SiteDispatchRequestDto request) {
+    public List<UUID> validateGroupDispatch(GroupDispatchRequestDto request,String token) {
 
-        final ResponseEntity<Boolean> response = siteFeignClientService.checkSiteIsAvailableOtNot(request.getSiteId());
+        SiteGroup group = siteGroupRepository.findById(request.getGroupId())
+                .orElseThrow(() -> new RuntimeException("group not found"));
 
-        //check site is
-        Boolean isAvailable = response.getBody();
-
-        if (Boolean.FALSE.equals(isAvailable)) {
-            log.info("site is not available");
+        if (!group.isGroupStatus()) {
+            throw new RuntimeException("group is inactive");
         }
 
         if (request.getScheduleTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("schedule time must be after the current time "+ LocalDateTime.now());
+            throw new RuntimeException("schedule time must be future");
         }
 
-        //todo:-
-        //e particular site jode power che ke nai e pan run time per check karvu padse
-//        if (totalAvailablePower < request.getPowerToExtract()) {
-//            throw new RuntimeException("not enough power available in group");
-//        }
+        Set<UUID> siteIds = group.getSitesInGroup();
 
-        //set dispatch scheduler
+        if (siteIds.isEmpty()) {
+            throw new RuntimeException("no sites in group");
+        }
+
+        List<CompletableFuture<UUID>> futures = siteIds.stream()
+                .map(siteId ->
+                        CompletableFuture.supplyAsync(() -> {
+                            Boolean available =
+                                    siteFeignClientService
+                                            .checkSiteIsAvailableOtNot(token,siteId)
+                                            .getBody();
+
+                            return Boolean.TRUE.equals(available) ? siteId : null;
+                        })
+                )
+                .toList();
+
+        List<UUID> validSiteIds = futures.stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (validSiteIds.isEmpty()) {
+            throw new RuntimeException("no eligible sites found");
+        }
+
+        return validSiteIds;
+    }
+
+    public void validateSiteDispatch(SiteDispatchRequestDto request,String token) {
+
+        if (request.getScheduleTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("schedule time must be future");
+        }
+
+        ResponseEntity<Boolean> response =
+                siteFeignClientService
+                        .checkSiteIsAvailableOtNot(token,request.getSiteId());
+
+        if (!Boolean.TRUE.equals(response.getBody())) {
+            throw new RuntimeException("site not available");
+        }
+    }
+    @Transactional
+    public void scheduleSiteDispatch(SiteDispatchRequestDto request) {
+
         quartzService.scheduleDispatchEvent(
                 List.of(request.getSiteId()),
                 UUID.randomUUID(),
@@ -283,5 +275,11 @@ public class SiteGroupService {
                 request.getTargetSoc(),
                 request.getScheduleTime()
         );
+    }
+
+    public void handleSiteDispatch(SiteDispatchRequestDto request,String token) {
+
+        validateSiteDispatch(request,token);
+        scheduleSiteDispatch(request);
     }
 }

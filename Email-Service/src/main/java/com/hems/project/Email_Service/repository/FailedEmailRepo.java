@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface FailedEmailRepo extends JpaRepository<FailedEmail, UUID> {
+public interface FailedEmailRepo extends JpaRepository<FailedEmail, Long> {
 }

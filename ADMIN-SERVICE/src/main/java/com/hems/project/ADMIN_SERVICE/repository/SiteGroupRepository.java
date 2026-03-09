@@ -1,10 +1,10 @@
-package com.hems.project.Virtual_Power_Plant.repository;
+package com.hems.project.ADMIN_SERVICE.repository;
 
-import java.util.UUID;
 
+import com.hems.project.ADMIN_SERVICE.entity.SiteGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.hems.project.Virtual_Power_Plant.entity.SiteGroup;
+import java.util.UUID;
 
 public interface SiteGroupRepository extends JpaRepository<SiteGroup, UUID> {
     boolean existsByGroupName(String groupName);

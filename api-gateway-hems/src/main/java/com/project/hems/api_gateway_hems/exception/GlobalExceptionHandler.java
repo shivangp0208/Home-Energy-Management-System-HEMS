@@ -1,4 +1,4 @@
-package com.project.hems.SiteManagerService.exception;
+package com.project.hems.api_gateway_hems.exception;
 
 import com.project.hems.api_gateway_hems.dto.ExceptionDto;
 import com.project.hems.api_gateway_hems.exception.*;

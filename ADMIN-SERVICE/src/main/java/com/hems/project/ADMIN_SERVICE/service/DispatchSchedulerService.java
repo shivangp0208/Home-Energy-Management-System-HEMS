@@ -1,8 +1,7 @@
-package com.hems.project.Virtual_Power_Plant.service;
+package com.hems.project.ADMIN_SERVICE.service;
 
-import com.hems.project.Virtual_Power_Plant.entity.DispatchEvent;
-import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
-
+import com.hems.project.ADMIN_SERVICE.dto.DispatchMode;
+import com.hems.project.ADMIN_SERVICE.entity.DispatchEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -21,7 +20,7 @@ public class DispatchSchedulerService {
 
     private final Scheduler scheduler;
 
-    public void scheduleDispatchEvent(List<UUID> siteId, UUID eventId, DispatchMode mode, Long targetPower,Integer targetSoc,LocalDateTime scheduledTime) {
+    public void scheduleDispatchEvent(List<UUID> siteId, UUID eventId, DispatchMode mode, Long targetPower, Integer targetSoc, LocalDateTime scheduledTime) {
 
 
         JobDetail jobDetail = buildJobDetail(siteId,eventId,mode,targetPower,targetSoc);

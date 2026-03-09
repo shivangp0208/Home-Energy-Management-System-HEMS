@@ -10,7 +10,7 @@ import com.hems.project.Virtual_Power_Plant.service.SupabaseStorageService;
 import com.hems.project.Virtual_Power_Plant.service.VppDocumentService;
 import com.project.hems.hems_api_contracts.contract.email.AttachmentDto;
 import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
-import com.project.hems.hems_api_contracts.contract.dispatch.DispatchEvent;
+import com.project.hems.hems_api_contracts.contract.vpp.DispatchEventDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SignalForImport;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,8 +58,6 @@ public class VppController {
     private final VppDocumentService vppDocumentService;
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${jills.patel}")
-    public String role;
 
     @Operation(summary = "send signal to import power", description = "receives a request to import power from a specific region and forwards the signal to the VPP service for processing.")
     @PostMapping("/send-requirement")
@@ -69,20 +67,15 @@ public class VppController {
         return "send import details to vpp service";
     }
 
-    // TODO:-
-    // jyare user signup and login thayy with role vpp then we make emtpy vpp entity
-    // and
-    // then ene dashboard mathi fill karvsu later ene jyare fill karvi hoy detail
-    // and when vpp detail fill kare like location,location photo and all then we
-    // put this into ai
-    // and then we like send this to vpp manager.. and e verify karse
+    //TODO:-
+    //jyare user signup and login thayy with role vpp then we make emtpy vpp entity and 
+    //then ene dashboard mathi fill karvsu later ene jyare fill karvi hoy detail
+    //and when vpp detail fill kare like location,location photo and all then we put this into ai 
+    //and then we like send this to vpp manager.. and e verify karse 
 
-    @GetMapping("/bus")
-    public void check() {
-        System.out.println("keyyyy is " + role);
-    }
 
-    // find vpp by vppID
+
+    //find vpp by vppID
     @GetMapping("/{vppId}")
     public ResponseEntity<Vpp> fetchVpp(@PathVariable UUID vppId) {
         Vpp vpp = vppService.fetchVpp(vppId);
@@ -268,7 +261,7 @@ public class VppController {
     }
 
     @PostMapping("/create-dispatch-event/{groupId}")
-    public DispatchEvent createDispatchEvent(@RequestBody DispatchEvent dispatchEvent) {
+    public DispatchEventDto createDispatchEvent(@RequestBody DispatchEventDto dispatchEvent) {
 
         return dispatchEvent;
     }

@@ -1,34 +1,20 @@
-package com.hems.project.Virtual_Power_Plant.controller;
+package com.hems.project.ADMIN_SERVICE.controller;
 
-import com.hems.project.Virtual_Power_Plant.dto.GroupDispatchRequestDto;
-import com.hems.project.Virtual_Power_Plant.dto.SiteDispatchRequestDto;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.hems.project.Virtual_Power_Plant.external.SiteFeignClientService;
-import com.hems.project.Virtual_Power_Plant.service.SiteGroupService;
-import com.project.hems.hems_api_contracts.contract.site.SiteDto;
+import com.hems.project.ADMIN_SERVICE.dto.GroupDispatchRequestDto;
+import com.hems.project.ADMIN_SERVICE.dto.SiteDispatchRequestDto;
+import com.hems.project.ADMIN_SERVICE.external.SiteFeignClientService;
+import com.hems.project.ADMIN_SERVICE.service.SiteGroupService;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SiteGroupReqDto;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -44,10 +30,11 @@ public class SiteGroupController {
     // creating from the token we can know who created this group
     @PostMapping("/create-site-group")
     public SiteGroupDto createSiteGroup(
+            @RequestHeader("Authorization") String token,
             @RequestBody @Valid SiteGroupReqDto siteGroup,
             @RequestParam(name = "includeSites", required = false, defaultValue = "false") boolean includeSites) {
         log.info("POST req to create a site group ");
-        return siteGroupService.createSiteGroup(siteGroup);
+        return siteGroupService.createSiteGroup(siteGroup,token);
     }
 
     @GetMapping("groups/{groupId}")
@@ -110,17 +97,19 @@ public class SiteGroupController {
 
     @PostMapping("/dispatch-power-group")
     public ResponseEntity<?> dispatchPowerFromGroup(
+            @RequestHeader("Authorization") String token,
             @RequestBody @Valid GroupDispatchRequestDto request) {
 
-        siteGroupService.validateAndScheduleDispatch(request);
+        siteGroupService.handleGroupDispatch(request,token);
         return ResponseEntity.ok("dispatch scheduled successfully");
     }
 
     @PostMapping("/dispatch-power-site")
     public ResponseEntity<?> dispatchPowerFromSite(
+            @RequestHeader("Authorization") String token,
             @RequestBody @Valid SiteDispatchRequestDto request) {
 
-        siteGroupService.validateSiteAndScheduleDispatch(request);
+        siteGroupService.handleSiteDispatch(request,token);
         return ResponseEntity.ok("dispatch scheduled successfully");
     }
 
