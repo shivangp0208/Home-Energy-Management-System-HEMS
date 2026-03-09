@@ -16,14 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "meter controller", description = "endpoints to manage and monitor meters")
 @Tag(name = "meter controller")
@@ -62,7 +58,7 @@ public class MeterController {
     @ApiResponse(responseCode = "201", description = "meter activated successfully")
     @PostMapping("/activate-meter/{siteId}")
     public ResponseEntity<MeterSnapshot> activateMeterData(@PathVariable(name = "siteId", required = true) UUID siteId,
-            @RequestBody Double batteryCapacity) {
+                                                           @RequestBody Double batteryCapacity) {
         log.info("activateMeterData: POST req for activate meter: {}", siteId, batteryCapacity);
         MeterSnapshot savedMeter = meterManagementService.activateMeter(siteId, batteryCapacity);
 
@@ -76,6 +72,13 @@ public class MeterController {
         log.info("applyDispatch: POST req for applying dispatch command received from envoy " + activeControls);
         meterManagementService.applyControl(activeControls);
         return new ResponseEntity<>(activeControls, HttpStatus.ACCEPTED);
+    }
+
+    @PutMapping("/remove-command/{siteId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeDispatchCommand(@PathVariable(name = "siteId", required = true) UUID siteId) {
+        log.info("PUT req to end the dispatch event for siteId {}", siteId);
+        meterManagementService.removeControl(siteId);
     }
 
 }
