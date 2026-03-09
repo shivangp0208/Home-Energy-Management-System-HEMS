@@ -1,5 +1,6 @@
 package com.project.hems.simulator_service.service;
 
+import com.project.hems.hems_api_contracts.contract.envoy.ActiveControlState;
 import com.project.hems.hems_api_contracts.contract.simulator.BatteryMode;
 import com.project.hems.hems_api_contracts.contract.simulator.ChargingStatus;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class MeterManagementService {
     private final Map<UUID, MeterSnapshot> meterReadings;
     private final MeterRepository meterRepository;
     private final ModelMapper mapper;
+    private final DeviceCommandStore deviceCommandStore;
 
     // 1. Create / Activate a meter (Persist to DB + Cache to Bean Map)
     @Transactional
@@ -43,7 +46,7 @@ public class MeterManagementService {
                 // Initial Logic States
                 .loadEnergyPriorities(DeviceCommandStore.loadEnergyPriorities)
                 .surplusEnergyPriorities(DeviceCommandStore.surplusEnergyPriorities)
-                
+
                 .batterySoc(50)
                 .batteryMode(BatteryMode.AUTO)
                 .chargingStatus(ChargingStatus.IDLE)
@@ -144,6 +147,28 @@ public class MeterManagementService {
         });
 
         log.info("getValuesFromDB: Bean Map cache successfully repopulated from database");
+    }
+
+    public void applyControl(Map<UUID, ActiveControlState> activeControls) {
+        log.debug("applyControl: applying active control state");
+        ConcurrentHashMap<UUID, DeviceCommandStore.DeviceState> deviceStates = deviceCommandStore.getActiveControls();
+        deviceStates.clear();
+        log.debug("applyControl: cleared the active control state");
+        for (Map.Entry<UUID, ActiveControlState> entry : activeControls.entrySet()) {
+
+            DeviceCommandStore.DeviceState deviceState = new DeviceCommandStore.DeviceState();
+            deviceState.setMode(entry.getValue().getMode());
+            deviceState.setTargetPowerW(entry.getValue().getTargetPowerW());
+            deviceState.setTargetSoc(entry.getValue().getTargetSoc());
+            deviceState.setBatteryControl(entry.getValue().getBatteryControl());
+            deviceState.setGridControl(entry.getValue().getGridControl());
+            deviceState.setLoadEnergyPriorities(entry.getValue().getLoadEnergyPriorities());
+            deviceState.setSurplusEnergyPriorities(entry.getValue().getSurplusEnergyPriorities());
+
+            deviceStates.put(entry.getKey(), deviceState);
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+        log.debug("applyControl: device states successfully repopulated from command");
     }
 
 }

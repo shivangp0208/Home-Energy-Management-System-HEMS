@@ -5,8 +5,8 @@ spring:
     import: "optional:configserver:http://localhost:8095"
 
 
-#threadCount?? because if we have 3 schedule run at same time then we dont block so we use thread count 5
-#so each run on diff state so on time mail send successfully
+  #threadCount?? because if we have 3 schedule run at same time then we dont block so we use thread count 5
+  #so each run on diff state so on time mail send successfully
   quartz:
     job-store-type: jdbc
     jdbc:

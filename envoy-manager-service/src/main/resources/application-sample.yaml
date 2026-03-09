@@ -2,30 +2,35 @@ spring:
   application:
     name: envoy-manager-service
 
+  cloud:
+    config:
+      import-check:
+        enabled: false
+
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: not declosed
+          issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
           scope:
             - email
-      
+
       client:
         registration:
           auth0:
-            client-id: not declosed
-            client-secret: not declosed-mHLXuiyS
+            client-id:
+            client-secret:
             authorization-grant-type: client_credentials
 
         provider:
           auth0:
-            token-uri: not declosed
-            issuer-uri: not declosed
+            token-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/oauth/token
+            issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
 
   datasource:
     url: jdbc:mysql://localhost:3306/envoy_service
-    username: not declosed
-    password: not declosed
+    username:
+    password:
 
   jpa:
     hibernate:
@@ -36,13 +41,13 @@ spring:
     producer:
       acks: 1
       bootstrap-servers:
-      - localhost:9092
+        - localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer  
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
     consumer:
       bootstrap-servers:
-      - localhost:9092
+        - localhost:9092
       auto-offset-reset: earliest
 
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
@@ -56,8 +61,20 @@ spring:
       # Ensure the package is trusted
       spring.json.trusted.packages: "com.project.hems.*"
 
-  config:
-    import: optional:configserver:http://localhost:8095
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username:
+    password:
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8091/eureka
 
 server:
   port: 8083
@@ -71,14 +88,14 @@ property:
           registration_id: auth0
     meter-history:
       batch_size: 60
-    kafka: 
+    kafka:
       raw-energy-group-id: raw-energy-readers
       raw-energy-topic: RAW_ENERGY_READINGS
       raw-energy-partition-count: 3
 
-      dispatch-energy-group-id: dispatch-command-readers
-      dispatch-energy-topic: ENERGY_DISPATCH_COMMANDS
-      dispatch-energy-partition-count: 1
+      dispatch-command-group-id: dispatch-command-readers
+      dispatch-command-topic: ENERGY_DISPATCH_COMMANDS
+      dispatch-command-partition-count: 1
 
       site-creation-group-id: site-creation-readers
       site-creation-topic: SITE_CREATION_DETAILS
