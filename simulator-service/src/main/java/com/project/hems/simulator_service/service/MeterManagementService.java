@@ -166,9 +166,15 @@ public class MeterManagementService {
             deviceState.setSurplusEnergyPriorities(entry.getValue().getSurplusEnergyPriorities());
 
             deviceStates.put(entry.getKey(), deviceState);
-            System.out.println(entry.getKey()+" : "+entry.getValue());
+            System.out.println(entry.getKey() + " : " + entry.getValue());
         }
         log.debug("applyControl: device states successfully repopulated from command");
+    }
+
+    public void removeControl(UUID siteId) {
+        log.debug("removeControl: removing active control state for siteId={}", siteId);
+        DeviceCommandStore.DeviceState removed = deviceCommandStore.getActiveControls().remove(siteId);
+        log.debug("removeControl: device state successfully removed from command {}", removed.toString());
     }
 
 }

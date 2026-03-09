@@ -1,12 +1,18 @@
 package com.project.hems.envoy_manager_service.service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import com.netflix.discovery.converters.Auto;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.project.hems.envoy_manager_service.exception.DuplicateCommandException;
@@ -22,10 +28,18 @@ public class ActiveControlStore {
 
     // siteId -> active control
     private final ConcurrentHashMap<UUID, ActiveControlState> activeControls = new ConcurrentHashMap<>();
+    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     public static final List<EnergyPriority> loadEnergyPriorities = List.of(EnergyPriority.SOLAR, EnergyPriority.GRID,
             EnergyPriority.BATTERY);
     public static final List<EnergyPriority> surplusEnergyPriorities = List.of(EnergyPriority.BATTERY,
             EnergyPriority.GRID);
+
+    private final SimulatorFeignClientService simulatorFeignClientService;
+
+    @Autowired
+    public ActiveControlStore(SimulatorFeignClientService simulatorFeignClientService) {
+        this.simulatorFeignClientService = simulatorFeignClientService;
+    }
 
     public void applyDispatch(UUID siteId, ActiveControlState control) {
         log.info("applyDispatch: applying dispatch command " + control + " for siteId " + siteId);
@@ -45,6 +59,28 @@ public class ActiveControlStore {
             log.debug("applyDispatch: clean active control state for siteId " + siteId);
         }
         activeControls.put(siteId, control);
+
+        if (control.getValidUntil() != null) {
+            long delay = Duration.between(control.getValidUntil(), Instant.now()).toMillis();
+
+            scheduledExecutorService.schedule(() -> {
+                handleInactive(siteId);
+            }, delay, TimeUnit.MINUTES);
+        }
+    }
+
+    private void handleInactive(UUID siteId) {
+        ActiveControlState state = activeControls.get(siteId);
+
+        if (state != null && !state.isActive(Instant.now())) {
+            activeControls.remove(siteId);
+            onSiteDispatchEnded(siteId);
+        }
+    }
+
+    private void onSiteDispatchEnded(UUID siteId) {
+        log.debug("onSiteDispatchEnded: dispatch event ended for siteId " + siteId);
+        simulatorFeignClientService.removeDispatchCommand(siteId);
     }
 
     public Optional<ActiveControlState> getActiveControl(UUID siteId) {
