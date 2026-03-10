@@ -237,6 +237,13 @@ public class SiteServiceImpl implements SiteService {
                 }
         }
 
+        @Override
+        public List<UUID> fetchAllSiteIds() {
+                List<Site> all = siteRepo.findAll();
+                 List<UUID> list = all.stream().map(sites -> sites.getSiteId()).toList();
+                return list;
+        }
+
         public Set<SiteDto> getAllSiteFromBatch(List<UUID> siteIds, boolean includeProgram) {
                 Set<SiteDto> resultSites = new HashSet<>();
                 for (UUID id : siteIds) {

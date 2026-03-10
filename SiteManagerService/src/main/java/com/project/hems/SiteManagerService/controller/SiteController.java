@@ -285,4 +285,10 @@ public class SiteController {
         return siteService.getAllSiteFromBatch(siteIds, includeProgram);
     }
 
+    @GetMapping("/fetch-all-site-id")
+    public List<UUID> getAllSiteDetail(){
+        final List<UUID> uuids = siteService.fetchAllSiteIds();
+        return uuids;
+    }
+
 }

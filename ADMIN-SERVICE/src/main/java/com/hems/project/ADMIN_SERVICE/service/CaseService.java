@@ -405,4 +405,8 @@ public class CaseService {
 
         return String.format("CASE-%06d", nextVal);
     }
+    @Transactional
+    public void addEvent(CaseEvent event){
+        caseEventRepository.save(event);
+    }
 }

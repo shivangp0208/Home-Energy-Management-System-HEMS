@@ -33,7 +33,7 @@ public class CaseController {
         return new ResponseEntity<>(caseManully, HttpStatus.OK);
     }
 
-    //current check ticket status
+    //current check case status
     @GetMapping("/{caseId}/status")
     public ResponseEntity<CaseStatus> getCaseStatus(@PathVariable UUID caseId) {
         return ResponseEntity.ok(caseService.getCaseStatus(caseId));
@@ -99,8 +99,7 @@ public class CaseController {
     ) {
         return ResponseEntity.ok(caseService.closeCase(caseId, req));
     }
-
-    @GetMapping("/all")
+    @GetMapping("/all-with-pagging")
     public ResponseEntity<Page<CaseCreatedResponseDto>> list(
             @RequestParam(required = false) CaseStatus status,
             @RequestParam(required = false) CasePriority priority,
@@ -113,20 +112,20 @@ public class CaseController {
     }
 
 
-    @GetMapping("/search")
-    public ResponseEntity<Page<CaseCreatedResponseDto>> search(
-            @RequestParam(required = false) String caseNumber,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String assignedTo,
-            @RequestParam(required = false) UUID siteId,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
-            Pageable pageable
-    ) {
-        return ResponseEntity.ok(caseService.search(caseNumber, title, assignedTo, siteId, from, to, pageable));
-    }
+//    @GetMapping("/search")
+//    public ResponseEntity<Page<CaseCreatedResponseDto>> search(
+//            @RequestParam(required = false) String caseNumber,
+//            @RequestParam(required = false) String title,
+//            @RequestParam(required = false) String assignedTo,
+//            @RequestParam(required = false) UUID siteId,
+//            @RequestParam(required = false)
+//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+//            @RequestParam(required = false)
+//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+//            Pageable pageable
+//    ) {
+//        return ResponseEntity.ok(caseService.search(caseNumber, title, assignedTo, siteId, from, to, pageable));
+//    }
 
     @GetMapping("/my-cases")
     public ResponseEntity<Page<CaseCreatedResponseDto>> myCases(

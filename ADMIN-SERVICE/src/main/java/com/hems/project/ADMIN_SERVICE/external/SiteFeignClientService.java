@@ -46,4 +46,9 @@ public interface SiteFeignClientService {
         public Set<SiteDto> getAllSiteDetail(
                 @RequestBody Set<UUID> siteIds,
                         @RequestParam(name = "includeProgram", required = false, defaultValue = "false") boolean includeProgram);
+
+
+        @GetMapping("/fetch-all-site-id")
+        public List<UUID> getAllSiteDetail();
+
 }

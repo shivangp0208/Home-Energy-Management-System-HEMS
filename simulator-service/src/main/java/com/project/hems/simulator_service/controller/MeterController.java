@@ -61,7 +61,6 @@ public class MeterController {
                                                            @RequestBody Double batteryCapacity) {
         log.info("activateMeterData: POST req for activate meter: {}", siteId, batteryCapacity);
         MeterSnapshot savedMeter = meterManagementService.activateMeter(siteId, batteryCapacity);
-
         return new ResponseEntity<>(savedMeter, HttpStatus.CREATED);
     }
 
