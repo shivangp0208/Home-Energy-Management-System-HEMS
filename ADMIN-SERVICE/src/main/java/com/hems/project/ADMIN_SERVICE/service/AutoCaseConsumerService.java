@@ -33,13 +33,18 @@ public class AutoCaseConsumerService {
     @Scheduled(fixedRate = 60000)
     public void checkHeartbeats(){
 
-        List<UUID> allSiteDetail = siteFeignClientService.getAllSiteDetail();
+
+        List<UUID> allSiteDetail = siteFeignClientService.getAllSiteIdByMeterStatus(true);
+        log.info("all site id is {} ",allSiteDetail);
+
          List<String> list = allSiteDetail.stream().map(siteIds -> siteIds.toString()).toList();
         Set<String> aliveSites = redisTemplate.opsForSet().members("alive_sites");
+        boolean allAlive = true;
 
         for(String site : list){
 
             if(aliveSites == null || !aliveSites.contains(site)){
+                allAlive = false;
 
                 log.warn("Heartbeat missing for site {}", site);
 
@@ -88,36 +93,19 @@ public class AutoCaseConsumerService {
                 log.info("Case automatically created for site {}", site);
             }
         }
+        if (allAlive) {
+            log.info("All activated meters are sending heartbeat");
+        }
 
         redisTemplate.delete("alive_sites");
-    }
-
-    @Scheduled(fixedRate = 30000)
-    public void simulateHeartbeat(){
-
-        List<SiteDto> sites = siteFeignClientService.getAllSites(false).getBody();
-
-        if (sites == null) return;
-
-        for (SiteDto site : sites) {
-
-            UUID siteId = site.getSiteId();
-
-            boolean heartbeat = random.nextInt(100) < 80;
-
-            redisTemplate.opsForValue()
-                    .set(siteId.toString(), String.valueOf(heartbeat));
-
-            log.info("Simulated heartbeat for site {} -> {}", siteId, heartbeat);
-        }
     }
 
 }
 
 /*
+redis format
 KEY
 alive_sites  -> SET
-
         VALUES
 --------------------------------
         "11111111-1111-1111-1111-111111111111"

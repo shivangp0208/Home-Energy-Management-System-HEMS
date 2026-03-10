@@ -1,7 +1,7 @@
 package com.hems.project.ADMIN_SERVICE.service;
 
-import com.hems.project.ADMIN_SERVICE.dto.DispatchMode;
 import com.hems.project.ADMIN_SERVICE.entity.DispatchEvent;
+import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;

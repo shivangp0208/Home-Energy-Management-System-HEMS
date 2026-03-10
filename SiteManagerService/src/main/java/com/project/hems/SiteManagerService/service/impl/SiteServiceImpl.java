@@ -68,6 +68,7 @@ public class SiteServiceImpl implements SiteService {
                 log.debug("createSite: after mapping site dto to entity = {}", siteEnity);
 
                 siteEnity.setOwner(owner);
+                siteEnity.setHasMeterActivated(false);
                 siteEnity.getOwner().getSites().add(siteEnity);
                 siteEnity.getSolar().forEach(solarEn -> solarEn.setSite(siteEnity));
                 siteEnity.getAddress().setSite(siteEnity);
@@ -257,4 +258,15 @@ public class SiteServiceImpl implements SiteService {
                 return resultSites;
         }
 
+        public void updateMeterStatus(UUID siteId) {
+                Site site = siteRepo.findById(siteId)
+                        .orElseThrow(() -> new RuntimeException("site not found for this id"));
+
+                site.setHasMeterActivated(true);
+                siteRepo.save(site);
+        }
+
+        public List<UUID> findAllSiteIdByMeterStatus(boolean flag) {
+                return siteRepo.findAllSiteIdsByHasMeterActivated(flag);
+        }
 }

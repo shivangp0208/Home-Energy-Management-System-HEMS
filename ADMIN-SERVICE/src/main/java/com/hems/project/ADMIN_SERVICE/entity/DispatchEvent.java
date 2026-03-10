@@ -34,7 +34,7 @@ public class DispatchEvent extends QuartzJobBean {
         UUID eventId = UUID.fromString(dataMap.getString("eventId"));
         UUID programId = UUID.fromString(dataMap.getString("programId"));
 
-        DispatchContext mode = DispatchMode.valueOf(
+        DispatchMode mode = DispatchMode.valueOf(
                 dataMap.getString("eventMode"));
 
         Long targetPower = dataMap.getLong("targetPowerW");

@@ -286,9 +286,24 @@ public class SiteController {
     }
 
     @GetMapping("/fetch-all-site-id")
-    public List<UUID> getAllSiteDetail(){
+    public List<UUID> getAllSiteIds(){
         final List<UUID> uuids = siteService.fetchAllSiteIds();
         return uuids;
     }
+
+    @PutMapping("/update-meter-status/{siteId}")
+    public ResponseEntity<String> updateMeterStatus(@PathVariable("siteId") UUID siteId) {
+        siteService.updateMeterStatus(siteId);
+        return ResponseEntity.ok("meter status successfully updated");
+    }
+
+    @GetMapping("/get-all-siteId-by-meter-status")
+    public ResponseEntity<List<UUID>> getAllSiteIdByMeterStatus(
+            @RequestParam(name = "flag", required = false, defaultValue = "true") boolean flag) {
+
+        List<UUID> allSiteIdByMeterStatus = siteService.findAllSiteIdByMeterStatus(flag);
+        return ResponseEntity.ok(allSiteIdByMeterStatus);
+    }
+
 
 }
