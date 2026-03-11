@@ -5,6 +5,7 @@ import com.project.hems.hems_api_contracts.contract.simulator.BatteryMode;
 import com.project.hems.hems_api_contracts.contract.simulator.ChargingStatus;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 import com.project.hems.simulator_service.domain.MeterEntity;
+import com.project.hems.simulator_service.external.SiteFeignClientService;
 import com.project.hems.simulator_service.model.DeviceCommandStore;
 import com.project.hems.simulator_service.repository.MeterRepository;
 import jakarta.transaction.Transactional;
@@ -27,6 +28,7 @@ public class MeterManagementService {
     private final MeterRepository meterRepository;
     private final ModelMapper mapper;
     private final DeviceCommandStore deviceCommandStore;
+    private final SiteFeignClientService siteFeignClientService;
 
     // 1. Create / Activate a meter (Persist to DB + Cache to Bean Map)
     @Transactional
@@ -81,6 +83,10 @@ public class MeterManagementService {
         meterReadings.put(siteId, snapshot);
 
         log.info("activateMeter: meter snapshot cached in Bean Map for siteId={} with TTL=10s", siteId);
+        //and also call the site service so in site raw we ture flag hasMeterStart=true we set that
+        siteFeignClientService.updateMeterStatus(siteId);
+        log.info("meter successfully updated");
+
         return snapshot;
     }
 

@@ -35,4 +35,6 @@ public interface SiteRepo extends JpaRepository<Site, UUID> {
             """)
     public List<Site> findAllSitesByEnrollProgramIds(@Param("programId") UUID programId);
 
+    @Query("select s.siteId from Site s where s.hasMeterActivated = :hasMeterActivated")
+    List<UUID> findAllSiteIdsByHasMeterActivated(boolean hasMeterActivated);
 }

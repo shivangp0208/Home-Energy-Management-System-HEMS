@@ -49,4 +49,6 @@ public class Site {
     @Column(name = "program_id")
     private List<UUID> enrollProgramIds = new ArrayList<>();
 
+    private boolean hasMeterActivated;
+
 }

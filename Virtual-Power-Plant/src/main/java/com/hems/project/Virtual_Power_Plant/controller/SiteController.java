@@ -99,7 +99,7 @@ public class SiteController {
 //         return new ResponseEntity<>(collection, HttpStatus.OK);
 //     }
 
-    @PostMapping("/check/{siteId}")
+    @GetMapping("/check/{siteId}")
      public ResponseEntity<Boolean> createCollection(
              @PathVariable("siteId") UUID siteId
      ) {

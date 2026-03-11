@@ -68,6 +68,7 @@ public class SiteServiceImpl implements SiteService {
                 log.debug("createSite: after mapping site dto to entity = {}", siteEnity);
 
                 siteEnity.setOwner(owner);
+                siteEnity.setHasMeterActivated(false);
                 siteEnity.getOwner().getSites().add(siteEnity);
                 siteEnity.getSolar().forEach(solarEn -> solarEn.setSite(siteEnity));
                 siteEnity.getAddress().setSite(siteEnity);
@@ -237,6 +238,13 @@ public class SiteServiceImpl implements SiteService {
                 }
         }
 
+        @Override
+        public List<UUID> fetchAllSiteIds() {
+                List<Site> all = siteRepo.findAll();
+                 List<UUID> list = all.stream().map(sites -> sites.getSiteId()).toList();
+                return list;
+        }
+
         public Set<SiteDto> getAllSiteFromBatch(List<UUID> siteIds, boolean includeProgram) {
                 Set<SiteDto> resultSites = new HashSet<>();
                 for (UUID id : siteIds) {
@@ -250,4 +258,15 @@ public class SiteServiceImpl implements SiteService {
                 return resultSites;
         }
 
+        public void updateMeterStatus(UUID siteId) {
+                Site site = siteRepo.findById(siteId)
+                        .orElseThrow(() -> new RuntimeException("site not found for this id"));
+
+                site.setHasMeterActivated(true);
+                siteRepo.save(site);
+        }
+
+        public List<UUID> findAllSiteIdByMeterStatus(boolean flag) {
+                return siteRepo.findAllSiteIdsByHasMeterActivated(flag);
+        }
 }

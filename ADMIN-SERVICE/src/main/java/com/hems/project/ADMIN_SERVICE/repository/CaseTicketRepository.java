@@ -38,4 +38,8 @@ public interface CaseTicketRepository extends JpaRepository<CaseTicket, UUID> {
 
     Page<CaseTicket> findByTitleContainingIgnoreCase(String title, Pageable pageable);
     Page<CaseTicket> findByAssignedToContainingIgnoreCase(String assignedTo, Pageable pageable);
-}
+    boolean existsBySiteIdAndStatusIn(UUID siteId, List<CaseStatus> statuses);
+    Optional<CaseTicket> findFirstBySiteIdAndStatusIn(
+            UUID siteId,
+            List<CaseStatus> statuses
+    );}

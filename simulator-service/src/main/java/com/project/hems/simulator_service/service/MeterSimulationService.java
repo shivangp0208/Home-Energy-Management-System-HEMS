@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class MeterSimulationService {
     private final EnergyPhysicsEngine energyPhysicsEngine;
     private final EnvironmentSimulator environmentSimulator;
     private final DeviceCommandStore deviceCommandStore;
+    private final RedisTemplate<String,String> redisTemplate;
 
     private String rawEnergyTopic;
 
@@ -113,6 +115,10 @@ public class MeterSimulationService {
             log.debug("simulateLiveReadings: publishing meter snapshot to Kafka topic={}", rawEnergyTopic);
 
             kafkaTemplate.send(rawEnergyTopic, meter);
+            //save heartbeat to redis
+            redisTemplate.opsForSet().add("alive_sites", siteId.toString());
+            log.info("heartbeat marked alive for site {}", siteId);
+
 
             log.info("simulateLiveReadings: published snapshot siteId={} meterId={} timestamp={}", siteId, meter.getMeterId(), meter.getTimestamp());
 

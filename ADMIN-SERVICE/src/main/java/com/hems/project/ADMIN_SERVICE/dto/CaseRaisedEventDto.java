@@ -13,7 +13,6 @@ import lombok.Data;
 @Builder
 public class CaseRaisedEventDto{
     // messaging metadata
-    @NotBlank String eventId;       // unique id for this message (UUID string)
     @NotBlank String dedupeKey;        // e.g. "OFFLINE:SITE:<siteId>" or "FAILED_CMD:DISPATCH:<dispatchId>"
     @NotNull LocalDateTime occurredAt; // when detected in source service
 
