@@ -32,7 +32,6 @@ public class ActiveControlState {
     private List<EnergyPriority> loadEnergyPriorities;
     private List<EnergyPriority> surplusEnergyPriorities;
 
-//    TODO: change this into LocalDateTime for handling long dispatch command validity
     private Instant validUntil;
 
     public boolean isActive(Instant now) {

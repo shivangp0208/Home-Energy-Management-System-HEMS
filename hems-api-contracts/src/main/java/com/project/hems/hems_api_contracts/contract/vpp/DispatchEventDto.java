@@ -36,7 +36,7 @@ public class DispatchEventDto {
 
     @NotNull(message = "Duration cannot be null")
     @Min(value = 1, message = "Event must run for at least 1 minute")
-    private Integer durationMinutes;
+    private Long durationMinutes;
 
     // If this is the payload sent to the Dispatch Service, it MUST contain the list
     // of sites.

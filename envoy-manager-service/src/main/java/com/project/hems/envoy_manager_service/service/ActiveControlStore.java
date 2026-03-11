@@ -28,7 +28,7 @@ public class ActiveControlStore {
 
     // siteId -> active control
     private final ConcurrentHashMap<UUID, ActiveControlState> activeControls = new ConcurrentHashMap<>();
-    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(5);
     public static final List<EnergyPriority> loadEnergyPriorities = List.of(EnergyPriority.SOLAR, EnergyPriority.GRID,
             EnergyPriority.BATTERY);
     public static final List<EnergyPriority> surplusEnergyPriorities = List.of(EnergyPriority.BATTERY,
@@ -36,7 +36,6 @@ public class ActiveControlStore {
 
     private final SimulatorFeignClientService simulatorFeignClientService;
 
-    @Autowired
     public ActiveControlStore(SimulatorFeignClientService simulatorFeignClientService) {
         this.simulatorFeignClientService = simulatorFeignClientService;
     }
@@ -55,24 +54,29 @@ public class ActiveControlStore {
             }
         }
 
-        if (activeControl.isEmpty()) {
-            log.debug("applyDispatch: clean active control state for siteId " + siteId);
-        }
+        log.debug("applyDispatch: new active control state adding for siteId " + siteId);
         activeControls.put(siteId, control);
 
         if (control.getValidUntil() != null) {
-            long delay = Duration.between(control.getValidUntil(), Instant.now()).toMillis();
+            log.debug("applyDispatch: scheduling a stopping dispatch command for site id " + siteId);
+
+            long delay = Duration.between(Instant.now(), control.getValidUntil()).toSeconds();
+            log.trace("applyDispatch: delay to be added to given site's dispatch command " + delay);
 
             scheduledExecutorService.schedule(() -> {
                 handleInactive(siteId);
-            }, delay, TimeUnit.MINUTES);
+            }, delay + 1, TimeUnit.SECONDS);
         }
     }
 
     private void handleInactive(UUID siteId) {
+        log.debug("handleInactive: inactive dispatch command started for site {}", siteId);
+
         ActiveControlState state = activeControls.get(siteId);
+        log.trace("handleInactive: cuurent active state for given site {}", state);
 
         if (state != null && !state.isActive(Instant.now())) {
+            log.debug("handleInactive: removing dispatch state for the given site");
             activeControls.remove(siteId);
             onSiteDispatchEnded(siteId);
         }

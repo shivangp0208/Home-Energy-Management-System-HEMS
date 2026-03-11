@@ -43,6 +43,7 @@ public class DispatchCommandService {
         state.setEventId(command.getEventId());
         state.setMode(command.getMode());
         state.setGridControl(gc);
+        state.setBatteryControl(bc);
         state.setLoadEnergyPriorities(rules.getLoadEnergyOrder());
         state.setSurplusEnergyPriorities(rules.getSurplusEnergyOrder());
 

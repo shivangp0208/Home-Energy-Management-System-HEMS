@@ -18,7 +18,7 @@ public class DeviceCommand {
     private UUID siteId; // The specific site
     private UUID programId;
     private DispatchMode mode;
-    private Integer durationMinutes;
+    private Long durationMinutes;
     private Long targetPowerW;
-    private Integer targetSoc;
+    private int targetSoc;
 }

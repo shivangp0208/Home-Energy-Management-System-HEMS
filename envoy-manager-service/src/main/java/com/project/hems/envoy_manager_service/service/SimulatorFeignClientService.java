@@ -5,12 +5,10 @@ import java.util.UUID;
 
 import com.project.hems.hems_api_contracts.contract.envoy.ActiveControlState;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.project.hems.envoy_manager_service.config.SimulatorFeignConfig;
-import com.project.hems.hems_api_contracts.contract.dispatch.DeviceCommand;
 import com.project.hems.hems_api_contracts.contract.simulator.MeterSnapshot;
 
 import jakarta.validation.Valid;
@@ -32,6 +30,5 @@ public interface SimulatorFeignClientService {
     public ResponseEntity<Map<UUID, ActiveControlState>> applyDispatch(@RequestBody @Valid Map<UUID, ActiveControlState> activeControls);
 
     @PutMapping("/remove-command/{siteId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeDispatchCommand(@PathVariable(name = "siteId", required = true) UUID siteId);
 }
