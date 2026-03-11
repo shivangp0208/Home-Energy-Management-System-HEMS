@@ -1,4 +1,4 @@
-package com.project.hems.hems_api_contracts.contract.caseevent;
+package com.hems.project.ADMIN_SERVICE.dto;
 
 import com.hems.project.ADMIN_SERVICE.dto.CasePriority;
 import com.hems.project.ADMIN_SERVICE.dto.CaseType;
