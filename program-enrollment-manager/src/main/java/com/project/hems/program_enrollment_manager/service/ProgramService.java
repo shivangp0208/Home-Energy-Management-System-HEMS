@@ -1,17 +1,10 @@
 package com.project.hems.program_enrollment_manager.service;
 
 import com.project.hems.hems_api_contracts.contract.program.Program;
-import com.project.hems.hems_api_contracts.contract.program.ProgramStatus;
-import com.project.hems.program_enrollment_manager.entity.ProgramDescEntity;
-import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
-import com.project.hems.program_enrollment_manager.exception.ProgramNotFoundException;
-import com.project.hems.program_enrollment_manager.exception.ProgramStateConflictException;
 import jakarta.validation.Valid;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;

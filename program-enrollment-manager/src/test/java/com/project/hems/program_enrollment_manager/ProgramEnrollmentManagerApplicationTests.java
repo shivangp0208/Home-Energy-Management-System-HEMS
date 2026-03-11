@@ -31,7 +31,6 @@ class ProgramEnrollmentManagerApplicationTests {
 	@BeforeEach
 	void setUp() {
 		modelMapper = new ModelMapper();
-		// Crucial for circular references
 		modelMapper.getConfiguration().setAmbiguityIgnored(true);
 	}
 
@@ -57,10 +56,8 @@ class ProgramEnrollmentManagerApplicationTests {
 		programEntity.setProgramDescription(descEntity);
 		programEntity.setSites(List.of(UUID.randomUUID()));
 
-		// 2. Act
 		ProgramFeignDto dto = modelMapper.map(programEntity, ProgramFeignDto.class);
 
-		// 3. Assert
 		assertThat(dto).isNotNull();
 		assertThat(dto.getProgramId()).isEqualTo(programId);
 		assertThat(dto.getProgramName()).isEqualTo("Green Energy Program");
@@ -71,7 +68,6 @@ class ProgramEnrollmentManagerApplicationTests {
 
 		assertThat(dto.getProgramDescription()).isNotNull();
 
-		// programPriority is ignored
 		assertThat(dto.getProgramPriority()).isNull();
 	}
 
@@ -97,10 +93,8 @@ class ProgramEnrollmentManagerApplicationTests {
 		programEntity.setProgramDescription(descEntity);
 		programEntity.setSites(List.of(UUID.randomUUID()));
 
-		// 2. Act
 		Program dto = modelMapper.map(programEntity, Program.class);
 
-		// 3. Assert
 		assertThat(dto).isNotNull();
 		assertThat(dto.getProgramId()).isEqualTo(programId);
 		assertThat(dto.getProgramName()).isEqualTo("Green Energy Program");
@@ -111,7 +105,6 @@ class ProgramEnrollmentManagerApplicationTests {
 
 		assertThat(dto.getProgramDescription()).isNotNull();
 
-		// programPriority is ignored
 		assertThat(dto.getProgramPriority()).isNull();
 	}
 

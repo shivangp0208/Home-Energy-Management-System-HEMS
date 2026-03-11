@@ -7,9 +7,15 @@ import org.springframework.stereotype.Repository;
 
 import com.project.hems.program_enrollment_manager.entity.SiteProgramEnrollmentEntity;
 import com.project.hems.program_enrollment_manager.entity.ProgramEntity;
+import java.util.List;
+
 
 @Repository
 public interface SiteProgramEnrollmentRepo extends JpaRepository<SiteProgramEnrollmentEntity, UUID> {
 
        boolean existsBySiteAndProgram(UUID site, ProgramEntity program);
+
+       List<SiteProgramEnrollmentEntity> findBySiteAndProgram(UUID site, ProgramEntity program);
+
+       List<SiteProgramEnrollmentEntity> findBySite(UUID site);
 }
