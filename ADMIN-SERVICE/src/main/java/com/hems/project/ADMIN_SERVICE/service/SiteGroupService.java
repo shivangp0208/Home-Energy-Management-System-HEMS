@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
 @Slf4j
@@ -34,6 +35,7 @@ public class SiteGroupService {
     private final ModelMapper mapper;
     private final DispatchSchedulerService quartzService;
     private final ProgramFeignClientService programFeignClientService;
+    private final Executor contextAwareExecutor;
 
     // Note: we have to check for sited id by validating them using feign client as
     // some point in frontend if admin is creating a new group and at the same time
@@ -238,7 +240,7 @@ public class SiteGroupService {
                                             .getBody();
 
                             return Boolean.TRUE.equals(available) ? siteId : null;
-                        })
+                        },contextAwareExecutor)
                 )
                 .toList();
 
