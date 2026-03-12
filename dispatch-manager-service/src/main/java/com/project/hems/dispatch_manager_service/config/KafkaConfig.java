@@ -14,6 +14,7 @@ import lombok.Setter;
 public class KafkaConfig {
 
     private String dispatchCommandTopic;
+    private String dispatchCommandDltTopic;
     private Integer dispatchCommandPartitionCount;
     private String dispatchEventTopic;
     private Integer dispatchEventPartitionCount;
