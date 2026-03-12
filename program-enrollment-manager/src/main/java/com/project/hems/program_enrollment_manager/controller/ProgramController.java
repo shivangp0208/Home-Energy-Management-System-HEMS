@@ -128,4 +128,20 @@ public class ProgramController {
                 return programService.findAllProgramsBySites(siteId, includeSite);
         }
 
+        @GetMapping("/fetch-programsIds-by-site/{siteId}")
+        public List<UUID> getAllProgramIdBySiteId(
+                @PathVariable(name = "siteId", required = false) UUID siteId){
+                log.info("GET req to fetch all programsId under site with siteId = " + siteId);
+                return siteProgramEnrollmentService.findAllProgramIdsBySiteId(siteId);
+        }
+
+        @GetMapping("/check-program-available/{programId}")
+        public boolean checkProgramIdIsAvailable(@PathVariable UUID programId) {
+
+                return programService.checkProgramIsAvailable(programId);
+
+        }
+
+
+
 }

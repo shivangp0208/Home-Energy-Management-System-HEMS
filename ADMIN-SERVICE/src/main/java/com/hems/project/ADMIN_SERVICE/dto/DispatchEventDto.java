@@ -43,4 +43,5 @@ public class DispatchEventDto {
     // Otherwise, the Dispatch Service won't know who to send the command to.
     @NotEmpty(message = "The list of valid sites cannot be empty")
     private List<UUID> validSiteIds;
+
 }

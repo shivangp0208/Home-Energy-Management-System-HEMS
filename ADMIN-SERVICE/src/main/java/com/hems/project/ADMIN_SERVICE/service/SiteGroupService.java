@@ -7,6 +7,7 @@ import com.hems.project.ADMIN_SERVICE.exception.GroupAlreadyPresentException;
 import com.hems.project.ADMIN_SERVICE.exception.ResourceNotFoundException;
 import com.hems.project.ADMIN_SERVICE.exception.SiteGroupNotFoundException;
 import com.hems.project.ADMIN_SERVICE.exception.SiteGroupStateConflictException;
+import com.hems.project.ADMIN_SERVICE.external.ProgramFeignClientService;
 import com.hems.project.ADMIN_SERVICE.external.SiteFeignClientService;
 import com.hems.project.ADMIN_SERVICE.repository.SiteGroupRepository;
 import com.project.hems.hems_api_contracts.contract.site.SiteDto;
@@ -32,6 +33,7 @@ public class SiteGroupService {
     private final SiteFeignClientService siteFeignClientService;
     private final ModelMapper mapper;
     private final DispatchSchedulerService quartzService;
+    private final ProgramFeignClientService programFeignClientService;
 
     // Note: we have to check for sited id by validating them using feign client as
     // some point in frontend if admin is creating a new group and at the same time
@@ -197,11 +199,13 @@ public class SiteGroupService {
             List<UUID> validSiteIds) {
 
         quartzService.scheduleDispatchEvent(
+                request.getProgramId(),
                 validSiteIds,
                 UUID.randomUUID(),
                 request.getEventMode(),
                 request.getTargetPowerW(),
                 request.getTargetSoc(),
+                request.getDurationMinutes(),
                 request.getScheduleTime()
         );
     }
@@ -246,6 +250,10 @@ public class SiteGroupService {
         if (validSiteIds.isEmpty()) {
             throw new RuntimeException("no eligible sites found");
         }
+        boolean available = programFeignClientService.checkProgramIdIsAvailable(request.getProgramId());
+        if (!available) {
+            throw new RuntimeException("program not available with id"+request.getProgramId());
+        }
 
         return validSiteIds;
     }
@@ -260,19 +268,28 @@ public class SiteGroupService {
                 siteFeignClientService
                         .checkSiteIsAvailableOtNot(token,request.getSiteId());
 
+
+
         if (!Boolean.TRUE.equals(response.getBody())) {
             throw new RuntimeException("site not available");
+        }
+
+         boolean available = programFeignClientService.checkProgramIdIsAvailable(request.getProgramId());
+        if (!available) {
+            throw new RuntimeException("program not available with id"+request.getProgramId());
         }
     }
     @Transactional
     public void scheduleSiteDispatch(SiteDispatchRequestDto request) {
 
         quartzService.scheduleDispatchEvent(
+                request.getProgramId(),
                 List.of(request.getSiteId()),
                 UUID.randomUUID(),
                 request.getEventMode(),
                 request.getTargetPowerW(),
                 request.getTargetSoc(),
+                request.getDurationMinutes(),
                 request.getScheduleTime()
         );
     }
@@ -280,6 +297,7 @@ public class SiteGroupService {
     public void handleSiteDispatch(SiteDispatchRequestDto request,String token) {
 
         validateSiteDispatch(request,token);
+
         scheduleSiteDispatch(request);
     }
 }

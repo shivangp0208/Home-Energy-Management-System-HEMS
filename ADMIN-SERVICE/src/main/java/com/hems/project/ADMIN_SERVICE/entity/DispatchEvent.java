@@ -32,7 +32,7 @@ public class DispatchEvent extends QuartzJobBean {
         JobDataMap dataMap = context.getMergedJobDataMap();
 
         UUID eventId = UUID.fromString(dataMap.getString("eventId"));
-        UUID programId = UUID.fromString(dataMap.getString("programId"));
+
 
         DispatchMode mode = DispatchMode.valueOf(
                 dataMap.getString("eventMode"));
@@ -42,7 +42,7 @@ public class DispatchEvent extends QuartzJobBean {
         Integer targetSoc = dataMap.getInt("targetSoc");
 
         Integer durationMinutes = dataMap.getInt("durationMinutes");
-
+        UUID programId = UUID.fromString(dataMap.getString("programId"));
         List<String> siteIdStrings =
                 (List<String>) dataMap.get("siteIds");
 
@@ -69,8 +69,9 @@ public class DispatchEvent extends QuartzJobBean {
         try {
             kafkaTemplate.send(topic, dto);
             log.info("dispatch event invoke and send to kafka topic");
+            log.info("event is"+ dto);
         }catch (Exception ex){
-            log.info("error",ex);
+            log.error("Error sending dispatch event to kafka", ex);
             log.error("error in dispatch event invoke and send to kafka topic");
             //and kafka fall back method add karvi if kafka is down then we send manuallyy
         }

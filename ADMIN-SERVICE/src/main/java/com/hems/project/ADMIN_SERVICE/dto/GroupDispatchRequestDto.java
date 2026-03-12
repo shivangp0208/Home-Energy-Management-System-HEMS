@@ -31,4 +31,11 @@ public class GroupDispatchRequestDto {
 
     @NotNull
     private UUID groupId;
+
+    @NotNull
+    private UUID programId;
+
+    @NotNull
+    @Min(1)
+    private Integer durationMinutes;
 }
