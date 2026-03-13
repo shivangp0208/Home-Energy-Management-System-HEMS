@@ -14,12 +14,12 @@ spring:
           issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
           scope:
             - email
-
+      
       client:
         registration:
           auth0:
-            client-id:
-            client-secret:
+            client-id: 
+            client-secret: 
             authorization-grant-type: client_credentials
 
         provider:
@@ -29,8 +29,8 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/envoy_service
-    username:
-    password:
+    username: 
+    password: 
 
   jpa:
     hibernate:
@@ -41,13 +41,13 @@ spring:
     producer:
       acks: 1
       bootstrap-servers:
-        - localhost:9092
+      - localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer  
 
     consumer:
       bootstrap-servers:
-        - localhost:9092
+      - localhost:9092
       auto-offset-reset: earliest
 
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
@@ -64,8 +64,8 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username:
-    password:
+    username: 
+    password: 
 
 eureka:
   instance:
@@ -88,7 +88,7 @@ property:
           registration_id: auth0
     meter-history:
       batch_size: 60
-    kafka:
+    kafka: 
       raw-energy-group-id: raw-energy-readers
       raw-energy-topic: RAW_ENERGY_READINGS
       raw-energy-partition-count: 3
@@ -105,4 +105,4 @@ property:
 
 logging:
   level:
-    '[com.project.hems.envoy_manager_service]': debug
+    '[com.project.hems.envoy_manager_service]': trace

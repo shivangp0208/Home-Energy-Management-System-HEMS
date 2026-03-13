@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.project.hems.envoy_manager_service.exception.DuplicateCommandException;
@@ -20,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Setter
-@Component
 @ConfigurationProperties(prefix = "property.config.kafka")
 public class KafkaConsumerService {
 
@@ -56,15 +54,12 @@ public class KafkaConsumerService {
 
     @RetryableTopic(
             attempts = "3",
-            backoff = @Backoff(delay = 5000),
-            dltTopicSuffix = ".DLT"
+            backoff = @Backoff(delay = 2000),
+            dltTopicSuffix = ".DLT",
+            autoStartDltHandler = "false"
     )
     @KafkaListener(topics = "${property.config.kafka.dispatch-command-topic}", groupId = "${property.config.kafka.dispatch-command-group-id}")
     public void consumeDispatchCommand(DeviceCommand deviceCommand) {
-
-        if (deviceCommand.getMode() == DispatchMode.HOLD){
-            throw new RuntimeException("Runtime Exception occurred sorry");
-        }
 
         log.info(
                 "consumedeviceCommand: received dispatch command from topic={} eventId={} siteId={}  programId={} eventType={}",
@@ -73,6 +68,10 @@ public class KafkaConsumerService {
                 deviceCommand.getSiteId(),
                 deviceCommand.getProgramId(),
                 deviceCommand.getMode());
+
+        if (deviceCommand.getMode() == DispatchMode.HOLD){
+            throw new DuplicateCommandException("Test Exception occurred sorry");
+        }
 
         log.debug(
                 "consumedeviceCommand: raw dispatch payload={}",
@@ -97,6 +96,12 @@ public class KafkaConsumerService {
 
     }
 
+    @RetryableTopic(
+            attempts = "3",
+            backoff = @Backoff(delay = 2000),
+            dltTopicSuffix = ".DLT",
+            autoStartDltHandler = "false"
+    )
     @KafkaListener(topics = "${property.config.kafka.site-creation-topic}", groupId = "${property.config.kafka.site-creation-group-id}")
     public void consumeSiteCreationEvents(SiteCreationEvent siteCreationEvent) {
 

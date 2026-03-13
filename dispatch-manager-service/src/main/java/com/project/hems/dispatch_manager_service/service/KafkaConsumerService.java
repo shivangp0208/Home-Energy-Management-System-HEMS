@@ -1,11 +1,8 @@
 package com.project.hems.dispatch_manager_service.service;
 
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +10,6 @@ import com.project.hems.hems_api_contracts.contract.dispatch.DeviceCommand;
 import com.project.hems.hems_api_contracts.contract.vpp.DispatchEventDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SignalForImport;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,24 +26,24 @@ public class KafkaConsumerService {
 
     private final DispatchCommandProducer dispatchCommandProducer;
 
-    @RetryableTopic(
-            attempts = "3",
-            backoff = @Backoff(delay = 5000),
-            dltTopicSuffix = ".DLT"
-    )
+    @RetryableTopic(attempts = "3", backoff = @Backoff(delay = 5000), dltTopicSuffix = ".DLT", autoStartDltHandler = "false")
     @KafkaListener(topics = "${property.config.kafka.dispatch-event-topic}", groupId = "${property.config.kafka.dispatch-event-group-id}")
     public void consumeDispatchEvent(DispatchEventDto bulkEvent) {
 
-        log.info("consumeDispatchEvent: Received Bulk Dispatch Event: {} on kafka topic: {}", bulkEvent.getEventId(), dispatchEventTopic);
+        log.info("consumeDispatchEvent: Received Bulk Dispatch Event: {} on kafka topic: {}", bulkEvent.getEventId(),
+                dispatchEventTopic);
 
         dispatchCommandProducer.processBulkDispatchEvent(bulkEvent);
     }
 
     @KafkaListener(topics = "${property.config.kafka.dispatch-command-dlt-topic}", groupId = "${property.config.kafka.dispatch-command-dlt-group-id}")
-    public void consumeDLTDispatchEvent(DispatchEventDto bulkEvent) {
-        log.error("consumeDLTDispatchEvent: error implementing dispatch event for event " + bulkEvent);
+    public void consumeDLTDeviceCommand(DeviceCommand failedCommand) {
+        // TODO: after failing of an event for any site we can send the error detail
+        // from here to admin dashboard
+        log.error("consumeDLTDispatchEvent: error implementing dispatch event for event " + failedCommand);
     }
 
+    @RetryableTopic(attempts = "3", backoff = @Backoff(delay = 5000), dltTopicSuffix = ".DLT", autoStartDltHandler = "false")
     @KafkaListener(topics = "${property.config.kafka.vpp-service-topic}", groupId = "${property.config.kafka.vpp-service-group-id}")
     public void consumevppRequirement(SignalForImport signalForImport) {
 

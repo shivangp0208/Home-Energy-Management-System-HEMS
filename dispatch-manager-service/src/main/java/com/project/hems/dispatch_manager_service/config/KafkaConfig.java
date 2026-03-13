@@ -4,17 +4,18 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafkaRetryTopic;
 import org.springframework.kafka.config.TopicBuilder;
 
 import lombok.Setter;
 
+@EnableKafkaRetryTopic
 @Configuration
 @ConfigurationProperties(prefix = "property.config.kafka")
 @Setter
 public class KafkaConfig {
 
     private String dispatchCommandTopic;
-    private String dispatchCommandDltTopic;
     private Integer dispatchCommandPartitionCount;
     private String dispatchEventTopic;
     private Integer dispatchEventPartitionCount;

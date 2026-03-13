@@ -29,17 +29,16 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       auto-offset-reset: earliest
       properties:
+        spring.json.use.type.headers: true
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.use.type.headers: false
-        spring.json.trusted.packages: com.project.hems.hems_api_contracts.contract.vpp
-        spring.json.value.default.type: com.project.hems.hems_api_contracts.contract.vpp.SignalForImport
+        spring.json.trusted.packages: "com.project.hems.*"
 
   rabbitmq:
     host: localhost
     port: 5672
-    username:
-    password:
+    username: 
+    password: 
 
 eureka:
   instance:
@@ -53,13 +52,15 @@ eureka:
 server:
   port: 8084
 
-
 property:
   config:
     kafka:
       dispatch-event-group-id: dispatch-event-readers
       dispatch-event-topic: ENERGY_DISPATCH_EVENTS
       dispatch-event-partition-count: 1
+
+      dispatch-command-dlt-group-id: dispatch-command-dlt-readers
+      dispatch-command-dlt-topic: ENERGY_DISPATCH_COMMANDS.DLT
 
       dispatch-command-group-id: dispatch-command-readers
       dispatch-command-topic: ENERGY_DISPATCH_COMMANDS
