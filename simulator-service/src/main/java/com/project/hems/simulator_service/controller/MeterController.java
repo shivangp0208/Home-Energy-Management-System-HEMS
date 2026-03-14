@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "meter controller", description = "endpoints to manage and monitor meters")
@@ -30,6 +31,7 @@ public class MeterController {
     private final MeterManagementService meterManagementService;
     private final Map<String, MeterSnapshot> meterReadings;
 
+    @PreAuthorize("hasAuthority('admin:access')")
     @Operation(summary = "get meter data", description = "retrieve meter data for a specific site by siteId")
     @ApiResponse(responseCode = "200", description = "meter data fetched successfully")
     @ApiResponse(responseCode = "404", description = "meter data not found for given siteId")
@@ -43,6 +45,7 @@ public class MeterController {
         return new ResponseEntity<>(meterData, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('admin:access')")
     @Operation(summary = "get all meter data", description = "retrieve all available meter readings")
     @ApiResponse(responseCode = "200", description = "all meter data fetched successfully")
     @GetMapping("/get-all-meter-data")
@@ -52,6 +55,7 @@ public class MeterController {
     }
 
 
+    @PreAuthorize("hasAuthority('admin:access')")
     @Operation(summary = "activate meter", description = "activate meter for a site with given battery capacity")
     @ApiResponse(responseCode = "201", description = "meter activated successfully")
     @PostMapping("/activate-meter/{siteId}")
@@ -62,6 +66,7 @@ public class MeterController {
         return new ResponseEntity<>(savedMeter, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('admin:access')")
     @Operation(summary = "apply dispatch command", description = "apply a dispatch command received from envoy to active control store")
     @ApiResponse(responseCode = "202", description = "dispatch command accepted successfully")
     @PostMapping("/apply-command")
@@ -71,6 +76,7 @@ public class MeterController {
         return new ResponseEntity<>(activeControls, HttpStatus.ACCEPTED);
     }
 
+    @PreAuthorize("hasAuthority('admin:access')")
     @PutMapping("/remove-command/{siteId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeDispatchCommand(@PathVariable(name = "siteId", required = true) UUID siteId) {
