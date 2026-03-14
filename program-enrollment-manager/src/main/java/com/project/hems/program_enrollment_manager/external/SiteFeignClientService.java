@@ -15,7 +15,7 @@ import com.project.hems.hems_api_contracts.contract.program.Program;
 import com.project.hems.hems_api_contracts.contract.program.ProgramFeignDto;
 import com.project.hems.hems_api_contracts.contract.site.SiteDto;
 
-@FeignClient(name = "site-service", path = "/api/v1/site")
+@FeignClient(name = "SITE-SERVICE-HEMS", path = "/api/v1/site")
 public interface SiteFeignClientService {
 
         @GetMapping("/fetch-site-by-id/{siteId}")

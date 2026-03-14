@@ -31,4 +31,11 @@ public class SiteDispatchRequestDto {
 
     @NotNull
     private UUID siteId;
+
+    @NotNull
+    private UUID programId;
+
+    @NotNull
+    @Min(1)
+    private Integer durationMinutes;
 }

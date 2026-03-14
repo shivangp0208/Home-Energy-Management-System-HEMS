@@ -1,6 +1,7 @@
 package com.hems.project.ADMIN_SERVICE.service;
 
 import com.hems.project.ADMIN_SERVICE.entity.DispatchEvent;
+import com.hems.project.ADMIN_SERVICE.external.ProgramFeignClientService;
 import com.project.hems.hems_api_contracts.contract.vpp.DispatchMode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +20,19 @@ import java.util.UUID;
 public class DispatchSchedulerService {
 
     private final Scheduler scheduler;
+    private final ProgramFeignClientService programFeignClientService;
 
-    public void scheduleDispatchEvent(List<UUID> siteId, UUID eventId, DispatchMode mode, Long targetPower, Integer targetSoc, LocalDateTime scheduledTime) {
+    public void scheduleDispatchEvent(
+            UUID programId,
+            List<UUID> siteIds,
+            UUID eventId,
+            DispatchMode mode,
+            Long targetPower,
+            Integer targetSoc,
+            Integer durationMinutes,
+            LocalDateTime scheduledTime){
 
-
-        JobDetail jobDetail = buildJobDetail(siteId,eventId,mode,targetPower,targetSoc);
-        Trigger trigger = buildTrigger(jobDetail,scheduledTime);
+        JobDetail jobDetail = buildJobDetail(programId,siteIds,eventId,mode,targetPower,targetSoc,durationMinutes);        Trigger trigger = buildTrigger(jobDetail,scheduledTime);
 
         try {
             scheduler.scheduleJob(jobDetail, trigger);
@@ -35,18 +43,21 @@ public class DispatchSchedulerService {
     }
 
     private JobDetail buildJobDetail(
-                List<UUID> siteIds,
-                UUID eventId,
-                DispatchMode mode,
-                Long targetPower,
-                Integer targetSoc) {
+            UUID programId,
+            List<UUID> siteIds,
+            UUID eventId,
+            DispatchMode mode,
+            Long targetPower,
+            Integer targetSoc,
+            Integer durationMinutes) {
 
         JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("programId", programId.toString());
         jobDataMap.put("eventId", eventId.toString());
         jobDataMap.put("eventMode", mode.name());
         jobDataMap.put("targetPowerW", targetPower);
         jobDataMap.put("targetSoc", targetSoc);
-
+        jobDataMap.put("durationMinutes", durationMinutes);
         //convert uuid to string to safe seralization
         if (siteIds != null && !siteIds.isEmpty()) {
             List<String> siteIdStrings = siteIds.stream()

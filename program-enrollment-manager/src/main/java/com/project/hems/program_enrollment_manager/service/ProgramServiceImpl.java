@@ -1,6 +1,7 @@
 package com.project.hems.program_enrollment_manager.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.project.hems.hems_api_contracts.contract.program.ProgramStatus;
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProgramServiceImpl implements ProgramService{
+public class ProgramServiceImpl implements ProgramService {
 
     private final ProgramRepository programRepository;
     private final ModelMapper mapper;
@@ -152,4 +153,13 @@ public class ProgramServiceImpl implements ProgramService{
         return mapper.map(savedProgram, Program.class);
     }
 
+    public boolean checkProgramIsAvailable(UUID programId) {
+
+        Optional<ProgramEntity> program = programRepository.findById(programId);
+        if (program.isEmpty()) {
+            throw new RuntimeException("program not found with id " + programId);
+        }
+
+        return program.get().getProgramStatus() == ProgramStatus.ACTIVE;
+    }
 }

@@ -3,6 +3,8 @@ package com.project.hems.program_enrollment_manager.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
+import com.project.hems.hems_api_contracts.contract.program.Program;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.lang.NonNull;
@@ -168,5 +170,10 @@ public class SiteProgramEnrollmentServiceImpl implements SiteProgramEnrollmentSe
                                 siteId, programId);
 
                 return savedEnrolment;
+        }
+
+        public List<UUID> findAllProgramIdsBySiteId(UUID siteId) {
+                 List<UUID> programIdsBySiteId = siteProgramEnrollmentRepo.findProgramIdsBySiteId(siteId);
+                 return programIdsBySiteId;
         }
 }
