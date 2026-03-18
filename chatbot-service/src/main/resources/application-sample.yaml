@@ -3,11 +3,9 @@ spring:
     name: hems-chatbot-service
 
   ai:
-    vertex:
-      ai:
-        gemini:
-          project-id: gen-lang-client-01213812
-          location: us-central1
+    google:
+      genai:
+        api-key: AIzaSyBI4mQ-1c4nzlBTKXI1qsmktcI0mrysQdM
 
 server:
   port: 8086
