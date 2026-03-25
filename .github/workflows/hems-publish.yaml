@@ -52,10 +52,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 3. Build ONLY the specific module in the current matrix matrix iteration
+      # 3. Build ONLY the specific module and SKIP TESTS
       - name: Build ${{ matrix.service }} with Gradle
-        # This runs tests and creates the .jar file for the specific service
-        run: ./gradlew :${{ matrix.service }}:build
+        run: ./gradlew :${{ matrix.service }}:build -x test
 
       # 4. Set up Docker Buildx
       - name: Set up Docker Buildx

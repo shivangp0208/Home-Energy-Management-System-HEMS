@@ -12,9 +12,8 @@ WORKDIR /app
 COPY build/libs/*.jar app.jar
 
 # 6. Ports: Use the EXPOSE instruction to document the port.
-# Format: EXPOSE <port_number>
 # Change this number in each service's Dockerfile as needed.
-EXPOSE 8080
+EXPOSE 8089
 
 # 7. Execution: Command to run your Java application
 ENTRYPOINT ["java", "-jar", "app.jar"]
