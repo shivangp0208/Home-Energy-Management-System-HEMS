@@ -105,7 +105,7 @@ public class SiteProgramEnrollmentServiceImpl implements SiteProgramEnrollmentSe
 
                 boolean isProgramConflictPresent = siteEnrolledInProgram
                                 .stream()
-                                .filter(enrollmentEntity -> {
+                                .anyMatch(enrollmentEntity -> {
                                         LocalDate startDateProgramA = programEntity.getStartDate();
                                         LocalDate endDateProgramA = programEntity.getEndDate();
                                         LocalDate startDateProgramB = enrollmentEntity.getProgram().getStartDate();
@@ -115,9 +115,7 @@ public class SiteProgramEnrollmentServiceImpl implements SiteProgramEnrollmentSe
                                                         || startDateProgramA.isEqual(endDateProgramB))
                                                         && (endDateProgramA.isAfter(startDateProgramB)
                                                                         || endDateProgramA.isEqual(startDateProgramB)));
-                                })
-                                .findAny()
-                                .isPresent();
+                                });
 
                 if (isProgramConflictPresent) {
                         log.error("enrollSiteinProgram: Date conflict detected! Site is already enrolled in a program during this timeframe | siteId={}",

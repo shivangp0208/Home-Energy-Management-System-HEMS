@@ -1,0 +1,74 @@
+name: HEMS Microservices Build and Publish
+
+on:
+  push:
+    branches:
+      - s-branch
+  # This single line enables the manual "Run workflow" button in GitHub
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # If one service fails, let the others continue building
+      matrix:
+        # List the exact directory/module names of your HEMS services
+        service:
+          - ADMIN-SERVICE
+          - api-gateway-hems
+          - auth-service-hems
+          - chatbot-service
+          - CONFIG-SERVER
+          - dispatch-manager-service
+          - Email-Service
+          - envoy-manager-service
+          - program-enrollment-manager
+          - ServiceRegistry-HEMS
+          - simulator-service
+          - SiteManagerService
+          - Virtual-Power-Plant
+          - Vpp-Manager
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. Set up the Java environment (Adjust to Java 21 if needed)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle' # Highly recommended: speeds up builds by caching dependencies
+
+      # 2. Ensure the Gradle wrapper has execution permissions
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 3. Build ONLY the specific module in the current matrix matrix iteration
+      - name: Build ${{ matrix.service }} with Gradle
+        # This runs tests and creates the .jar file for the specific service
+        run: ./gradlew :${{ matrix.service }}:build
+
+      # 4. Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 5. Log in to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      # 6. Build and push the Docker image using the freshly built .jar
+      - name: Build and push ${{ matrix.service }} Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service }} # The build context is the module's folder
+          file: ./${{ matrix.service }}/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:${{ github.sha }}

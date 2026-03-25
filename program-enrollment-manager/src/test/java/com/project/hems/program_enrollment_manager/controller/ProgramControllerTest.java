@@ -100,7 +100,7 @@ class ProgramControllerTest {
         p1.setProgramId(programId);
         when(programRepository.save(any())).thenReturn(p1);
 
-        mvc.perform(post("/api/v1/program//create-program")
+        mvc.perform(post("/api/v1/program/create-program")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(p1)))
                 .andExpect(status().isCreated())
