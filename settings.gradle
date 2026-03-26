@@ -22,5 +22,6 @@ include "Vpp-Manager"
 include "Email-Service"
 include "CONFIG-SERVER"
 include "ADMIN-SERVICE"
+include "chatbot-service"
 
 
