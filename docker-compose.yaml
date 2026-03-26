@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: HEMS
+      POSTGRES_PASSWORD: Hems#Einfochips
+      POSTGRES_DB: program_enrollment
+    ports:
+      - "5432:5432"
+
+  rabbitmq-service:
+    image: rabbitmq:latest
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: Hems#Einfochips
+    ports:
+      - "5672:5672"
+
+  program-enrollment:
+    depends_on:
+      - postgres-db
+      - rabbitmq-service
+    image: hemseinfochips/program-enrollment-manager:latest
+    ports:
+      - "8089:8089"
+    environment:
+      - SPRING_APPLICATION_NAME=program-enrollment-manager
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/program_enrollment
+      - SPRING_DATASOURCE_USERNAME=HEMS
+      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_RABBITMQ_HOST=rabbitmq-service
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://localhost:8091/eureka
+      - SERVER_PORT=8089
+
