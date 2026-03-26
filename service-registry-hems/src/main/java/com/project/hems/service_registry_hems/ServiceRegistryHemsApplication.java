@@ -1,4 +1,4 @@
-package com.project.hems.ServiceRegistry_HEMS;
+package com.project.hems.service_registry_hems;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

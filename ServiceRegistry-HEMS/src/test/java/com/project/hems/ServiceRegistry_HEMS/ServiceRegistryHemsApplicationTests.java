@@ -1,8 +1,0 @@
-package com.project.hems.ServiceRegistry_HEMS;
-
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class ServiceRegistryHemsApplicationTests {
-
-}
