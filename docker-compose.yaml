@@ -19,18 +19,20 @@ services:
       - "5672:5672"
 
   service-registry-hems:
+    depends_on:
+      - postgres-db
+      - rabbitmq-service
     image: hemseinfochips/service-registry-hems:latest
     ports:
       - "8091:8091"
     environment:
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
-      - EUREKA_CLIENT_FETCH_REGISTRY=false
+      - SERVER_PORT=8091
+      - "eureka.client.register-with-eureka=false"
+      - "eureka.client.fetch-registry=false"
+      - "logging.level.com.netflix.eureka=off"
+      - "logging.level.com.netflix.discovery=off"
 
   program-enrollment:
-    depends_on:
-      - postgres-db
-      - rabbitmq-service
-      - service-registry-hems
     image: hemseinfochips/program-enrollment-manager:latest
     ports:
       - "8089:8089"
@@ -51,6 +53,6 @@ services:
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
       - EUREKA_CLIENT_FETCH_REGISTRY=true
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://localhost:8091/eureka
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
       - SERVER_PORT=8089
 
