@@ -24,7 +24,7 @@ jobs:
 #          - Email-Service
 #          - envoy-manager-service
           - program-enrollment-manager
-#          - ServiceRegistry-HEMS
+          - ServiceRegistry-HEMS
 #          - simulator-service
 #          - SiteManagerService
 #          - Virtual-Power-Plant
