@@ -16,17 +16,17 @@ jobs:
         # List the exact directory/module names of your HEMS services
         service:
           - admin-service
-#          - api-gateway-hems
-#          - auth-service-hems
-#          - chatbot-service
+          - api-gateway-hems
+          - auth-service-hems
+          - chatbot-service
 #          - CONFIG-SERVER
-#          - dispatch-manager-service
-#          - Email-Service
-#          - envoy-manager-service
+          - dispatch-manager-service
+          - email-service
+          - envoy-manager-service
           - program-enrollment-manager
           - service-registry-hems
-#          - simulator-service
-#          - SiteManagerService
+          - simulator-service
+          # - SiteManagerService
 #          - Virtual-Power-Plant
 #          - Vpp-Manager
 
