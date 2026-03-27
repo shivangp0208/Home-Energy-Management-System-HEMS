@@ -40,8 +40,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+  //  implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+    implementation project(":ExcelModule")
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     // implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'

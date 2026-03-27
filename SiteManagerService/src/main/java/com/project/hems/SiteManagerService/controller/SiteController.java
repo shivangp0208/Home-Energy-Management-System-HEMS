@@ -1,5 +1,6 @@
 package com.project.hems.SiteManagerService.controller;
 
+import com.hems.ExcelModule.service.*;
 import com.project.hems.SiteManagerService.config.MessagingConfig;
 import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
 import com.project.hems.SiteManagerService.service.impl.EmailServiceImpl;
@@ -19,6 +20,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +28,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/site")
@@ -40,6 +41,8 @@ public class SiteController {
     private final SiteServiceImpl siteService;
     private final EmailServiceImpl emailService;
     private final RabbitTemplate rabbitTemplate;
+    @Autowired
+    private ExcelExportService excelExportService;
 
     @Transactional
     @Operation(summary = "create site", description = "create a new site with site details and return the created site")
@@ -305,5 +308,53 @@ public class SiteController {
         return ResponseEntity.ok(allSiteIdByMeterStatus);
     }
 
+    //excel import and export controllers
+    @GetMapping("/export-sites")
+    public ResponseEntity<byte[]> exportSites() {
+
+        try {
+            List<SiteDto> sites = siteService.fetchAllSite();
+
+            if (sites == null || sites.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            List<Map<String, Object>> data = sites.stream().map(site -> {
+                Map<String, Object> map = new HashMap<>();
+
+                map.put("Site ID",
+                        site.getSiteId() != null ? site.getSiteId().toString() : "");
+
+                map.put("Owner Email",
+                        (site.getOwner() != null && site.getOwner().getEmail() != null)
+                                ? site.getOwner().getEmail()
+                                : "");
+
+                map.put("City",
+                        (site.getAddress() != null && site.getAddress().getCity() != null)
+                                ? site.getAddress().getCity()
+                                : "");
+
+                return map;
+            }).toList();
+
+            System.out.println("DATA SIZE: " + data.size());
+
+            byte[] excel = excelExportService.export("Sites", data);
+
+            if (excel == null || excel.length == 0) {
+                throw new RuntimeException("Excel generation failed");
+            }
+
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=sites.xlsx")
+                    .header("Content-Type", "application/octet-stream")
+                    .body(excel);
+
+        } catch (Exception e) {
+            e.printStackTrace(); // 🔥 VERY IMPORTANT
+            throw new RuntimeException("Error while exporting Excel: " + e.getMessage());
+        }
+    }
 
 }

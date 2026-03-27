@@ -1,5 +1,6 @@
 package com.hems.project.ADMIN_SERVICE.controller;
 
+import com.hems.ExcelModule.service.ExcelExportService;
 import com.hems.project.ADMIN_SERVICE.dto.*;
 import com.hems.project.ADMIN_SERVICE.entity.CaseEvent;
 import com.hems.project.ADMIN_SERVICE.service.CaseService;
@@ -13,8 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -23,6 +27,7 @@ import java.util.UUID;
 public class CaseController {
 
     private final CaseService caseService;
+    private final ExcelExportService excelExportService;
 
     //raise ticket and when ticket is created
     //1.automatic using site/vpp heartbeat here we use grpc.
@@ -140,4 +145,50 @@ public class CaseController {
         return ResponseEntity.ok(caseService.dashboardSummary());
     }
 
+    @GetMapping("/export-cases")
+    public ResponseEntity<byte[]> exportCases() {
+
+        try {
+            List<CaseCreatedResponseDto> cases =
+                    caseService.getAllCases(null, null, null);
+
+            if (cases == null || cases.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            List<Map<String, Object>> data = cases.stream()
+                    .map(c -> {
+                        Map<String, Object> map = new HashMap<>();
+
+                        map.put("Case ID",
+                                c.getId() != null ? c.getId().toString() : "");
+
+                        map.put("Status",
+                                c.getStatus() != null ? c.getStatus().toString() : "");
+
+                        map.put("Priority",
+                                c.getPriority() != null ? c.getPriority().toString() : "");
+
+                        return map;
+                    })
+                    .toList();
+
+            System.out.println("CASE DATA SIZE: " + data.size());
+
+            byte[] excel = excelExportService.export("Cases", data);
+
+            if (excel == null || excel.length == 0) {
+                throw new RuntimeException("Excel generation failed");
+            }
+
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=cases.xlsx")
+                    .header("Content-Type", "application/octet-stream")
+                    .body(excel);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error exporting cases: " + e.getMessage());
+        }
+    }
 }

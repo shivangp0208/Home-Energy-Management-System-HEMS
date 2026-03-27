@@ -1,5 +1,8 @@
 package com.project.hems.program_enrollment_manager.controller;
 
+import com.hems.ExcelModule.model.ExcelImportResult;
+import com.hems.ExcelModule.service.ExcelExportService;
+import com.hems.ExcelModule.service.ExcelImportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -32,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "program controller", description = "endpoints to manage and configure programs")
 @RestController
@@ -42,6 +47,7 @@ public class ProgramController {
 
     private final ProgramServiceImpl programService;
     private final SiteProgramEnrollmentServiceImpl siteProgramEnrollmentService;
+    private final ExcelImportService excelImportService;
 
     @PreAuthorize("hasAuthority('admin:access')")
     @GetMapping("/programs")
@@ -158,6 +164,24 @@ public class ProgramController {
         log.info("GET req to check program availability under programId = " + programId);
         return programService.checkProgramIsAvailable(programId);
     }
+    @PostMapping("/bulk-enroll")
+    public ResponseEntity<?> bulkEnroll(@RequestParam("file") MultipartFile file) {
 
+        ExcelImportResult result = excelImportService.importFromExcel(file);
+
+        if (!result.isSuccess()) {
+            return ResponseEntity.badRequest().body(result.getErrors());
+        }
+
+        for (Map<String, Object> row : result.getData()) {
+
+            UUID siteId = UUID.fromString(row.get("siteId").toString());
+            UUID programId = UUID.fromString(row.get("programId").toString());
+
+            siteProgramEnrollmentService.enrollSiteinProgram(siteId, programId);
+        }
+
+        return ResponseEntity.ok("Bulk enrollment done: " + result.getTotalRows());
+    }
 
 }

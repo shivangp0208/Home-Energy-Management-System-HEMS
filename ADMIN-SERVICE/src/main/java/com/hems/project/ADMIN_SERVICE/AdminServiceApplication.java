@@ -7,7 +7,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @EnableFeignClients
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+		"com.hems.ExcelModule",
+		"com.hems.project.ADMIN_SERVICE"
+})
 public class AdminServiceApplication {
 
 	public static void main(String[] args) {

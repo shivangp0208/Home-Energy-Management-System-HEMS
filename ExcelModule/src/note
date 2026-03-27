@@ -1,0 +1,9 @@
+use cases of this excel module service.
+🔹 Site Service
+Export all sites → Excel
+🔹 Dispatch Manager
+Export cases/events → Excel
+🔹 Program Enrollment
+Upload Excel → bulk enroll users
+🔹 Admin
+Download reports

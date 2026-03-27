@@ -22,5 +22,8 @@ include "Vpp-Manager"
 include "Email-Service"
 include "CONFIG-SERVER"
 include "ADMIN-SERVICE"
+include("shared-excel-module")
+include("AIModule")
+include("ExcelModule")
 
 
