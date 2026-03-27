@@ -26,7 +26,7 @@ jobs:
           - program-enrollment-manager
           - service-registry-hems
           - simulator-service
-          # - SiteManagerService
+          - site-manager-service
 #          - Virtual-Power-Plant
 #          - Vpp-Manager
 
