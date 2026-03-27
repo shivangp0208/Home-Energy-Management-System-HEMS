@@ -15,7 +15,7 @@ jobs:
       matrix:
         # List the exact directory/module names of your HEMS services
         service:
-#          - ADMIN-SERVICE
+          - admin-service
 #          - api-gateway-hems
 #          - auth-service-hems
 #          - chatbot-service
@@ -31,12 +31,6 @@ jobs:
 #          - Vpp-Manager
 
     steps:
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-            java-version: '17'
-            distribution: 'temurin'
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
