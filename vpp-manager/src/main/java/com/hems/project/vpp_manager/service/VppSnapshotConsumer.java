@@ -1,4 +1,4 @@
-package com.hems.project.Vpp_Manager.service;
+package com.hems.project.vpp_manager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

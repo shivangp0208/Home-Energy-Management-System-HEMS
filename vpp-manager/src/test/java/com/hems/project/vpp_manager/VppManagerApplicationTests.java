@@ -1,4 +1,4 @@
-package com.hems.project.Vpp_Manager;
+package com.hems.project.vpp_manager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

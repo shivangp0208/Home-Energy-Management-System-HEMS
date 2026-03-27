@@ -1,4 +1,4 @@
-package com.hems.project.Vpp_Manager.entity;
+package com.hems.project.vpp_manager.entity;
 
 import jakarta.persistence.*;
 

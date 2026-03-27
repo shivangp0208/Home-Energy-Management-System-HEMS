@@ -28,7 +28,7 @@ jobs:
           - simulator-service
           - site-manager-service
           - virtual-power-plant
-#          - Vpp-Manager
+          - vpp-manager
 
     steps:
       - name: Checkout Code

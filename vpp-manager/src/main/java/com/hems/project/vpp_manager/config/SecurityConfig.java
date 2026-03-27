@@ -1,4 +1,4 @@
-package com.hems.project.Vpp_Manager.config;
+package com.hems.project.vpp_manager.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

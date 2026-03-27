@@ -1,6 +1,6 @@
 spring:
   application:
-    name: Email-Service
+    name: email-service
   mail:
     host: smtp.gmail.com
     port: 587

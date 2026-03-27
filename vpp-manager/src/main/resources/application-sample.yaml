@@ -1,6 +1,6 @@
 spring:
   application:
-    name: Vpp-Manager
+    name: vpp-manager
 
 
   kafka:

@@ -18,7 +18,7 @@ spring:
     allow-bean-definition-overriding: true
 
   application:
-    name: site-service
+    name: site-manager-service
 
   security:
     oauth2:

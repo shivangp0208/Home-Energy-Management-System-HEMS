@@ -1,4 +1,4 @@
-package com.hems.project.Vpp_Manager.controller;
+package com.hems.project.vpp_manager.controller;
 
 
 import lombok.RequiredArgsConstructor;

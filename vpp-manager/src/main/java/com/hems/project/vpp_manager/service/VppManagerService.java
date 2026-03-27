@@ -1,4 +1,4 @@
-package com.hems.project.Vpp_Manager.service;
+package com.hems.project.vpp_manager.service;
 
 import jakarta.transaction.Transactional;
 import org.apache.kafka.common.errors.ResourceNotFoundException;

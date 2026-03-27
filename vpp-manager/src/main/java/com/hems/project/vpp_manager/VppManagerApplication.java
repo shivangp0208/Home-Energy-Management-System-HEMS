@@ -1,4 +1,4 @@
-package com.hems.project.Vpp_Manager;
+package com.hems.project.vpp_manager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
