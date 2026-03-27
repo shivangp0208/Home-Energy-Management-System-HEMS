@@ -8,7 +8,7 @@
 
 rootProject.name = "Home-Energy-Management-System-HEMS"
 
-include "Virtual-Power-Plant"
+include "virtual-power-plant"
 include "hems-api-contracts"
 include "auth-service-hems"
 include "api-gateway-hems"

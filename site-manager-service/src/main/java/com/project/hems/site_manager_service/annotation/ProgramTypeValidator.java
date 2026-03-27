@@ -8,7 +8,7 @@ import java.util.List;
 public class ProgramTypeValidator implements ConstraintValidator<ValidateProgramType,String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        List<String> employeeType=List.of("PEAK_SAVING","EMERGENCY_BACKUP","VIRTUAL_POWER_PLANT",
+        List<String> employeeType=List.of("PEAK_SAVING","EMERGENCY_BACKUP","virtual_power_plant",
                 "peak_saving","emergency_backup","virtual_power_plant");
 
         return employeeType.contains(value);

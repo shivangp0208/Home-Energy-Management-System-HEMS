@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 public @interface ValidateProgramType {
 
     public String message() default
-            "Invalid program type. Program Type should be either PEAK_SAVING, EMERGENCY_BACKUP, VIRTUAL_POWER_PLANT, " +
+            "Invalid program type. Program Type should be either PEAK_SAVING, EMERGENCY_BACKUP, virtual_power_plant, " +
                     "peak_saving, emergency_backup, or virtual_power_plant.";
 
     //aa be niche nu aa annotation ne specific group ma nakhva mate nu che

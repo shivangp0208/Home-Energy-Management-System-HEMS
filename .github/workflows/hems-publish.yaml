@@ -27,7 +27,7 @@ jobs:
           - service-registry-hems
           - simulator-service
           - site-manager-service
-#          - Virtual-Power-Plant
+          - virtual-power-plant
 #          - Vpp-Manager
 
     steps:
