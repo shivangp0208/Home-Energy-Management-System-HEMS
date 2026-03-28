@@ -3,7 +3,7 @@ name: HEMS Microservices Build and Publish
 on:
   push:
     branches:
-      - s-branch
+      - main
   # This single line enables the manual "Run workflow" button in GitHub
   workflow_dispatch:
 

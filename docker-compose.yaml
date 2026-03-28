@@ -2,26 +2,57 @@ version: '3.8'
 
 services:
   postgres-db:
-    image: postgres:latest
+    image: postgres:18-alpine
     environment:
       POSTGRES_USER: HEMS
       POSTGRES_PASSWORD: Hems#Einfochips
-      POSTGRES_DB: program_enrollment
     ports:
       - "5432:5432"
+    volumes:
+      - ./db/pq_init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  mysql-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Hems#Einfochips
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/mysql_init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  apache-kafka:
+    image: apache/kafka:4.2.0
+    environment:
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_NUM_PARTITIONS: 3
+    ports:
+      - "9092:9092"
+      - "9093:9093"
 
   rabbitmq-service:
-    image: rabbitmq:latest
+    image: rabbitmq:3-management
+#    for lower memory image use this which gives the UI support also as a dashboard
+#    image: rabbitmq:4.2.4-management-alpine
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: Hems#Einfochips
     ports:
       - "5672:5672"
 
+  redis-hems:
+    image: redis:8.6.1-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
   service-registry-hems:
-    depends_on:
-      - postgres-db
-      - rabbitmq-service
     image: hemseinfochips/service-registry-hems:latest
     ports:
       - "8091:8091"
@@ -32,10 +63,276 @@ services:
       - "logging.level.com.netflix.eureka=off"
       - "logging.level.com.netflix.discovery=off"
 
+  api-gateway-hems:
+    depends_on:
+      - service-registry-hems
+      - postgres-db
+      - rabbitmq-service
+    image: hemseinfochips/api-gateway-hems:latest
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_APPLICATION_NAME=api-gateway-hems
+      - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
+      - "spring.security.oauth2.client.registration.auth0.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}"
+      - "spring.security.oauth2.client.registration.auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
+      - "spring.security.oauth2.client.registration.auth0.client-secret=nK_uGuf6T9XwPuN2OO8VUbP21UMVDauYk9g35d8ojuydvUcWtbclE4Y-mHLXuiyS"
+      - "spring.security.oauth2.client.registration.auth0.authorization-grant-type=authorization_code"
+      - "spring.security.oauth2.client.registration.auth0.scope=openid,profile,email,offline_access"
+      - "spring.security.oauth2.client.provider.auth0.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.cloud.gateway.server.webflux.default-filters=TokenRelay"
+      # ---- Route 0 ----
+      - "spring.cloud.gateway.routes[0].id=site-service-route"
+      - "spring.cloud.gateway.routes[0].uri=http://site-service:8081"
+      - "spring.cloud.gateway.routes[0].predicates[0]=Path=/api/v1/owner/**,/api/v1/site/**,/check-token-is-present/**"
+
+      # ---- Route 1 ----
+      - "spring.cloud.gateway.routes[1].id=auth-service-route"
+      - "spring.cloud.gateway.routes[1].uri=http://auth-service:8082"
+      - "spring.cloud.gateway.routes[1].predicates[0]=Path=/auth/**"
+
+      # ---- Route 2 ----
+      - "spring.cloud.gateway.routes[2].id=vpp-service-route"
+      - "spring.cloud.gateway.routes[2].uri=http://vpp-service:8086"
+      - "spring.cloud.gateway.routes[2].predicates[0]=Path=/vpp/**"
+
+      # ---- Route 3 ----
+      - "spring.cloud.gateway.routes[3].id=program-enrollment-manager"
+      - "spring.cloud.gateway.routes[3].uri=http://program-enrollment-manager:8089"
+      - "spring.cloud.gateway.routes[3].predicates[0]=Path=/api/v1/program/**"
+
+      # ---- Route 4 ----
+      - "spring.cloud.gateway.routes[4].id=email-service"
+      - "spring.cloud.gateway.routes[4].uri=http://email-service:8088"
+      - "spring.cloud.gateway.routes[4].predicates[0]=Path=/api/v1/mail/**,/api/**"
+
+      # ---- Route 5 ----
+      - "spring.cloud.gateway.routes[5].id=dispatch-manager-service"
+      - "spring.cloud.gateway.routes[5].uri=http://dispatch-manager-service:8084"
+      - "spring.cloud.gateway.routes[5].predicates[0]=Path=/api/v1/dispatch/**"
+
+      # ---- Route 6 ----
+      - "spring.cloud.gateway.routes[6].id=envoy-manager-service"
+      - "spring.cloud.gateway.routes[6].uri=http://envoy-manager-service:8083"
+      - "spring.cloud.gateway.routes[6].predicates[0]=Path=/**"
+
+      # ---- Route 7 ----
+      - "spring.cloud.gateway.routes[7].id=simulator-service"
+      - "spring.cloud.gateway.routes[7].uri=http://simulator-service:9010"
+      - "spring.cloud.gateway.routes[7].predicates[0]=Path=/api/v1/simulation/**"
+
+      # ---- Route 8 ----
+      - "spring.cloud.gateway.routes[8].id=vpp-manager"
+      - "spring.cloud.gateway.routes[8].uri=http://vpp-manager:8087"
+      - "spring.cloud.gateway.routes[8].predicates[0]=Path=/**"
+
+      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_RABBITMQ_HOST=rabbitmq-service
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+      - SERVER_PORT=8089
+      - SERVER_FORWARD_HEADERS_STRATEGY=framework
+      - "auth0.domain=dev-0x5bg1uy1egiz4y0.us.auth0.com"
+      - "auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
+      - "auth0-mgmt.client-id=np7Orte3JD34XLKEp0AciTpGGH85lCLc"
+      - "auth0-mgmt.client-secret=APspJkcmIo5x_V1S0QvHCw75cKxJblGGwJepKXMJhPK5aknQevvuIX3QOwcV2ghm"
+
+  auth_service_hems:
+    image: hemseinfochips/auth-service-hems:latest
+    depends_on:
+      - service-registry-hems
+      - mysql-db
+      - redis-hems
+      - rabbitmq-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_APPLICATION_NAME=auth_service_hems
+      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
+      - "spring.security.oauth2.client.registration.auth0.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}"
+      - "spring.security.oauth2.client.registration.auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
+      - "spring.security.oauth2.client.registration.auth0.client-secret=nK_uGuf6T9XwPuN2OO8VUbP21UMVDauYk9g35d8ojuydvUcWtbclE4Y-mHLXuiyS"
+      - "spring.security.oauth2.client.registration.auth0.authorization-grant-type=authorization_code"
+      - "spring.security.oauth2.client.registration.auth0.scope=openid,profile,email,offline_access"
+      - "spring.security.oauth2.client.provider.auth0.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/auth_service
+      - SPRING_DATASOURCE_USERNAME=HEMS
+      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
+      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - SPRING_DATA_REDIS_HOST=redis-hems
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq-hems
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+      - SERVER_PORT=8081
+      - "auth0.domain=dev-0x5bg1uy1egiz4y0.us.auth0.com"
+      - "auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
+      - "auth0.client-secret=APspJkcmIo5x_V1S0QvHCw75cKxJblGGwJepKXMJhPK5aknQevvuIX3QOwcV2ghm"
+      - "auth0.client-secret=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/api/v2/"
+
+  chatbot-service:
+    image: hemseinfochips/chatbot-service:latest
+    depends_on:
+      - service-registry-hems
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_APPLICATION_NAME=program-enrollment-manager
+      - SPRING_AI_GOOGLE_GENAI_API_KEY=AIzaSyBI4mQ-1c4nzlBTKXI1qsmktcI0mrysQdM
+      - SPRING_AI_GOOGLE_GENAI_API_KEY_CHAT_OPTIONS_MODEL=gemini-2.5-flash
+      - SPRING_AI_MODEL_CHAT=google-genai
+      - SERVER_PORT=8082
+
+  dispatch-manager:
+    image: hemseinfochips/dispatch-manager-service:latest
+    depends_on:
+      - service-registry-hems
+      - envoy-manager
+      - rabbitmq-service
+      - apache-kafka
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_APPLICATION_NAME=dispatch-manager-service
+      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
+      - "spring.security.oauth2.resourceserver.jwt.scope[0]=email"
+
+      # PRODUCER
+      - "spring.kafka.producer.acks=1"
+      - "spring.kafka.producer.bootstrap-servers[0]=apache-kafka:9092"
+      - "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer"
+      - "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
+
+      # CONSUMER
+      - "spring.kafka.consumer.bootstrap-servers[0]=apache-kafka:9092"
+      - "spring.kafka.consumer.key-deserializer=org.springframework.kafka.support.serializer.ErrorHandlingDeserializer"
+      - "spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.ErrorHandlingDeserializer"
+      - "spring.kafka.consumer.auto-offset-reset=earliest"
+      - "spring.kafka.consumer.properties.spring.deserializer.key.delegate.class=org.apache.kafka.common.serialization.StringDeserializer"
+      - "spring.kafka.consumer.properties.spring.deserializer.value.delegate.class=org.springframework.kafka.support.serializer.JsonDeserializer"
+      - "spring.kafka.consumer.properties.spring.json.use.type.headers=true"
+      - "spring.kafka.consumer.properties.spring.json.trusted.packages=com.project.hems.*"
+
+      - SPRING_RABBITMQ_HOST=rabbitmq-service
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+      - SERVER_PORT=8083
+      - "property.config.kafka.dispatch-event-group-id=dispatch-event-readers"
+      - "property.config.kafka.dispatch-event-topic=ENERGY_DISPATCH_EVENTS"
+      - "property.config.kafka.dispatch-event-partition-count=1"
+      - "property.config.kafka.dispatch-command-dlt-group-id=dispatch-command-dlt-readers"
+      - "property.config.kafka.dispatch-command-dlt-topic=ENERGY_DISPATCH_COMMANDS_DLT"
+      - "property.config.kafka.dispatch-command-group-id=dispatch-command-readers"
+      - "property.config.kafka.dispatch-command-topic=ENERGY_DISPATCH_COMMANDS"
+      - "property.config.kafka.dispatch-command-partition-count=1"
+      - "property.config.kafka.vpp-service-group-id=vpp-requirement-group"
+      - "property.config.kafka.vpp-service-topic=VPP-REQUIREMENT"
+      - "property.config.kafka.vpp-service-partition-count=3"
+      - "property.config.kafka.replica-count=1"
+
+  envoy-manager:
+    image: hemseinfochips/envoy-manager-service:latest
+    ports:
+      - "8084:8084"
+    depends_on:
+      - apache-kafka
+      - service-registry-hems
+      - mysql-db
+      - rabbitmq-service
+    environment:
+      - SPRING_APPLICATION_NAME=envoy-manager-service
+      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
+      - "spring.security.oauth2.resourceserver.jwt.scope[0]=email"
+      - "spring.security.oauth2.client.registration.auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
+      - "spring.security.oauth2.client.registration.auth0.client-secret=nK_uGuf6T9XwPuN2OO8VUbP21UMVDauYk9g35d8ojuydvUcWtbclE4Y-mHLXuiyS"
+      - "spring.security.oauth2.client.registration.auth0.authorization-grant-type=client_credentials"
+      - "spring.security.oauth2.client.provider.auth0.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/oauth/token"
+      - "spring.security.oauth2.client.provider.auth0.token-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/envoy_service
+      - SPRING_DATASOURCE_USERNAME=HEMS
+      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
+      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+
+      # PRODUCER
+      - "spring.kafka.producer.acks=1"
+      - "spring.kafka.producer.bootstrap-servers[0]=apache-kafka:9092"
+      - "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer"
+      - "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
+
+      # CONSUMER
+      - "spring.kafka.consumer.bootstrap-servers[0]=apache-kafka:9092"
+      - "spring.kafka.consumer.key-deserializer=org.springframework.kafka.support.serializer.ErrorHandlingDeserializer"
+      - "spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.ErrorHandlingDeserializer"
+      - "spring.kafka.consumer.auto-offset-reset=earliest"
+      - "spring.kafka.consumer.properties.spring.deserializer.key.delegate.class=org.apache.kafka.common.serialization.StringDeserializer"
+      - "spring.kafka.consumer.properties.spring.deserializer.value.delegate.class=org.springframework.kafka.support.serializer.JsonDeserializer"
+      - "spring.kafka.consumer.properties.spring.json.use.type.headers=true"
+      - "spring.kafka.consumer.properties.spring.json.trusted.packages=com.project.hems.*"
+      - SPRING_RABBITMQ_HOST=rabbitmq-service
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+      - SERVER_PORT=8084
+      - "property.config.security.oauth2.auth0.audience=https://api.mfa01.com"
+      - "property.config.security.oauth2.auth0.registration_id=auth0"
+
+      - "property.config.meter-history.batch_size=60"
+
+      - "property.config.kafka.raw-energy-group-id=raw-energy-readers"
+      - "property.config.kafka.raw-energy-topic=RAW_ENERGY_READINGS"
+      - "property.config.kafka.raw-energy-partition-count=3"
+
+      - "property.config.kafka.dispatch-command-group-id=dispatch-command-readers"
+      - "property.config.kafka.dispatch-command-topic=ENERGY_DISPATCH_COMMANDS"
+      - "property.config.kafka.dispatch-command-partition-count=1"
+
+      - "property.config.kafka.site-creation-group-id=site-creation-readers"
+      - "property.config.kafka.site-creation-topic=SITE_CREATION_DETAILS"
+      - "property.config.kafka.site-creation-partition-count=1"
+
+      - "property.config.kafka.replica-count=1"
+
   program-enrollment:
     image: hemseinfochips/program-enrollment-manager:latest
     ports:
-      - "8089:8089"
+      - "8085:8085"
+    depends_on:
+      - service-registry-hems
+      - postgres-db
+      - rabbitmq-service
     environment:
       - SPRING_APPLICATION_NAME=program-enrollment-manager
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/program_enrollment
@@ -54,5 +351,203 @@ services:
       - EUREKA_CLIENT_FETCH_REGISTRY=true
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=8089
+      - SERVER_PORT=8085
 
+  simulator-service:
+    image: hemseinfochips/simulator-service:latest
+    ports:
+      - "9010:9010"
+    depends_on:
+      - envoy-manager
+      - mysql-db
+      - service-registry-hems
+      - rabbitmq-service
+      - apache-kafka
+    environment:
+      - SPRING_APPLICATION_NAME=simulator-service
+      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/simulator_service
+      - SPRING_DATASOURCE_USERNAME=HEMS
+      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
+      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - "spring.kafka.producer.acks=1"
+      - "spring.kafka.producer.bootstrap-servers[0]=apache-kafka:9092"
+      - "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer"
+      - "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
+      - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - SPRING_RABBITMQ_HOST=rabbitmq-service
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+      - SERVER_PORT=9010
+      - "property.config.kafka.raw-energy-group-id=raw-energy-readers"
+      - "property.config.kafka.raw-energy-topic=RAW_ENERGY_READINGS"
+      - "property.config.kafka.raw-energy-partition-count=3"
+      - "property.config.kafka.replica-count=1"
+
+  site-manager:
+    image: hemseinfochips/site-manager-service:latest
+    ports:
+      - "8086:8086"
+    depends_on:
+      - rabbitmq-service
+      - mysql-db
+      - service-registry-hems
+      - apache-kafka
+    environment:
+      - SPRING_APPLICATION_NAME=site-service
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/simulator_service
+      - SPRING_DATASOURCE_USERNAME=HEMS
+      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
+      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - SPRING_RABBITMQ_HOST=rabbitmq-service
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
+      - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - "spring.security.oauth2.resourceserver.jwt.scope[0]=email"
+      - "spring.kafka.producer.bootstrap-servers[0]=apache-kafka:9092"
+      - "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer"
+      - "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
+      - SERVER_PORT=8086
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+      - "property.config.kafka.site-creation-group-id=site-creation-reader"
+      - "property.config.kafka.site-creation-topic=SITE_CREATION_DETAILS"
+      - "property.config.kafka.site-creation-partition-count=1"
+      - "property.config.kafka.replica-count=1"
+
+  virtual-power-plant:
+    image: hemseinfochips/virtual-power-plant:latest
+    depends_on:
+      - service-registry-hems
+      - apache-kafka
+      - postgres-db
+      - rabbitmq-service
+    ports:
+      - "8087:8087"
+    environment:
+      # Spring App
+      - "spring.application.name=virtual-power-plant"
+
+      # Datasource
+      - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/virtual_power_plant"
+      - "spring.datasource.username=HEMS"
+      - "spring.datasource.password=Hems#Einfochips"
+
+      # JPA
+      - "spring.jpa.hibernate.ddl-auto=update"
+      - "spring.jpa.show-sql=true"
+      - "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
+
+      # Kafka Producer
+      - "spring.kafka.producer.bootstrap-servers=apache-kafka:9092"
+      - "spring.kafka.producer.acks=all"
+      - "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer"
+      - "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
+
+      # Kafka Consumer
+      - "spring.kafka.consumer.bootstrap-servers=apache-kafka:9092"
+      - "spring.kafka.consumer.enable-auto-commit=false"
+      - "spring.kafka.consumer.key-deserializer=org.springframework.kafka.support.serializer.ErrorHandlingDeserializer"
+      - "spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.ErrorHandlingDeserializer"
+      - "spring.kafka.consumer.properties.spring.deserializer.key.delegate.class=org.apache.kafka.common.serialization.StringDeserializer"
+      - "spring.kafka.consumer.properties.spring.deserializer.value.delegate.class=org.springframework.kafka.support.serializer.JsonDeserializer"
+      - "spring.kafka.consumer.properties.spring.json.use.type.headers=true"
+      - "spring.kafka.consumer.properties.spring.json.trusted.packages=com.project.hems.*"
+
+      # Kafka Listener
+      - "spring.kafka.listener.ack-mode=MANUAL"
+
+      # Security
+      - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+
+      # RabbitMQ
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
+
+      # Multipart
+      - "spring.servlet.multipart.max-file-size=5MB"
+      - "spring.servlet.multipart.max-request-size=5MB"
+
+      # Quartz
+      - "spring.quartz.job-store-type=JDBC"
+      - "spring.quartz.jdbc.initialize-schema=NEVER"
+      - "spring.quartz.properties.org.quartz.jobStore.driverDelegateClass=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate"
+      - "spring.quartz.properties.org.quartz.threadPool.threadCount=5"
+
+      # Eureka
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
+      - "eureka.client.service-url.defaultZone=http://service-registry-hems:8091/eureka"
+
+      # Server
+      - "server.port=8087"
+
+      # Custom Kafka Properties
+      - "property.config.kafka.raw-energy-group-id=raw-energy-readers-vpp"
+      - "property.config.kafka.raw-energy-topic=RAW_ENERGY_READINGS"
+      - "property.config.kafka.raw-energy-partition-count=3"
+
+      - "property.config.kafka.vpp-service-group-id=vpp-requirement-group"
+      - "property.config.kafka.vpp-service-topic=VPP-REQUIREMENT"
+      - "property.config.kafka.vpp-service-partition-count=3"
+
+      - "property.config.kafka.vpp-service-dlt-group-id=vpp-requirement-dlt-group"
+      - "property.config.kafka.vpp-service-dlt-topic=VPP-REQUIREMENT.DLT"
+
+      - "property.config.kafka.dispatch-event-group-id=dispatch-event-readers"
+      - "property.config.kafka.dispatch-event-topic=ENERGY_DISPATCH_EVENTS"
+      - "property.config.kafka.dispatch-event-partition-count=1"
+
+      - "property.config.kafka.vpp-snapshots-topic=VPP_ENERGY_SNAPSHOTS"
+      - "property.config.kafka.vpp-snapshots-partitions=3"
+      - "property.config.kafka.replica-count=1"
+
+      # Custom Kafka Topic
+      - "kafka.topic.schedule-topic=dispatch-topic"
+
+  vpp-manager:
+    image: hemseinfochips/vpp-manager:latest
+    ports:
+      - "8088:8088"
+    environment:
+      # Spring App
+      - "spring.application.name=vpp-manager"
+
+      # Kafka
+      - "spring.kafka.bootstrap-servers=apache-kafka:9092"
+      - "spring.kafka.consumer.group-id=vpp-manager-group"
+      - "spring.kafka.consumer.enable-auto-commit=false"
+      - "spring.kafka.consumer.auto-offset-reset=latest"
+      - "spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer"
+      - "spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.ErrorHandlingDeserializer"
+      - "spring.kafka.consumer.properties.spring.deserializer.value.delegate.class=org.springframework.kafka.support.serializer.JsonDeserializer"
+      - "spring.kafka.consumer.properties.spring.json.use.type.headers=false"
+      - "spring.kafka.consumer.properties.spring.json.trusted.packages=com.project.hems.*"
+
+      # Kafka Listener
+      - "spring.kafka.listener.ack-mode=MANUAL"
+
+      # Config Server
+      - "spring.cloud.config.import-check.enabled=false"
+
+      # Custom Property
+      - "property.kafka.vpp-snapshots-topic=VPP_ENERGY_SNAPSHOTS"
+
+      # Server
+      - "server.port=8088"
