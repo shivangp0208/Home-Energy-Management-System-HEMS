@@ -1,1 +1,3 @@
 rootProject.name = 'simulator-service'
+include ':hems-api-contracts'
+project(':hems-api-contracts').projectDir = new File(settingsDir, '../hems-api-contracts')

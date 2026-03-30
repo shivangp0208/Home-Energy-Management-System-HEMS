@@ -8,23 +8,20 @@
 
 rootProject.name = "Home-Energy-Management-System-HEMS"
 
-include "Virtual-Power-Plant"
+include "virtual-power-plant"
 include "hems-api-contracts"
 include "auth-service-hems"
 include "api-gateway-hems"
 include "dispatch-manager-service"
 include "envoy-manager-service"
 include "simulator-service"
-include "ServiceRegistry-HEMS"
-include "SiteManagerService"
+include "service-registry-hems"
+include "site-manager-service"
 include "program-enrollment-manager"
-include "Vpp-Manager"
-include "Email-Service"
+include "vpp-manager"
+include "email-service"
 include "CONFIG-SERVER"
-include "ADMIN-SERVICE"
-include("AIModule")
-include("ExcelModule")
-include("payment-service")
-
+include "admin-service"
+include "chatbot-service"
 
 

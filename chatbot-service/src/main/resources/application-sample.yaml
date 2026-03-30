@@ -3,9 +3,14 @@ spring:
     name: hems-chatbot-service
 
   ai:
+    model:
+      chat: google-genai
     google:
       genai:
-        api-key: AIzaSyBI4mQ-1c4nzlBTKXI1qsmktcI0mrysQdM
+        api-key: 
+        chat:
+          options:
+            model: gemini-2.5-flash
 
 server:
   port: 8086

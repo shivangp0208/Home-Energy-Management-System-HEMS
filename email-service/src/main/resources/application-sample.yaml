@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: email-service
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: hems07293@gmail.com
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  rabbitmq:
+    host:
+    port:
+    username:
+    password:
+
+
+  config:
+    import: optional:configserver:http://localhost:8095
+
+server:
+  port: 8088
+
+

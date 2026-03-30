@@ -3,7 +3,7 @@ name: HEMS Microservices Build and Publish
 on:
   push:
     branches:
-      - s-branch
+      - main
   # This single line enables the manual "Run workflow" button in GitHub
   workflow_dispatch:
 
@@ -15,28 +15,22 @@ jobs:
       matrix:
         # List the exact directory/module names of your HEMS services
         service:
-#          - ADMIN-SERVICE
-#          - api-gateway-hems
-#          - auth-service-hems
-#          - chatbot-service
+          - admin-service
+          - api-gateway-hems
+          - auth-service-hems
+          - chatbot-service
 #          - CONFIG-SERVER
-#          - dispatch-manager-service
-#          - Email-Service
-#          - envoy-manager-service
+          - dispatch-manager-service
+          - email-service
+          - envoy-manager-service
           - program-enrollment-manager
-#          - ServiceRegistry-HEMS
-#          - simulator-service
-#          - SiteManagerService
-#          - Virtual-Power-Plant
-#          - Vpp-Manager
+          - service-registry-hems
+          - simulator-service
+          - site-manager-service
+          - virtual-power-plant
+          - vpp-manager
 
     steps:
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-            java-version: '17'
-            distribution: 'temurin'
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
