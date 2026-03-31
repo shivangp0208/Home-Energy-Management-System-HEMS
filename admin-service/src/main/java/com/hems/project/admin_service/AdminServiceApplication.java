@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableFeignClients
 @SpringBootApplication(scanBasePackages = {
-		"com.hems.ExcelModule",
-		"com.hems.project.ADMIN_SERVICE"
+		"com.hems.excel_module",
+		"com.hems.project.admin_service"
 })
 public class AdminServiceApplication {
 

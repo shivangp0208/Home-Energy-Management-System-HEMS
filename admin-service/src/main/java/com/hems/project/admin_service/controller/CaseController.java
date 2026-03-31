@@ -1,9 +1,9 @@
-package com.hems.project.ADMIN_SERVICE.controller;
+package com.hems.project.admin_service.controller;
 
-import com.hems.ExcelModule.service.ExcelExportService;
-import com.hems.project.ADMIN_SERVICE.dto.*;
-import com.hems.project.ADMIN_SERVICE.entity.CaseEvent;
-import com.hems.project.ADMIN_SERVICE.service.CaseService;
+import com.hems.excel_module.service.ExcelExportService;
+import com.hems.project.admin_service.dto.*;
+import com.hems.project.admin_service.entity.CaseEvent;
+import com.hems.project.admin_service.service.CaseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;

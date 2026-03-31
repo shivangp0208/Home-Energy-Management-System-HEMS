@@ -1,11 +1,11 @@
-package com.project.hems.SiteManagerService.controller;
+package com.project.hems.site_manager_service.controller;
 
-import com.hems.ExcelModule.service.*;
-import com.project.hems.SiteManagerService.config.MessagingConfig;
-import com.project.hems.SiteManagerService.dto.CursorSiteResponse;
-import com.project.hems.SiteManagerService.service.impl.EmailServiceImpl;
-import com.project.hems.SiteManagerService.service.impl.SiteServiceImpl;
-import com.project.hems.SiteManagerService.util.EmailTemplateUtil;
+import com.hems.excel_module.service.*;
+import com.project.hems.site_manager_service.config.MessagingConfig;
+import com.project.hems.site_manager_service.dto.CursorSiteResponse;
+import com.project.hems.site_manager_service.service.impl.EmailServiceImpl;
+import com.project.hems.site_manager_service.service.impl.SiteServiceImpl;
+import com.project.hems.site_manager_service.util.EmailTemplateUtil;
 import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullRequestDto;
 import com.project.hems.hems_api_contracts.contract.email.MailSuccessfullResponseDto;

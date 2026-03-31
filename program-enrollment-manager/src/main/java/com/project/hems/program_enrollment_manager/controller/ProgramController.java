@@ -1,8 +1,8 @@
 package com.project.hems.program_enrollment_manager.controller;
 
-import com.hems.ExcelModule.model.ExcelImportResult;
-import com.hems.ExcelModule.service.ExcelExportService;
-import com.hems.ExcelModule.service.ExcelImportService;
+import com.hems.excel_module.model.ExcelImportResult;
+import com.hems.excel_module.service.ExcelExportService;
+import com.hems.excel_module.service.ExcelImportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

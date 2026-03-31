@@ -23,5 +23,7 @@ include "email-service"
 include "CONFIG-SERVER"
 include "admin-service"
 include "chatbot-service"
+include "excel-module"
+include "ai-module"
 
 

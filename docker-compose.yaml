@@ -276,6 +276,11 @@ services:
       - "spring.security.oauth2.client.registration.auth0.authorization-grant-type=client_credentials"
       - "spring.security.oauth2.client.provider.auth0.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/oauth/token"
       - "spring.security.oauth2.client.provider.auth0.token-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/envoy_service
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
+      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
 
       # PRODUCER
       - "spring.kafka.producer.acks=1"
@@ -419,7 +424,9 @@ services:
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
       - "property.config.kafka.site-creation-group-id=site-creation-reader"
+      - "property.config.kafka.site-creation-dlt-group-id=site-creation-dlt-reader"
       - "property.config.kafka.site-creation-topic=SITE_CREATION_DETAILS"
+      - "property.config.kafka.site-creation-dlt-topic=SITE_CREATION_DETAILS.DLT"
       - "property.config.kafka.site-creation-partition-count=1"
       - "property.config.kafka.replica-count=1"
 
