@@ -29,8 +29,6 @@ jobs:
           - site-manager-service
           - virtual-power-plant
           - vpp-manager
-          - ai-module
-          - excel-module
 
     steps:
       - name: Checkout Code
