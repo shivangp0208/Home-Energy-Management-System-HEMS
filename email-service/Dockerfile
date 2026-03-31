@@ -12,7 +12,6 @@ WORKDIR /app
 COPY build/libs/*.jar app.jar
 
 # 6. Ports: Use the EXPOSE instruction to document the port.
-# Change this number in each service's Dockerfile as needed.
 EXPOSE 8089
 
 # 7. Execution: Command to run your Java application

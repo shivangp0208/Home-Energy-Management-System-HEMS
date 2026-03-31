@@ -1,6 +1,6 @@
 package com.project.hems.program_enrollment_manager;
 
-import com.hems.excel_modulee.config.ExcelAutoConfiguration;
+import com.hems.excel_module.config.ExcelAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
