@@ -1,5 +1,7 @@
 package com.hems.project.email_service.controller;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.hems.project.email_service.dto.EmailRequest;
 import com.hems.project.email_service.dto.EmailResponse;
 import com.hems.project.email_service.entity.EmailJob;
@@ -31,12 +33,23 @@ public class MailSchedulerController {
         return ResponseEntity.ok().body(res);
     }
 
-
+    @Operation(
+            summary = "schedule email",
+            description = "schedule an email to be sent at a specific date and time using quartz scheduler"
+    )
+    @ApiResponse(responseCode = "200", description = "email scheduled successfully")
+    @ApiResponse(responseCode = "400", description = "invalid date time")
+    @ApiResponse(responseCode = "500", description = "internal server error")
+    @PreAuthorize("hasAuthority('mail:schedule')")
     @PostMapping(value = "/schedule/email",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EmailResponse> scheduleEmail(@Valid @RequestBody EmailRequest emailRequest){
+
+        log.info("received request to schedule email at {} with timezone {}",
+                emailRequest.getDateTime(), emailRequest.getTimeZone());
         try{
             ZonedDateTime dateTime=ZonedDateTime.of(emailRequest.getDateTime(),emailRequest.getTimeZone());
             if (dateTime.isBefore(ZonedDateTime.now())){
+                log.warn("invalid schedule time: provided time {} is before current time", dateTime);
                 EmailResponse emailResponse=new EmailResponse("date time mist be after current time",false);
                 return new ResponseEntity<>(emailResponse,HttpStatus.INTERNAL_SERVER_ERROR);
             }
@@ -45,15 +58,23 @@ public class MailSchedulerController {
             Trigger trigger=buildTrigger(jobDetail,dateTime);
             //note jyare apde aa scheduler ni help this schedule kariee so at that time behind the scene
             //quartz atumatic apda mate badhu kare database ma ena jetla pan table hase badhu update kari dese//
+
             scheduler.scheduleJob(jobDetail,trigger);
+            log.info("email scheduled successfully with job name {} and group {}",
+                    jobDetail.getKey().getName(),
+                    jobDetail.getKey().getGroup());
             EmailResponse emailResponse=new EmailResponse("email scheduled successfully",jobDetail.getKey().getName(),jobDetail.getKey().getGroup(),true);
             return new ResponseEntity<>(emailResponse,HttpStatus.OK);
 
 
-        }catch (Exception ex){
-            log.error("error while sending email",ex);
-            EmailResponse emailResponse=new EmailResponse("error while scheduleEmail please try again later",false);
-            return new ResponseEntity<>(emailResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch (Exception ex) {
+
+            log.error("error while scheduling email: {}", ex.getMessage(), ex);
+            EmailResponse response = new EmailResponse(
+                    "error while scheduling email, please try again later",
+                    false
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 

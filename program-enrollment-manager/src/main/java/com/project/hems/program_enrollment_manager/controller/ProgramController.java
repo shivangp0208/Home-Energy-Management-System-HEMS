@@ -49,20 +49,32 @@ public class ProgramController {
     private final SiteProgramEnrollmentServiceImpl siteProgramEnrollmentService;
     private final ExcelImportService excelImportService;
 
-    @PreAuthorize("hasAuthority('admin:access')")
+    @Operation(summary = "get all programs", description = "fetch all programs with pagination")
+    @ApiResponse(responseCode = "200", description = "program list fetched successfully")
+    @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/programs")
-    @ResponseStatus(HttpStatus.OK)
-    public Page<Program> getAllPrograms(
-            @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite,
-            @RequestParam(name = "pageNumber", required = false, defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "5") int pageSize) {
-        log.info("GET req to get all programs");
-        PageRequest pageReq = PageRequest.of(pageNumber, pageSize);
+    public ResponseEntity<Page<Program>> getAllPrograms(
+            @RequestParam(defaultValue = "false") boolean includeSite,
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "5") int pageSize) {
 
-        return programService.findAllPrograms(pageReq, includeSite);
+        log.info("received request to fetch all programs page {} size {}", pageNumber, pageSize);
+
+        try {
+            PageRequest pageReq = PageRequest.of(pageNumber, pageSize);
+            Page<Program> programs = programService.findAllPrograms(pageReq, includeSite);
+
+            log.info("fetched {} programs", programs.getTotalElements());
+
+            return ResponseEntity.ok(programs);
+
+        } catch (Exception e) {
+            log.error("error fetching programs: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
-    @PreAuthorize("hasAuthority('admin:access')")
+    @PreAuthorize("hasAuthority('admin:read')")
     @Operation(summary = "get program by id", description = "retrieve a single program using its unique programId")
     @ApiResponse(responseCode = "200", description = "program found and returned successfully")
     @ApiResponse(responseCode = "404", description = "program with given id not found")
@@ -75,7 +87,7 @@ public class ProgramController {
         return new ResponseEntity<>(programById, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('admin:access')")
+    @PreAuthorize("hasAuthority('admin:write')")
     @Operation(summary = "create new program", description = "create a new program with provided details")
     @ApiResponse(responseCode = "201", description = "program created successfully")
     @PostMapping("/create-program")
@@ -87,7 +99,7 @@ public class ProgramController {
         return new ResponseEntity<>(saveNewProgram, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAuthority('admin:access')")
+    @PreAuthorize("hasAuthority('admin:write')")
     @Operation(summary = "update program configuration", description = "update configuration details of an existing program")
     @ApiResponse(responseCode = "200", description = "program configuration updated successfully")
     @PutMapping("/update-program/{programId}")
@@ -101,7 +113,7 @@ public class ProgramController {
     }
 
     // here we find enroll site in particular program
-    @PreAuthorize("hasAuthority('admin:access')")
+    @PreAuthorize("hasAuthority('admin:write')")
     @Operation(summary = "enroll site in program", description = "enroll a site in a specific program")
     @ApiResponse(responseCode = "200", description = "site enrolled in program successfully")
     @PostMapping("/enroll-site-in-program")
@@ -116,7 +128,7 @@ public class ProgramController {
     }
 
     // activate program
-    @PreAuthorize("hasAuthority('admin:access')")
+    @PreAuthorize("hasAuthority('admin:write')")
     @Operation(summary = "activate program", description = "activate a program by its programId")
     @ApiResponse(responseCode = "200", description = "program activated successfully")
     @PatchMapping("/activate-program/{programId}")
@@ -129,7 +141,7 @@ public class ProgramController {
     }
 
     // deactivate program
-    @PreAuthorize("hasAuthority('admin:access')")
+    @PreAuthorize("hasAuthority('admin:write')")
     @Operation(summary = "deactivate program", description = "deactivate a program by its programId")
     @ApiResponse(responseCode = "200", description = "program deactivated successfully")
     @PatchMapping("/deactivate-program/{programId}")
@@ -141,47 +153,109 @@ public class ProgramController {
         return new ResponseEntity<>(deactivatedProgram, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('admin:access')")
+    @Operation(
+            summary = "get programs by site",
+            description = "fetch all programs associated with a given site id"
+    )
+    @ApiResponse(responseCode = "200", description = "programs fetched successfully")
+    @ApiResponse(responseCode = "500", description = "internal server error")
+    @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/fetch-programs-by-site/{siteId}")
-    public List<Program> getAllProgramBySiteId(
-            @PathVariable(name = "siteId", required = false) UUID siteId,
-            @RequestParam(name = "includeSite", required = false, defaultValue = "false") boolean includeSite) {
-        log.info("GET req to fetch all programs under site with siteId = " + siteId);
-        return programService.findAllProgramsBySites(siteId, includeSite);
+    public ResponseEntity<List<Program>> getAllProgramBySiteId(
+            @PathVariable UUID siteId,
+            @RequestParam(defaultValue = "false") boolean includeSite) {
+
+        log.info("received request to fetch programs for siteId {}", siteId);
+
+        try {
+            List<Program> programs = programService.findAllProgramsBySites(siteId, includeSite);
+
+            log.info("fetched {} programs for siteId {}", programs.size(), siteId);
+
+            return ResponseEntity.ok(programs);
+
+        } catch (Exception e) {
+            log.error("error fetching programs for siteId {}: {}", siteId, e.getMessage(), e);
+            throw e;
+        }
     }
 
-    @PreAuthorize("hasAuthority('admin:access')")
+    @Operation(
+            summary = "get program ids by site",
+            description = "fetch all program ids associated with a given site id"
+    )
+    @ApiResponse(responseCode = "200", description = "program ids fetched successfully")
+    @ApiResponse(responseCode = "500", description = "internal server error")
+    @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/fetch-programsIds-by-site/{siteId}")
-    public List<UUID> getAllProgramIdBySiteId(
-            @PathVariable(name = "siteId", required = false) UUID siteId) {
-        log.info("GET req to fetch all programsId under site with siteId = " + siteId);
-        return siteProgramEnrollmentService.findAllProgramIdsBySiteId(siteId);
+    public ResponseEntity<List<UUID>> getAllProgramIdBySiteId(
+            @PathVariable UUID siteId) {
+
+        log.info("received request to fetch program ids for siteId {}", siteId);
+
+        try {
+            List<UUID> programIds = siteProgramEnrollmentService.findAllProgramIdsBySiteId(siteId);
+
+            log.info("fetched {} program ids for siteId {}", programIds.size(), siteId);
+
+            return ResponseEntity.ok(programIds);
+
+        } catch (Exception e) {
+            log.error("error fetching program ids for siteId {}: {}", siteId, e.getMessage(), e);
+            throw e;
+        }
     }
 
-    @PreAuthorize("hasAuthority('admin:access')")
+    @Operation(summary = "check program availability", description = "check if a program exists")
+    @ApiResponse(responseCode = "200", description = "availability checked")
     @GetMapping("/check-program-available/{programId}")
-    public boolean checkProgramIdIsAvailable(@PathVariable UUID programId) {
-        log.info("GET req to check program availability under programId = " + programId);
-        return programService.checkProgramIsAvailable(programId);
+    public ResponseEntity<Boolean> checkProgramIdIsAvailable(@PathVariable UUID programId) {
+
+        log.info("checking program availability for programId {}", programId);
+
+        try {
+            boolean available = programService.checkProgramIsAvailable(programId);
+            return ResponseEntity.ok(available);
+
+        } catch (Exception e) {
+            log.error("error checking program availability {}: {}", programId, e.getMessage(), e);
+            throw e;
+        }
     }
+
+    @Operation(summary = "bulk enroll sites", description = "bulk enroll sites into programs using excel file")
+    @ApiResponse(responseCode = "200", description = "bulk enrollment completed")
+    @ApiResponse(responseCode = "400", description = "invalid file data")
+    @PreAuthorize("hasAuthority('admin:write')")
     @PostMapping("/bulk-enroll")
-    public ResponseEntity<?> bulkEnroll(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> bulkEnroll(@RequestParam("file") MultipartFile file) {
 
-        ExcelImportResult result = excelImportService.importFromExcel(file);
+        log.info("received bulk enroll request");
 
-        if (!result.isSuccess()) {
-            return ResponseEntity.badRequest().body(result.getErrors());
+        try {
+            ExcelImportResult result = excelImportService.importFromExcel(file);
+
+            if (!result.isSuccess()) {
+                log.warn("bulk enroll failed due to validation errors");
+                return ResponseEntity.badRequest().body(result.getErrors().toString());
+            }
+
+            for (Map<String, Object> row : result.getData()) {
+
+                UUID siteId = UUID.fromString(row.get("siteId").toString());
+                UUID programId = UUID.fromString(row.get("programId").toString());
+
+                siteProgramEnrollmentService.enrollSiteinProgram(siteId, programId);
+            }
+
+            log.info("bulk enrollment completed for {} rows", result.getTotalRows());
+
+            return ResponseEntity.ok("bulk enrollment done: " + result.getTotalRows());
+
+        } catch (Exception e) {
+            log.error("error during bulk enrollment: {}", e.getMessage(), e);
+            throw e;
         }
-
-        for (Map<String, Object> row : result.getData()) {
-
-            UUID siteId = UUID.fromString(row.get("siteId").toString());
-            UUID programId = UUID.fromString(row.get("programId").toString());
-
-            siteProgramEnrollmentService.enrollSiteinProgram(siteId, programId);
-        }
-
-        return ResponseEntity.ok("Bulk enrollment done: " + result.getTotalRows());
     }
 
 }

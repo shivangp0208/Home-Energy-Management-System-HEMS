@@ -74,41 +74,43 @@ public class SessionValidationWebFilter implements WebFilter {
 
     private final ReactiveStringRedisTemplate redis;
 
-    private static String sessionsKey(String sub) { return "sessions:" + sub; }
+    private static String sessionsKey(String sub) {
+        return "sessions:" + sub;
+    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-
         String path = exchange.getRequest().getURI().getPath();
+
         if ("/session/activate".equals(path) || "/session/logout".equals(path)) {
             return chain.filter(exchange);
         }
 
-        Mono<Authentication> auth = exchange.getPrincipal().cast(Authentication.class);
+        return exchange.getPrincipal()
+                .cast(Authentication.class)
+                .flatMap(authentication -> {
+                    if (!(authentication instanceof JwtAuthenticationToken jwtAuth)) {
+                        return chain.filter(exchange);
+                    }
 
-        return auth.flatMap(a -> {
-            if (a instanceof JwtAuthenticationToken jwtAuth) {
-                var jwt = jwtAuth.getToken();
-                String sub = jwt.getSubject();
-                String sid = jwt.getClaimAsString("https://hems.example.com/sid");
+                    String sub = jwtAuth.getToken().getSubject();
+                    String sid = jwtAuth.getToken().getClaimAsString("https://hems.example.com/sid");
 
-                if (sub == null || sid == null) return chain.filter(exchange);
+                    if (sub == null || sid == null) {
+                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                        return exchange.getResponse().setComplete();
+                    }
 
-                String key = sessionsKey(sub);
-
-                return redis.opsForHash().hasKey(key, sid)
-                        .flatMap(exists -> {
-//                            if (!exists) {
-//                                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-//                                return exchange.getResponse().setComplete();
-//                            }
-                            if (!exists) {
-                                return Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session invalid"));
-                            }
-                            return chain.filter(exchange);
-                        });
-            }
-            return chain.filter(exchange);
-        }).switchIfEmpty(chain.filter(exchange));
+                    return redis.opsForHash()
+                            .hasKey(sessionsKey(sub), sid)
+                            .flatMap(exists -> {
+                                if (!exists) {
+                                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                                    return exchange.getResponse().setComplete();
+                                }
+                                return chain.filter(exchange);
+                            });
+                })
+                .switchIfEmpty(chain.filter(exchange));
     }
 }

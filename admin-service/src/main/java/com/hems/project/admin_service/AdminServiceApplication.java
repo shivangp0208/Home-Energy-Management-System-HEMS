@@ -9,8 +9,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients
 @SpringBootApplication(scanBasePackages = {
 		"com.hems.excel_module",
-		"com.hems.project.admin_service"
+		"com.hems.project.admin_service",
+		"com.hems.project",
+		"com.project.hems"
 })
+
 public class AdminServiceApplication {
 
 	public static void main(String[] args) {
