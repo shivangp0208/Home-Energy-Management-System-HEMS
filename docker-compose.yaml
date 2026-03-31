@@ -22,14 +22,18 @@ services:
 
   apache-kafka:
     image: apache/kafka:4.2.0
-    environment:
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+    environment:  
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://apache-kafka:9092,CONTROLLER://apache-kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://apache-kafka:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@apache-kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_NUM_PARTITIONS: 3
     ports:
       - "9092:9092"
@@ -274,14 +278,15 @@ services:
       - "spring.security.oauth2.client.registration.auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
       - "spring.security.oauth2.client.registration.auth0.client-secret=nK_uGuf6T9XwPuN2OO8VUbP21UMVDauYk9g35d8ojuydvUcWtbclE4Y-mHLXuiyS"
       - "spring.security.oauth2.client.registration.auth0.authorization-grant-type=client_credentials"
-      - "spring.security.oauth2.client.provider.auth0.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/oauth/token"
-      - "spring.security.oauth2.client.provider.auth0.token-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - "spring.security.oauth2.client.provider.auth0.token-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/oauth/token"
+      - "spring.security.oauth2.client.provider.auth0.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/envoy_service
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
       - SPRING_JPA_HIBERNATE_DLL_AUTO=update
       - SPRING_JPA_SHOW_SQL=true
 
+      - "spring.kafka.bootstrap-servers=apache-kafka:9092"
       # PRODUCER
       - "spring.kafka.producer.acks=1"
       - "spring.kafka.producer.bootstrap-servers[0]=apache-kafka:9092"
