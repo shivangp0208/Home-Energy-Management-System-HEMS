@@ -1,7 +1,6 @@
 package com.project.hems.api_gateway_hems.exception;
 
 import com.project.hems.api_gateway_hems.dto.ExceptionDto;
-import com.project.hems.api_gateway_hems.exception.*;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -12,6 +11,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,11 +82,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<com.project.hems.api_gateway_hems.dto.ExceptionDto> handleAny(Exception ex) {
-        log.error("unhandled exception", ex);
-        return build("internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @ExceptionHandler(Exception.class)
+//    public Mono<Void> handleAny(Exception ex, ServerWebExchange exchange) {
+//        if (exchange.getResponse().isCommitted()) {
+//            log.debug("Response already committed, skipping error handling");
+//            return Mono.empty();
+//        }
+//
+//        log.error("unhandled exception", ex);
+//        exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+//        return exchange.getResponse().setComplete();
+//    }
 
     private ResponseEntity<ExceptionDto> build(String message, HttpStatus status) {
         ExceptionDto dto = new ExceptionDto(message, status, status.value());

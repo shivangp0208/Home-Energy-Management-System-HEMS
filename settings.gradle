@@ -22,9 +22,11 @@ include "Vpp-Manager"
 include "Email-Service"
 include "CONFIG-SERVER"
 include "ADMIN-SERVICE"
-include("AIModule")
-include("ExcelModule")
+include("ai-module")
+include("excel-module")
 include("payment-service")
+include("chatbot-service")
+
 
 
 

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.hems.project.Virtual_Power_Plant.dto.ImageResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,39 +75,39 @@ public class SupabaseStorageService {
        }
 
 
-       public List<Map<String,String>> getAllImagesFromVppId(UUID vppId){
-            String listUrl=supabaseUrl+"/storage/v1/object/list/"+ bucket;
-             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(supabaseKey);
-            headers.setContentType(MediaType.APPLICATION_JSON);
+       public List<ImageResponseDto> getAllImagesFromVppId(UUID vppId) {
+           String listUrl = supabaseUrl + "/storage/v1/object/list/" + bucket;
+           HttpHeaders headers = new HttpHeaders();
+           headers.setBearerAuth(supabaseKey);
+           headers.setContentType(MediaType.APPLICATION_JSON);
 
-            Map<String, Object> body = Map.of(
-            "prefix", vppId.toString() + "/",
-            "limit", 100,
-            "offset", 0
-            );
+           Map<String, Object> body = Map.of(
+                   "prefix", vppId.toString() + "/",
+                   "limit", 100,
+                   "offset", 0
+           );
 
-    HttpEntity<Map<String, Object>> request =
-            new HttpEntity<>(body, headers);
+           HttpEntity<Map<String, Object>> request =
+                   new HttpEntity<>(body, headers);
 
-    ResponseEntity<SupabaseObjectDto[]> response =
-            restTemplate.exchange(
-                    listUrl,
-                    HttpMethod.POST,
-                    request,
-                    SupabaseObjectDto[].class
-            );
+           ResponseEntity<SupabaseObjectDto[]> response =
+                   restTemplate.exchange(
+                           listUrl,
+                           HttpMethod.POST,
+                           request,
+                           SupabaseObjectDto[].class
+                   );
 
-    if (response.getBody() == null) {
-        return List.of();
-    }
+           if (response.getBody() == null) {
+               return List.of();
+           }
 
-    return Arrays.stream(response.getBody())
-            .map(obj -> Map.of(
-                    "fileName", obj.getName(),
-                    "url", getPublicImageUrl(vppId, obj.getName())
-            ))
-            .toList();
+           return Arrays.stream(response.getBody())
+                   .map(obj -> new ImageResponseDto(
+                           obj.getName(),
+                           getPublicImageUrl(vppId, obj.getName())
+                   ))
+                   .toList();
        }
 
     public void deleteAllFilesByVppId(UUID vppId) {

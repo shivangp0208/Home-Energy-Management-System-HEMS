@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -83,8 +84,8 @@ public class OwnerController {
 
         OwnerDto updatedOwner = ownerService.updateOwnerDetail(ownerId, ownerDto);
 
-        return new ResponseEntity<>(updatedOwner, HttpStatus.OK);
-    }
+        return new ResponseEntity<>(updatedOwner, HttpStatus.OK);    }
+
 
     @Operation(summary = "delete owner by id", description = "delete the owner with the given owner id")
     @ApiResponse(responseCode = "200", description = "owner deleted successfully")
@@ -97,4 +98,12 @@ public class OwnerController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    //testing rate limiting
+    @GetMapping("/test/rate")
+    public ResponseEntity<String> api1() {
+        return ResponseEntity.ok("API 1 response");
+    }
+
+
 }
