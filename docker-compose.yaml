@@ -573,18 +573,23 @@ services:
 #      - "server.port=8088"
 #    platform: linux/amd64
 
-  ai_module:
-    image: hemseinfochips/ai_module:latest
+  ai-module:
+    image: hemseinfochips/ai-module:latest
     ports:
       - "9011:9011"
+    depends_on:
+      - service-registry-hems
     environment:
-      - "spring.application.name=ai_module"
-      - "spring.ai.gemini.api-key=AIzaSyD4xqmJU-rWIaIvQmsVm43eX8NO5S7Eq9Q"
-      - "spring.ai.gemini.model=gemini-2.5-flash"
-      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+      - SPRING_APPLICATION_NAME=ai-module
+      - SPRING_AI_GEMINI_API_KEY=AIzaSyD4xqmJU-rWIaIvQmsVm43eX8NO5S7Eq9Q
+      - SPRING_AI_GEMINI_MODEL=gemini-2.5-flash
+      - SERVER_PORT=9011
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry-hems:8091/eureka/
 
     platform: linux/amd64
-
   excel-module:
     image: hemseinfochips/excel-module:latest
     ports:
