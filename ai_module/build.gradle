@@ -27,7 +27,7 @@ repositories {
 dependencyManagement {
 	imports {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.1"
-		mavenBom "org.springframework.ai:spring-ai-bom:0.8.1"
+		mavenBom "org.springframework.ai:spring-ai-bom:0.8.0"
 	}
 }
 
@@ -38,8 +38,8 @@ dependencies {
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.1.0'
 
-	// ✅ Fixed Spring AI dependency (NO version here)
-	implementation 'org.springframework.ai:spring-ai-starter-model-gemini'
+	// ✅ FINAL FIXED GEMINI DEPENDENCY
+	implementation 'org.springframework.ai:spring-ai-google-gemini'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
