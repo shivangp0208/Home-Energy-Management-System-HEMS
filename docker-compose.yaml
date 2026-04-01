@@ -573,3 +573,22 @@ services:
       # Server
       - "server.port=8088"
     platform: linux/amd64
+
+  ai_module:
+    image: hemseinfochips/ai_module:latest
+    ports:
+      - "9011:9011"
+    environment:
+      - "spring.application.name=ai_module"
+      - "spring.ai.gemini.api-key=AIzaSyD4xqmJU-rWIaIvQmsVm43eX8NO5S7Eq9Q"
+      - "spring.ai.gemini.model=gemini-2.5-flash"
+    platform: linux/amd64
+
+  excel-module:
+    image: hemseinfochips/excel-module:latest
+    ports:
+      - "9012:9012"
+    platform: linux/amd64
+
+
+
