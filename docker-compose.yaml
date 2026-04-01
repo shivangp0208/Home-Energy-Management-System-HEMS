@@ -460,6 +460,8 @@ services:
       # Spring App
       - "spring.application.name=virtual-power-plant"
 
+      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+
       # Datasource
       - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/virtual_power_plant"
       - "spring.datasource.username=HEMS"
