@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - ./db/pq_init.sql:/docker-entrypoint-initdb.d/init.sql
+    platform: linux/amd64
 
   mysql-db:
     image: mysql:8.0
@@ -19,6 +20,7 @@ services:
       - "3306:3306"
     volumes:
       - ./db/mysql_init.sql:/docker-entrypoint-initdb.d/init.sql
+    platform: linux/amd64
 
   apache-kafka:
     image: apache/kafka:4.2.0
@@ -48,6 +50,7 @@ services:
       RABBITMQ_DEFAULT_PASS: Hems#Einfochips
     ports:
       - "5672:5672"
+    platform: linux/amd64
 
   redis-hems:
     image: redis:8.6.1-alpine
@@ -55,6 +58,7 @@ services:
     ports:
       - "6379:6379"
     restart: unless-stopped
+    platform: linux/amd64
 
   service-registry-hems:
     image: hemseinfochips/service-registry-hems:latest
@@ -66,6 +70,7 @@ services:
       - "eureka.client.fetch-registry=false"
       - "logging.level.com.netflix.eureka=off"
       - "logging.level.com.netflix.discovery=off"
+    platform: linux/amd64
 
   api-gateway-hems:
     depends_on:
@@ -149,6 +154,7 @@ services:
       - "auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
       - "auth0-mgmt.client-id=np7Orte3JD34XLKEp0AciTpGGH85lCLc"
       - "auth0-mgmt.client-secret=APspJkcmIo5x_V1S0QvHCw75cKxJblGGwJepKXMJhPK5aknQevvuIX3QOwcV2ghm"
+    platform: linux/amd64
 
   auth_service_hems:
     image: hemseinfochips/auth-service-hems:latest
@@ -192,6 +198,7 @@ services:
       - "auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
       - "auth0.client-secret=APspJkcmIo5x_V1S0QvHCw75cKxJblGGwJepKXMJhPK5aknQevvuIX3QOwcV2ghm"
       - "auth0.audience=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/api/v2/"
+    platform: linux/amd64
 
   chatbot-service:
     image: hemseinfochips/chatbot-service:latest
@@ -205,6 +212,7 @@ services:
       - SPRING_AI_GOOGLE_GENAI_API_KEY_CHAT_OPTIONS_MODEL=gemini-2.5-flash
       - SPRING_AI_MODEL_CHAT=google-genai
       - SERVER_PORT=8082
+    platform: linux/amd64
 
   dispatch-manager:
     image: hemseinfochips/dispatch-manager-service:latest
@@ -259,6 +267,7 @@ services:
       - "property.config.kafka.vpp-service-topic=VPP-REQUIREMENT"
       - "property.config.kafka.vpp-service-partition-count=3"
       - "property.config.kafka.replica-count=1"
+    platform: linux/amd64
 
   envoy-manager:
     image: hemseinfochips/envoy-manager-service:latest
@@ -329,6 +338,7 @@ services:
       - "property.config.kafka.site-creation-partition-count=1"
 
       - "property.config.kafka.replica-count=1"
+    platform: linux/amd64
 
   program-enrollment:
     image: hemseinfochips/program-enrollment-manager:latest
@@ -357,6 +367,7 @@ services:
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
       - SERVER_PORT=8085
+    platform: linux/amd64
 
   simulator-service:
     image: hemseinfochips/simulator-service:latest
@@ -394,6 +405,7 @@ services:
       - "property.config.kafka.raw-energy-topic=RAW_ENERGY_READINGS"
       - "property.config.kafka.raw-energy-partition-count=3"
       - "property.config.kafka.replica-count=1"
+    platform: linux/amd64
 
   site-manager:
     image: hemseinfochips/site-manager-service:latest
@@ -434,6 +446,7 @@ services:
       - "property.config.kafka.site-creation-dlt-topic=SITE_CREATION_DETAILS.DLT"
       - "property.config.kafka.site-creation-partition-count=1"
       - "property.config.kafka.replica-count=1"
+    platform: linux/amd64
 
   virtual-power-plant:
     image: hemseinfochips/virtual-power-plant:latest
@@ -527,6 +540,7 @@ services:
 
       # Custom Kafka Topic
       - "kafka.topic.schedule-topic=dispatch-topic"
+    platform: linux/amd64
 
   vpp-manager:
     image: hemseinfochips/vpp-manager:latest
@@ -558,3 +572,4 @@ services:
 
       # Server
       - "server.port=8088"
+    platform: linux/amd64
