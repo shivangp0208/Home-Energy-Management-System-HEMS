@@ -1,4 +1,4 @@
-version: '3.8'
+#version: '3.8'
 
 services:
   postgres-db:
@@ -582,12 +582,16 @@ services:
       - "spring.application.name=ai_module"
       - "spring.ai.gemini.api-key=AIzaSyD4xqmJU-rWIaIvQmsVm43eX8NO5S7Eq9Q"
       - "spring.ai.gemini.model=gemini-2.5-flash"
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+
     platform: linux/amd64
 
   excel-module:
     image: hemseinfochips/excel-module:latest
     ports:
       - "9012:9012"
+    environment:
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
     platform: linux/amd64
 
 
