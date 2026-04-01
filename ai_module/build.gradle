@@ -18,16 +18,9 @@ configurations {
 		extendsFrom annotationProcessor
 	}
 }
-
 repositories {
 	mavenCentral()
 	maven { url 'https://repo.spring.io/milestone' }
-}
-
-dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.1"
-	}
 }
 
 dependencies {
@@ -35,10 +28,20 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.1.0'
 
 	// ✅ FINAL FIXED GEMINI DEPENDENCY
 	implementation 'org.springframework.ai:spring-ai-google-genai'
+
+	// Spring Cloud - explicit versions (no BOM to avoid coordinate rewriting)
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.1.0'
+	implementation 'org.springframework.cloud:spring-cloud-commons:4.1.0'
+	implementation 'org.springframework.cloud:spring-cloud-context:4.1.0'
+	// Spring AI - stable released version (0.8.1) with correct artifact names
+	implementation 'org.springframework.ai:spring-ai-core:0.8.1'
+	implementation 'org.springframework.ai:spring-ai-google-genai-spring-boot-starter:0.8.1'
+
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
