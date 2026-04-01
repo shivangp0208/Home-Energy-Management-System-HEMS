@@ -1,0 +1,12 @@
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+logging:
+  level:
+    '[com.netflix.eureka]': off
+    '[com.netflix.discovery]': off
+
+server:
+  port: 8091

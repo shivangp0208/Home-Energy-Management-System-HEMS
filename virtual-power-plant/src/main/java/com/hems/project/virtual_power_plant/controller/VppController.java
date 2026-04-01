@@ -1,54 +1,35 @@
 package com.hems.project.virtual_power_plant.controller;
 
-<<<<<<< HEAD:virtual-power-plant/src/main/java/com/hems/project/virtual_power_plant/controller/VppController.java
 import com.hems.project.virtual_power_plant.Config.MessagingConfig;
 import com.hems.project.virtual_power_plant.dto.DocumentVerificationDto;
+import com.hems.project.virtual_power_plant.dto.ImageResponseDto;
 import com.hems.project.virtual_power_plant.dto.VppUpdateRequestDto;
 import com.hems.project.virtual_power_plant.dto.VppUpdateResponseDto;
 import com.hems.project.virtual_power_plant.entity.Vpp;
 import com.hems.project.virtual_power_plant.entity.VppDocumentType;
 import com.hems.project.virtual_power_plant.service.SupabaseStorageService;
 import com.hems.project.virtual_power_plant.service.VppDocumentService;
-import com.project.hems.hems_api_contracts.contract.email.AttachmentDto;
-=======
-import com.hems.project.Virtual_Power_Plant.Config.MessagingConfig;
-import com.hems.project.Virtual_Power_Plant.dto.DocumentVerificationDto;
-import com.hems.project.Virtual_Power_Plant.dto.ImageResponseDto;
-import com.hems.project.Virtual_Power_Plant.dto.VppUpdateRequestDto;
-import com.hems.project.Virtual_Power_Plant.dto.VppUpdateResponseDto;
-import com.hems.project.Virtual_Power_Plant.entity.Vpp;
-import com.hems.project.Virtual_Power_Plant.entity.VppDocumentType;
-import com.hems.project.Virtual_Power_Plant.service.SupabaseStorageService;
-import com.hems.project.Virtual_Power_Plant.service.VppDocumentService;
->>>>>>> j-feature:Virtual-Power-Plant/src/main/java/com/hems/project/Virtual_Power_Plant/controller/VppController.java
+import com.hems.project.virtual_power_plant.service.VppService;
 import com.project.hems.hems_api_contracts.contract.email.EmailEventDto;
 import com.project.hems.hems_api_contracts.contract.vpp.SignalForImport;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-<<<<<<< HEAD:virtual-power-plant/src/main/java/com/hems/project/virtual_power_plant/controller/VppController.java
-
-import com.hems.project.virtual_power_plant.service.VppService;
-
-
-=======
-import com.hems.project.Virtual_Power_Plant.service.VppService;
->>>>>>> j-feature:Virtual-Power-Plant/src/main/java/com/hems/project/Virtual_Power_Plant/controller/VppController.java
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
-import java.nio.file.AccessDeniedException;
-import java.util.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import java.nio.file.AccessDeniedException;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 //aa frontend mate che hamda emj lakhi rakhyu che frontend diff port per run kare and backend diff port per so ena mate..
 @CrossOrigin("*")

@@ -11,7 +11,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableMethodSecurity //so apde je @PreAuthorize lakhyu che e work karse aa annotation vagar e nai chale
-public class SecurityConfig {
+public class
+SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {

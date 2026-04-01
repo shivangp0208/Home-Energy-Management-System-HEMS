@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.hems.project.Virtual_Power_Plant.dto.ImageResponseDto;
+import com.hems.project.virtual_power_plant.dto.ImageResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +32,8 @@ public class SupabaseStorageService {
     @Value("${supabase.key}")
     private String supabaseKey;
 
-    @Value("${supabase.bucket}")
+    @Value(
+            "${supabase.bucket}")
     private String bucket;
 
     private final RestTemplate restTemplate;
@@ -112,11 +113,11 @@ public class SupabaseStorageService {
 
     public void deleteAllFilesByVppId(UUID vppId) {
 
-        List<Map<String, String>> files = getAllImagesFromVppId(vppId);
+        List<ImageResponseDto> files = getAllImagesFromVppId(vppId);
         if (files.isEmpty()) return;
 
         List<String> prefixes = files.stream()
-                .map(m -> vppId + "/" + m.get("fileName"))
+                .map(m -> vppId + "/" + m.getFileName())
                 .toList();
 
         //bulk delete karva mate

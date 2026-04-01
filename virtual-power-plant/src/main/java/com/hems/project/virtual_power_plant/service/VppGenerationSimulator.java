@@ -14,7 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class VppGenerationSimulator {
+public class
+VppGenerationSimulator {
 
 
     private static final double DELTA_SECONDS = 5.0;

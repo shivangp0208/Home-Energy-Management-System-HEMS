@@ -1,0 +1,63 @@
+spring:
+  datasource:
+#    url: jdbc:mysql://hems-auth.czkgccwqed1c.ap-south-1.rds.amazonaws.com:3306/site_service?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+#    username: 
+#    password: 
+    url: jdbc:mysql://localhost:3306/site_service
+    username: 
+    password: 
+
+
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  main:
+    allow-bean-definition-overriding: true
+  # threads:
+  #   virtual:
+  #     enabled: true
+  application:
+    name: SITE-SERVICE-HEMS
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
+          scope:
+            - email
+  kafka:
+    producer:
+      bootstrap-servers:
+        - localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+
+
+
+
+server:
+  port: 8081
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8091/eureka
+
+
+property:
+  config:
+    kafka:
+      site-creation-group-id: site-creation-reader
+      site-creation-topic: SITE_CREATION_DETAILS
+      site-creation-partition-count: 1
+      replica-count: 1

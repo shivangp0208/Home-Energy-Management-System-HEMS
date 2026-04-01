@@ -1,4 +1,4 @@
-package com.hems.project.Virtual_Power_Plant.dto;
+package com.hems.project.virtual_power_plant.dto;
 
 import lombok.Data;
 
