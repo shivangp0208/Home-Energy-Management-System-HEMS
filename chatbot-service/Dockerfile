@@ -12,7 +12,7 @@ WORKDIR /app
 COPY build/libs/*.jar app.jar
 
 # 6. Ports: Use the EXPOSE instruction to document the port.
-EXPOSE 8089
+EXPOSE 8084
 
 # 7. Execution: Command to run your Java application
 ENTRYPOINT ["java", "-jar", "app.jar"]

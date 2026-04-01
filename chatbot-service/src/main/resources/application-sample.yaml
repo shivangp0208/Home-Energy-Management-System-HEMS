@@ -13,4 +13,4 @@ spring:
             model: gemini-2.5-flash
 
 server:
-  port: 8086
+  port: 8094
