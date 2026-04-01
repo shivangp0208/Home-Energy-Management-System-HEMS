@@ -17,7 +17,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: Hems#Einfochips
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - ./db/mysql_init.sql:/docker-entrypoint-initdb.d/init.sql
     platform: linux/amd64
@@ -42,14 +42,13 @@ services:
       - "9093:9093"
 
   rabbitmq-service:
-    image: rabbitmq:3-management
-#    for lower memory image use this which gives the UI support also as a dashboard
-#    image: rabbitmq:4.2.4-management-alpine
+    image: rabbitmq:3.12-management
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: Hems#Einfochips
     ports:
       - "5672:5672"
+      - "15672:15672"   # UI dashboard (add this)
     platform: linux/amd64
 
   redis-hems:
@@ -542,37 +541,37 @@ services:
       - "kafka.topic.schedule-topic=dispatch-topic"
     platform: linux/amd64
 
-  vpp-manager:
-    image: hemseinfochips/vpp-manager:latest
-    ports:
-      - "8088:8088"
-    environment:
-      # Spring App
-      - "spring.application.name=vpp-manager"
-
-      # Kafka
-      - "spring.kafka.bootstrap-servers=apache-kafka:9092"
-      - "spring.kafka.consumer.group-id=vpp-manager-group"
-      - "spring.kafka.consumer.enable-auto-commit=false"
-      - "spring.kafka.consumer.auto-offset-reset=latest"
-      - "spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer"
-      - "spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.ErrorHandlingDeserializer"
-      - "spring.kafka.consumer.properties.spring.deserializer.value.delegate.class=org.springframework.kafka.support.serializer.JsonDeserializer"
-      - "spring.kafka.consumer.properties.spring.json.use.type.headers=false"
-      - "spring.kafka.consumer.properties.spring.json.trusted.packages=com.project.hems.*"
-
-      # Kafka Listener
-      - "spring.kafka.listener.ack-mode=MANUAL"
-
-      # Config Server
-      - "spring.cloud.config.import-check.enabled=false"
-
-      # Custom Property
-      - "property.kafka.vpp-snapshots-topic=VPP_ENERGY_SNAPSHOTS"
-
-      # Server
-      - "server.port=8088"
-    platform: linux/amd64
+#  vpp-manager:
+#    image: hemseinfochips/vpp-manager:latest
+#    ports:
+#      - "8088:8088"
+#    environment:
+#      # Spring App
+#      - "spring.application.name=vpp-manager"
+#
+#      # Kafka
+#      - "spring.kafka.bootstrap-servers=apache-kafka:9092"
+#      - "spring.kafka.consumer.group-id=vpp-manager-group"
+#      - "spring.kafka.consumer.enable-auto-commit=false"
+#      - "spring.kafka.consumer.auto-offset-reset=latest"
+#      - "spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer"
+#      - "spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.ErrorHandlingDeserializer"
+#      - "spring.kafka.consumer.properties.spring.deserializer.value.delegate.class=org.springframework.kafka.support.serializer.JsonDeserializer"
+#      - "spring.kafka.consumer.properties.spring.json.use.type.headers=false"
+#      - "spring.kafka.consumer.properties.spring.json.trusted.packages=com.project.hems.*"
+#
+#      # Kafka Listener
+#      - "spring.kafka.listener.ack-mode=MANUAL"
+#
+#      # Config Server
+#      - "spring.cloud.config.import-check.enabled=false"
+#
+#      # Custom Property
+#      - "property.kafka.vpp-snapshots-topic=VPP_ENERGY_SNAPSHOTS"
+#
+#      # Server
+#      - "server.port=8088"
+#    platform: linux/amd64
 
   ai_module:
     image: hemseinfochips/ai_module:latest
