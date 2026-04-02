@@ -17,7 +17,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: Hems#Einfochips
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - ./db/mysql_init.sql:/docker-entrypoint-initdb.d/init.sql
     platform: linux/amd64
@@ -92,54 +92,55 @@ services:
       - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
       - "spring.cloud.gateway.server.webflux.default-filters=TokenRelay"
       # ---- Route 0 ----
-      - "spring.cloud.gateway.routes[0].id=site-service-route"
-      - "spring.cloud.gateway.routes[0].uri=http://site-service:8081"
-      - "spring.cloud.gateway.routes[0].predicates[0]=Path=/api/v1/owner/**,/api/v1/site/**,/check-token-is-present/**"
+      - "spring.cloud.gateway.server.webflux.routes[0].id=site-service-route"
+      - "spring.cloud.gateway.server.webflux.routes[0].uri=http://site-service:8086"
+      - "spring.cloud.gateway.server.webflux.routes[0].predicates[0]=Path=/api/v1/owner/**,/api/v1/site/**,/check-token-is-present/**"
 
       # ---- Route 1 ----
-      - "spring.cloud.gateway.routes[1].id=auth-service-route"
-      - "spring.cloud.gateway.routes[1].uri=http://auth-service:8082"
-      - "spring.cloud.gateway.routes[1].predicates[0]=Path=/auth/**"
+      - "spring.cloud.gateway.server.webflux.routes[1].id=auth-service-route"
+      - "spring.cloud.gateway.server.webflux.routes[1].uri=http://auth-service:8093"
+      - "spring.cloud.gateway.server.webflux.routes[1].predicates[0]=Path=/auth/**"
 
       # ---- Route 2 ----
-      - "spring.cloud.gateway.routes[2].id=vpp-service-route"
-      - "spring.cloud.gateway.routes[2].uri=http://vpp-service:8086"
-      - "spring.cloud.gateway.routes[2].predicates[0]=Path=/vpp/**"
+      - "spring.cloud.gateway.server.webflux.routes[2].id=vpp-service-route"
+      - "spring.cloud.gateway.server.webflux.routes[2].uri=http://vpp-service:8087"
+      - "spring.cloud.gateway.server.webflux.routes[2].predicates[0]=Path=/vpp/**"
 
       # ---- Route 3 ----
-      - "spring.cloud.gateway.routes[3].id=program-enrollment-manager"
-      - "spring.cloud.gateway.routes[3].uri=http://program-enrollment-manager:8089"
-      - "spring.cloud.gateway.routes[3].predicates[0]=Path=/api/v1/program/**"
+      - "spring.cloud.gateway.server.webflux.routes[3].id=program-enrollment-manager"
+      - "spring.cloud.gateway.server.webflux.routes[3].uri=http://program-enrollment-manager:8085"
+      - "spring.cloud.gateway.server.webflux.routes[3].predicates[0]=Path=/api/v1/program/**"
 
       # ---- Route 4 ----
-      - "spring.cloud.gateway.routes[4].id=email-service"
-      - "spring.cloud.gateway.routes[4].uri=http://email-service:8088"
-      - "spring.cloud.gateway.routes[4].predicates[0]=Path=/api/v1/mail/**,/api/**"
+      - "spring.cloud.gateway.server.webflux.routes[4].id=email-service"
+      - "spring.cloud.gateway.server.webflux.routes[4].uri=http://email-service:8099"
+      - "spring.cloud.gateway.server.webflux.routes[4].predicates[0]=Path=/api/v1/mail/**,/api/**"
 
       # ---- Route 5 ----
-      - "spring.cloud.gateway.routes[5].id=dispatch-manager-service"
-      - "spring.cloud.gateway.routes[5].uri=http://dispatch-manager-service:8084"
-      - "spring.cloud.gateway.routes[5].predicates[0]=Path=/api/v1/dispatch/**"
+      - "spring.cloud.gateway.server.webflux.routes[5].id=dispatch-manager-service"
+      - "spring.cloud.gateway.server.webflux.routes[5].uri=http://dispatch-manager-service:8083"
+      - "spring.cloud.gateway.server.webflux.routes[5].predicates[0]=Path=/api/v1/dispatch/**"
 
       # ---- Route 6 ----
-      - "spring.cloud.gateway.routes[6].id=envoy-manager-service"
-      - "spring.cloud.gateway.routes[6].uri=http://envoy-manager-service:8083"
-      - "spring.cloud.gateway.routes[6].predicates[0]=Path=/**"
+      - "spring.cloud.gateway.server.webflux.routes[6].id=envoy-manager-service"
+      - "spring.cloud.gateway.server.webflux.routes[6].uri=http://envoy-manager-service:8084"
+      - "spring.cloud.gateway.server.webflux.routes[6].predicates[0]=Path=/**"
 
       # ---- Route 7 ----
-      - "spring.cloud.gateway.routes[7].id=simulator-service"
-      - "spring.cloud.gateway.routes[7].uri=http://simulator-service:9010"
-      - "spring.cloud.gateway.routes[7].predicates[0]=Path=/api/v1/simulation/**"
+      - "spring.cloud.gateway.server.webflux.routes[7].id=simulator-service"
+      - "spring.cloud.gateway.server.webflux.routes[7].uri=http://simulator-service:9010"
+      - "spring.cloud.gateway.server.webflux.routes[7].predicates[0]=Path=/api/v1/simulation/**"
 
       # ---- Route 8 ----
-      - "spring.cloud.gateway.routes[8].id=vpp-manager"
-      - "spring.cloud.gateway.routes[8].uri=http://vpp-manager:8087"
-      - "spring.cloud.gateway.routes[8].predicates[0]=Path=/**"
+      - "spring.cloud.gateway.server.webflux.routes[8].id=vpp-manager"
+      - "spring.cloud.gateway.server.webflux.routes[8].uri=http://vpp-manager:8888"
+      - "spring.cloud.gateway.server.webflux.routes[8].predicates[0]=Path=/**"
 
       - SPRING_JPA_HIBERNATE_DLL_AUTO=update
       - SPRING_JPA_SHOW_SQL=true
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
-
+      - SPRING_DATA_REDIS_HOST=redis-hems
+      - SPRING_DATA_REDIS_PORT=6379      
       - SPRING_RABBITMQ_HOST=rabbitmq-service
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=user
@@ -148,7 +149,7 @@ services:
       - EUREKA_CLIENT_FETCH_REGISTRY=true
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=8089
+      - SERVER_PORT=8090
       - SERVER_FORWARD_HEADERS_STRATEGY=framework
       - "auth0.domain=dev-0x5bg1uy1egiz4y0.us.auth0.com"
       - "auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
@@ -156,7 +157,7 @@ services:
       - "auth0-mgmt.client-secret=APspJkcmIo5x_V1S0QvHCw75cKxJblGGwJepKXMJhPK5aknQevvuIX3QOwcV2ghm"
     platform: linux/amd64
 
-  auth_service_hems:
+  auth-service-hems:
     image: hemseinfochips/auth-service-hems:latest
     depends_on:
       - service-registry-hems
@@ -164,7 +165,7 @@ services:
       - redis-hems
       - rabbitmq-service
     ports:
-      - "8081:8081"
+      - "8093:8093"
     environment:
       - SPRING_APPLICATION_NAME=auth_service_hems
       - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
@@ -193,7 +194,7 @@ services:
       - EUREKA_CLIENT_FETCH_REGISTRY=true
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=8081
+      - SERVER_PORT=8093
       - "auth0.domain=dev-0x5bg1uy1egiz4y0.us.auth0.com"
       - "auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
       - "auth0.client-secret=APspJkcmIo5x_V1S0QvHCw75cKxJblGGwJepKXMJhPK5aknQevvuIX3QOwcV2ghm"

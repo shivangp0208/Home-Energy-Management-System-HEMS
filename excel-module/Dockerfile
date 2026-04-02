@@ -1,5 +1,5 @@
 # 1. Base Image: Java 17 Temurin on Alpine Linux
-FROM eclipse-temurin:17-jre-alpine
+FROM ghcr.io/adoptium/temurin:17-jre-alpine
 
 # 2. Security: Create and use a non-root user
 RUN addgroup -S hemsgroup && adduser -S hemsuser -G hemsgroup

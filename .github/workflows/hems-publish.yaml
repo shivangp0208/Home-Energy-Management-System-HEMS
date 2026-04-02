@@ -1,86 +1,3 @@
-# name: HEMS Microservices Build and Publish
-
-# on:
-#   push:
-#     branches:
-#       - main
-#   # This single line enables the manual "Run workflow" button in GitHub
-#   workflow_dispatch:
-
-# jobs:
-#   build-and-push:
-#     runs-on: ubuntu-latest
-#     strategy:
-#       fail-fast: false # If one service fails, let the others continue building
-#       matrix:
-#         # List the exact directory/module names of your HEMS services
-#         service:
-#           - admin-service
-#           - api-gateway-hems
-#           - auth-service-hems
-#           - chatbot-service
-# #          - CONFIG-SERVER
-#           - dispatch-manager-service
-#           - email-service
-#           - envoy-manager-service
-#           - program-enrollment-manager
-#           - service-registry-hems
-#           - simulator-service
-#           - site-manager-service
-#           - virtual-power-plant
-#           - vpp-manager
-#           - ai_module
-#           - excel-module
-
-#     steps:
-#       - name: Checkout Code
-#         uses: actions/checkout@v4
-
-#       # 1. Set up the Java environment (Adjust to Java 21 if needed)
-#       - name: Set up JDK 17
-#         uses: actions/setup-java@v4
-#         with:
-#           java-version: '17'
-#           distribution: 'temurin'
-#           cache: 'gradle' # Highly recommended: speeds up builds by caching dependencies
-
-#       # 2. Ensure the Gradle wrapper has execution permissions
-#       - name: Grant execute permission for gradlew
-#         run: chmod +x gradlew
-
-#       # 3. Build ONLY the specific module and SKIP TESTS
-#       - name: Build ${{ matrix.service }} with Gradle
-#         run: ./gradlew :${{ matrix.service }}:build -x test
-
-#       # 4. Set up Docker Buildx
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v3
-
-#       # 5. Log in to Docker Hub
-#       - name: Login to Docker Hub
-#         uses: docker/login-action@v3
-#         with:
-#           username: ${{ secrets.DOCKER_USERNAME }}
-#           password: ${{ secrets.DOCKER_TOKEN }}
-
-#       # 6. Build and push the Docker image using the freshly built .jar
-#       - name: Build and push ${{ matrix.service }} Docker image
-#         uses: docker/build-push-action@v5
-#         with:
-#           context: ./${{ matrix.service }} # The build context is the module's folder
-#           file: ./${{ matrix.service }}/Dockerfile
-#           push: true
-#           tags: |
-#             ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:latest
-#             ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:${{ github.sha }}
-
-
-
-
-
-
-
-
 name: HEMS Microservices Build and Publish
 
 on:
@@ -92,8 +9,10 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
+      max-parallel: 3
       matrix:
         service:
           - admin-service
@@ -113,10 +32,11 @@ jobs:
           - excel-module
 
     steps:
+      # 1. Checkout
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ✅ Java Setup (cached)
+      # 2. Java Setup
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -124,34 +44,27 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Grant execute permission
+      # 3. Permissions
+      - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # ✅ Build only required service
-      - name: Build ${{ matrix.service }}
+      # 4. Build Service
+      - name: Build ${{ matrix.service }} with Gradle
         run: ./gradlew :${{ matrix.service }}:build -x test
 
-      # ✅ Setup Docker Buildx
+      # 5. Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # ✅ Login DockerHub (fix rate limit)
+      # 6. Docker Login
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      # 🔥 OPTIONAL (BEST): Login GHCR
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # ✅ Build + Push with CACHE (VERY IMPORTANT)
-      - name: Build and push ${{ matrix.service }}
+      # 7. Build & Push with Cache
+      - name: Build and push ${{ matrix.service }} Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./${{ matrix.service }}
@@ -160,6 +73,5 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:latest
             ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:${{ github.sha }}
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
