@@ -1,5 +1,5 @@
 # 1. Base Image: Java 17 Temurin on Alpine Linux
-FROM eclipse-temurin:17-jre
+FROM public.ecr.aws/docker/library/eclipse-temurin:17-jre-alpine
 
 # 2. Security: Create and use a non-root user
 RUN groupadd -r hemsgroup && useradd -r -g hemsgroup hemsuser

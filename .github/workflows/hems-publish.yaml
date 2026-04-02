@@ -56,18 +56,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 6. Docker Hub Login
+      # 6. Docker Hub Login (Required so you can PUSH your finished images)
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      # 7. (Optional but useful) Pre-pull correct base image
-      - name: Pre-pull base image
-        run: docker pull eclipse-temurin:17-jre
-
-      # 8. Build & Push
+      # 7. Build & Push
       - name: Build and push ${{ matrix.service }}
         uses: docker/build-push-action@v5
         with:
