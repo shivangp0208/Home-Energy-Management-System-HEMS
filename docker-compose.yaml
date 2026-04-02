@@ -609,6 +609,10 @@ services:
     ports:
       - "9012:9012"
     environment:
+      - SPRING_APPLICATION_NAME=excel-module
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
     platform: linux/amd64
 
