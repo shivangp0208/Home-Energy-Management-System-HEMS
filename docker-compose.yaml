@@ -618,7 +618,7 @@ services:
     platform: linux/amd64
 
   admin-service:
-    image: your-dockerhub/admin-service:latest
+    image: hemseinfochips/admin-service:latest
     ports:
       - "8093:8093"
     environment:
