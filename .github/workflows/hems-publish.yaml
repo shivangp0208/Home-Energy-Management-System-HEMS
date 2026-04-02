@@ -1,9 +1,11 @@
 name: HEMS Microservices Build and Publish
 
 on:
-  push:
-    branches:
-      - main
+#  uncomment this to start the github action automatically, I have disabled this to limit the pipeline
+#  push:
+#    branches:
+#      - main
+#  this is alternate button which can trigger the pipeline manually
   workflow_dispatch:
 
 jobs:

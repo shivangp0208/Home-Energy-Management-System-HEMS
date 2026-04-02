@@ -64,7 +64,7 @@ services:
     ports:
       - "8091:8091"
     environment:
-      - SERVER_PORT=8091
+      - "server.port=8091"
       - "eureka.client.register-with-eureka=false"
       - "eureka.client.fetch-registry=false"
       - "logging.level.com.netflix.eureka=off"
@@ -80,7 +80,7 @@ services:
     ports:
       - "8090:8090"
     environment:
-      - SPRING_APPLICATION_NAME=api-gateway-hems
+      - "spring.application.name=api-gateway-hems"
       - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
       - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
       - "spring.security.oauth2.client.registration.auth0.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}"
@@ -89,7 +89,7 @@ services:
       - "spring.security.oauth2.client.registration.auth0.authorization-grant-type=authorization_code"
       - "spring.security.oauth2.client.registration.auth0.scope=openid,profile,email,offline_access"
       - "spring.security.oauth2.client.provider.auth0.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
-      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.cloud.config.import-check.enabled=false"
       - "spring.cloud.gateway.server.webflux.default-filters=TokenRelay"
       # ---- Route 0 ----
       - "spring.cloud.gateway.server.webflux.routes[0].id=site-service-route"
@@ -136,21 +136,21 @@ services:
       - "spring.cloud.gateway.server.webflux.routes[8].uri=http://vpp-manager:8888"
       - "spring.cloud.gateway.server.webflux.routes[8].predicates[0]=Path=/**"
 
-      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
-      - SPRING_DATA_REDIS_HOST=redis-hems
-      - SPRING_DATA_REDIS_PORT=6379      
-      - SPRING_RABBITMQ_HOST=rabbitmq-service
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=user
-      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-      - EUREKA_CLIENT_FETCH_REGISTRY=true
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "spring.jpa.hibernate.ddl-auto=update"
+      - "spring.jpa.show-sql=true"
+      - "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
+      - "spring.data.redis.host=redis-hems"
+      - "spring.data.redis.port=6379"
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=8090
-      - SERVER_FORWARD_HEADERS_STRATEGY=framework
+      - "server.port=8090"
+      - "server.forward-headers-strategy=framework"
       - "auth0.domain=dev-0x5bg1uy1egiz4y0.us.auth0.com"
       - "auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
       - "auth0-mgmt.client-id=np7Orte3JD34XLKEp0AciTpGGH85lCLc"
@@ -168,8 +168,8 @@ services:
     ports:
       - "8093:8093"
     environment:
-      - SPRING_APPLICATION_NAME=auth_service_hems
-      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.application.name=auth_service_hems"
+      - "spring.cloud.config.import-check.enabled=false"
       - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
       - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
       - "spring.security.oauth2.client.registration.auth0.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}"
@@ -178,23 +178,23 @@ services:
       - "spring.security.oauth2.client.registration.auth0.authorization-grant-type=authorization_code"
       - "spring.security.oauth2.client.registration.auth0.scope=openid,profile,email,offline_access"
       - "spring.security.oauth2.client.provider.auth0.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/auth_service
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
+      - "spring.datasource.url=jdbc:mysql://mysql-db:3306/auth_service"
+      - "spring.datasource.username=root"
+      - "spring.datasource.password=Hems#Einfochips"
       - "spring.jpa.hibernate.ddl-auto=update"
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
-      - SPRING_DATA_REDIS_HOST=redis-hems
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq-service
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=user
-      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-      - EUREKA_CLIENT_FETCH_REGISTRY=true
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "spring.jpa.show-sql=true"
+      - "spring.main.allow-bean-definition-overriding=true"
+      - "spring.data.redis.host=redis-hems"
+      - "spring.data.redis.port=6379"
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=8093
+      - "server.port=8093"
       - "auth0.domain=dev-0x5bg1uy1egiz4y0.us.auth0.com"
       - "auth0.client-id=esYKYGPnPt7qvkn8gZ7Qt1WI4IcNkEx8"
       - "auth0.client-secret=APspJkcmIo5x_V1S0QvHCw75cKxJblGGwJepKXMJhPK5aknQevvuIX3QOwcV2ghm"
@@ -208,15 +208,15 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - SPRING_APPLICATION_NAME=program-enrollment-manager
-      - SPRING_AI_GOOGLE_GENAI_API_KEY=AIzaSyBI4mQ-1c4nzlBTKXI1qsmktcI0mrysQdM
-      - SPRING_AI_GOOGLE_GENAI_API_KEY_CHAT_OPTIONS_MODEL=gemini-2.5-flash
-      - SPRING_AI_MODEL_CHAT=google-genai
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-      - EUREKA_CLIENT_FETCH_REGISTRY=true
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "spring.application.name=program-enrollment-manager"
+      - "spring.ai.google.genai.api-key=AIzaSyBI4mQ-1c4nzlBTKXI1qsmktcI0mrysQdM"
+      - "spring.ai.google.genai.api-key.chat.options.model=gemini-2.5-flash"
+      - "spring.ai.model.chat=google-genai"
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=8082
+      - "server.port=8082"
     platform: linux/amd64
 
   dispatch-manager:
@@ -229,8 +229,8 @@ services:
     ports:
       - "8083:8083"
     environment:
-      - SPRING_APPLICATION_NAME=dispatch-manager-service
-      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.application.name=dispatch-manager-service"
+      - "spring.cloud.config.import-check.enabled=false"
       - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
       - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
       - "spring.security.oauth2.resourceserver.jwt.scope[0]=email"
@@ -251,15 +251,15 @@ services:
       - "spring.kafka.consumer.properties.spring.json.use.type.headers=true"
       - "spring.kafka.consumer.properties.spring.json.trusted.packages=com.project.hems.*"
 
-      - SPRING_RABBITMQ_HOST=rabbitmq-service
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=user
-      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-      - EUREKA_CLIENT_FETCH_REGISTRY=true
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=8083
+      - "server.port=8083"
       - "property.config.kafka.dispatch-event-group-id=dispatch-event-readers"
       - "property.config.kafka.dispatch-event-topic=ENERGY_DISPATCH_EVENTS"
       - "property.config.kafka.dispatch-event-partition-count=1"
@@ -284,8 +284,8 @@ services:
       - mysql-db
       - rabbitmq-service
     environment:
-      - SPRING_APPLICATION_NAME=envoy-manager-service
-      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.application.name=envoy-manager-service"
+      - "spring.cloud.config.import-check.enabled=false"
       - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
       - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
       - "spring.security.oauth2.resourceserver.jwt.scope[0]=email"
@@ -294,11 +294,11 @@ services:
       - "spring.security.oauth2.client.registration.auth0.authorization-grant-type=client_credentials"
       - "spring.security.oauth2.client.provider.auth0.token-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/oauth/token"
       - "spring.security.oauth2.client.provider.auth0.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/envoy_service
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
-      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
+      - "spring.datasource.url=jdbc:mysql://mysql-db:3306/envoy_service"
+      - "spring.datasource.username=root"
+      - "spring.datasource.password=Hems#Einfochips"
+      - "spring.jpa.hibernate.ddl-auto=update"
+      - "spring.jpa.show-sql=true"
 
       - "spring.kafka.bootstrap-servers=apache-kafka:9092"
       # PRODUCER
@@ -316,15 +316,15 @@ services:
       - "spring.kafka.consumer.properties.spring.deserializer.value.delegate.class=org.springframework.kafka.support.serializer.JsonDeserializer"
       - "spring.kafka.consumer.properties.spring.json.use.type.headers=true"
       - "spring.kafka.consumer.properties.spring.json.trusted.packages=com.project.hems.*"
-      - SPRING_RABBITMQ_HOST=rabbitmq-service
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=user
-      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-      - EUREKA_CLIENT_FETCH_REGISTRY=true
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=8084
+      - "server.port=8084"
       - "property.config.security.oauth2.auth0.audience=https://api.mfa01.com"
       - "property.config.security.oauth2.auth0.registration_id=auth0"
 
@@ -354,24 +354,24 @@ services:
       - postgres-db
       - rabbitmq-service
     environment:
-      - SPRING_APPLICATION_NAME=program-enrollment-manager
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/program_enrollment
-      - SPRING_DATASOURCE_USERNAME=HEMS
-      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
-      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
-      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
-      - SPRING_RABBITMQ_HOST=rabbitmq-service
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=user
-      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-      - EUREKA_CLIENT_FETCH_REGISTRY=true
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "spring.application.name=program-enrollment-manager"
+      - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/program_enrollment"
+      - "spring.datasource.username=HEMS"
+      - "spring.datasource.password=Hems#Einfochips"
+      - "spring.datasource.driver-class-name=org.postgresql.Driver"
+      - "spring.cloud.config.import-check.enabled=false"
+      - "spring.jpa.hibernate.ddl-auto=update"
+      - "spring.jpa.show-sql=true"
+      - "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=8085
+      - "server.port=8085"
     platform: linux/amd64
 
   simulator-service:
@@ -385,28 +385,28 @@ services:
       - rabbitmq-service
       - apache-kafka
     environment:
-      - SPRING_APPLICATION_NAME=simulator-service
-      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/simulator_service
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
-      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
+      - "spring.application.name=simulator-service"
+      - "spring.cloud.config.import-check.enabled=false"
+      - "spring.datasource.url=jdbc:mysql://mysql-db:3306/simulator_service"
+      - "spring.datasource.username=root"
+      - "spring.datasource.password=Hems#Einfochips"
+      - "spring.jpa.hibernate.ddl-auto=update"
+      - "spring.jpa.show-sql=true"
       - "spring.kafka.producer.acks=1"
       - "spring.kafka.bootstrap-servers=apache-kafka:9092"
       - "spring.kafka.producer.bootstrap-servers[0]=apache-kafka:9092"
       - "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer"
       - "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
       - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
-      - SPRING_RABBITMQ_HOST=rabbitmq-service
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=user
-      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-      - EUREKA_CLIENT_FETCH_REGISTRY=true
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-      - SERVER_PORT=9010
+      - "server.port=9010"
       - "property.config.kafka.raw-energy-group-id=raw-energy-readers"
       - "property.config.kafka.raw-energy-topic=RAW_ENERGY_READINGS"
       - "property.config.kafka.raw-energy-partition-count=3"
@@ -423,29 +423,29 @@ services:
       - service-registry-hems
       - apache-kafka
     environment:
-      - SPRING_APPLICATION_NAME=site-service
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/simulator_service
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
-      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.application.name=site-service"
+      - "spring.datasource.url=jdbc:mysql://mysql-db:3306/simulator_service"
+      - "spring.datasource.username=root"
+      - "spring.datasource.password=Hems#Einfochips"
+      - "spring.cloud.config.import-check.enabled=false"
       - "spring.jpa.hibernate.ddl-auto=update"
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
-      - SPRING_RABBITMQ_HOST=rabbitmq-service
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=user
-      - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
+      - "spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect"
+      - "spring.jpa.show-sql=true"
+      - "spring.main.allow-bean-definition-overriding=true"
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
       - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
       - "spring.security.oauth2.resourceserver.jwt.scope[0]=email"
       - "spring.kafka.bootstrap-servers=apache-kafka:9092"
       - "spring.kafka.producer.bootstrap-servers[0]=apache-kafka:9092"
       - "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer"
       - "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
-      - SERVER_PORT=8086
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-      - EUREKA_CLIENT_FETCH_REGISTRY=true
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - "server.port=8086"
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
       - "property.config.kafka.site-creation-group-id=site-creation-reader"
       - "property.config.kafka.site-creation-dlt-group-id=site-creation-dlt-reader"
@@ -468,7 +468,7 @@ services:
       # Spring App
       - "spring.application.name=virtual-power-plant"
 
-      - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
+      - "spring.cloud.config.import-check.enabled=false"
 
       # Datasource
       - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/virtual_power_plant"
@@ -610,11 +610,11 @@ services:
     ports:
       - "9012:9012"
     environment:
-      - SPRING_APPLICATION_NAME=excel-module
-      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
-      - EUREKA_CLIENT_FETCH_REGISTRY=true
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - "spring.application.name=excel-module"
+      - "spring.cloud.compatibility-verifier.enabled=false"
+      - "eureka.client.register-with-eureka=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.instance.prefer-ip-address=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
     platform: linux/amd64
 
@@ -622,30 +622,30 @@ services:
     image: hemseinfochips/admin-service:latest
     ports:
       - "8093:8093"
-    environment:
-      - SPRING_APPLICATION_NAME=ADMIN-SERVICE  
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/admin_service
-      - SPRING_DATASOURCE_USERNAME=HEMS
-      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
-
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=apache-kafka:9092
-      - SPRING_RABBITMQ_HOST=rabbitmq-service
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry-hems:8091/eureka
-      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
-      - PROPERTY_CONFIG_SCHEDULE_TOPIC=dispatch-topic
-      - PROPERTY_CONFIG_SCHEDULE_TOPIC_GROUPID=dispatch-topic-reader
-      - PROPERTY_CONFIG_SCHEDULE_TOPIC_PARTITIONCOUNT=3
-      - PROPERTY_CONFIG_REPLICA_COUNT=1
-  
     depends_on:
       - service-registry-hems
       - postgres-db
       - apache-kafka
       - rabbitmq-service
+    environment:
+      - "spring.application.name=admin-service"
+      - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/admin_service"
+      - "spring.datasource.username=HEMS"
+      - "spring.datasource.password=Hems#Einfochips"
+      - "spring.datasource.driver-class-name=org.postgresql.Driver"
+
+      - "spring.jpa.hibernate.ddl-auto=update"
+      - "spring.jpa.show-sql=true"
+      - "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
+      - "spring.kafka.bootstrap-servers=apache-kafka:9092"
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka"
+      - "spring.cloud.compatibility-verifier.enabled=false"
+      - "property.config.schedule.topic=dispatch-topic"
+      - "property.config.schedule.topic.groupid=dispatch-topic-reader"
+      - "property.config.schedule.topic.partitioncount=3"
+      - "property.config.replica.count=1"
+
 
 
 
