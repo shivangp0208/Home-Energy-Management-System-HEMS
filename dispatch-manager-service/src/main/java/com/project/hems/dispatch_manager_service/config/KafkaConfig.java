@@ -1,6 +1,7 @@
 package com.project.hems.dispatch_manager_service.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +17,10 @@ import lombok.Setter;
 public class KafkaConfig {
 
     private String dispatchCommandTopic;
+    @Value("${property.config.kafka.dispatch-command-dlt-topic}")
     private String dispatchCommandDLTTopic;
     private Integer dispatchCommandPartitionCount;
     private String dispatchEventTopic;
-    private String dispatchEventDLTTopic;
     private Integer dispatchEventPartitionCount;
     private String vppServiceTopic;
     private Integer vppServicePartitionCount;
@@ -44,14 +45,6 @@ public class KafkaConfig {
     @Bean
     public NewTopic dispatchEventTopic() {
         return TopicBuilder.name(dispatchEventTopic)
-                .partitions(dispatchEventPartitionCount)
-                .replicas(replicaCount)
-                .build();
-    }
-
-    @Bean
-    public NewTopic dispatchEventDLTTopic() {
-        return TopicBuilder.name(dispatchEventDLTTopic)
                 .partitions(dispatchEventPartitionCount)
                 .replicas(replicaCount)
                 .build();

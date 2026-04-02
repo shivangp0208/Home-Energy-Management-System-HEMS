@@ -4,6 +4,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,8 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaConfig {
 
     public String siteCreationTopic;
+    @Value("${property.config.kafka.site-creation-dlt-topic}")
+    public String siteCreationDLTTopic;
     public Integer siteCreationPartitionCount;
     public Integer replicaCount;
 
@@ -23,6 +26,14 @@ public class KafkaConfig {
     @Bean
     public NewTopic siteCreationTopic(){
         return TopicBuilder.name(siteCreationTopic)
+                .partitions(siteCreationPartitionCount)
+                .replicas(replicaCount)
+                .build();
+    }
+
+    @Bean
+    public NewTopic siteCreationDLTTopic(){
+        return TopicBuilder.name(siteCreationDLTTopic)
                 .partitions(siteCreationPartitionCount)
                 .replicas(replicaCount)
                 .build();

@@ -264,7 +264,7 @@ services:
       - "property.config.kafka.dispatch-event-topic=ENERGY_DISPATCH_EVENTS"
       - "property.config.kafka.dispatch-event-partition-count=1"
       - "property.config.kafka.dispatch-command-dlt-group-id=dispatch-command-dlt-readers"
-      - "property.config.kafka.dispatch-command-dlt-topic=ENERGY_DISPATCH_COMMANDS_DLT"
+      - "property.config.kafka.dispatch-command-dlt-topic=ENERGY_DISPATCH_COMMANDS.DLT"
       - "property.config.kafka.dispatch-command-group-id=dispatch-command-readers"
       - "property.config.kafka.dispatch-command-topic=ENERGY_DISPATCH_COMMANDS"
       - "property.config.kafka.dispatch-command-partition-count=1"
@@ -379,6 +379,7 @@ services:
     ports:
       - "9010:9010"
     depends_on:
+      - redis-hems
       - envoy-manager
       - mysql-db
       - service-registry-hems
@@ -402,6 +403,8 @@ services:
       - "spring.rabbitmq.port=5672"
       - "spring.rabbitmq.username=user"
       - "spring.rabbitmq.password=Hems#Einfochips"
+      - "spring.data.redis.host=redis-hems"
+      - "spring.data.redis.port=6379"
       - "eureka.instance.prefer-ip-address=true"
       - "eureka.client.fetch-registry=true"
       - "eureka.client.register-with-eureka=true"
