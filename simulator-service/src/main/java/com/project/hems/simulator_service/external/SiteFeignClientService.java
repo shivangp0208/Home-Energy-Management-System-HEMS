@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-@FeignClient(name = "site-manager-service", path = "/api/v1/site")
+@FeignClient(name = "site-service", path = "/api/v1/site")
 public interface SiteFeignClientService {
         @PutMapping("/update-meter-status/{siteId}")
         ResponseEntity<String> updateMeterStatus(@PathVariable("siteId") UUID siteId);

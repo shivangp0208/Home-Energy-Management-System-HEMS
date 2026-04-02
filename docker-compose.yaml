@@ -98,17 +98,17 @@ services:
 
       # ---- Route 1 ----
       - "spring.cloud.gateway.server.webflux.routes[1].id=auth-service-route"
-      - "spring.cloud.gateway.server.webflux.routes[1].uri=http://auth-service:8093"
+      - "spring.cloud.gateway.server.webflux.routes[1].uri=http://auth-service-hems:8093"
       - "spring.cloud.gateway.server.webflux.routes[1].predicates[0]=Path=/auth/**"
 
       # ---- Route 2 ----
       - "spring.cloud.gateway.server.webflux.routes[2].id=vpp-service-route"
-      - "spring.cloud.gateway.server.webflux.routes[2].uri=http://vpp-service:8087"
+      - "spring.cloud.gateway.server.webflux.routes[2].uri=http://virtual-power-plant:8087"
       - "spring.cloud.gateway.server.webflux.routes[2].predicates[0]=Path=/vpp/**"
 
       # ---- Route 3 ----
       - "spring.cloud.gateway.server.webflux.routes[3].id=program-enrollment-manager"
-      - "spring.cloud.gateway.server.webflux.routes[3].uri=http://program-enrollment-manager:8085"
+      - "spring.cloud.gateway.server.webflux.routes[3].uri=http://program-enrollment:8085"
       - "spring.cloud.gateway.server.webflux.routes[3].predicates[0]=Path=/api/v1/program/**"
 
       # ---- Route 4 ----
@@ -118,12 +118,12 @@ services:
 
       # ---- Route 5 ----
       - "spring.cloud.gateway.server.webflux.routes[5].id=dispatch-manager-service"
-      - "spring.cloud.gateway.server.webflux.routes[5].uri=http://dispatch-manager-service:8083"
+      - "spring.cloud.gateway.server.webflux.routes[5].uri=http://dispatch-manager:8083"
       - "spring.cloud.gateway.server.webflux.routes[5].predicates[0]=Path=/api/v1/dispatch/**"
 
       # ---- Route 6 ----
       - "spring.cloud.gateway.server.webflux.routes[6].id=envoy-manager-service"
-      - "spring.cloud.gateway.server.webflux.routes[6].uri=http://envoy-manager-service:8084"
+      - "spring.cloud.gateway.server.webflux.routes[6].uri=http://envoy-manager:8084"
       - "spring.cloud.gateway.server.webflux.routes[6].predicates[0]=Path=/**"
 
       # ---- Route 7 ----
@@ -160,6 +160,7 @@ services:
   auth-service-hems:
     image: hemseinfochips/auth-service-hems:latest
     depends_on:
+      - api-gateway-hems
       - service-registry-hems
       - mysql-db
       - redis-hems
@@ -180,9 +181,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/auth_service
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
-      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
+      - "spring.jpa.hibernate.ddl-auto=update"
       - SPRING_JPA_SHOW_SQL=true
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
       - SPRING_DATA_REDIS_HOST=redis-hems
       - SPRING_DATA_REDIS_PORT=6379
@@ -428,7 +428,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
       - SPRING_CLOUD_CONFIG_IMPORT_CHECK_ENABLED=false
-      - SPRING_JPA_HIBERNATE_DLL_AUTO=update
+      - "spring.jpa.hibernate.ddl-auto=update"
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
       - SPRING_JPA_SHOW_SQL=true
       - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true

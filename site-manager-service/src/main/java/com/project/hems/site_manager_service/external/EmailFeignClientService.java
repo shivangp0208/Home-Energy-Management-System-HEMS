@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "Email-Service")
+@FeignClient(name = "email-service")
 public interface EmailFeignClientService {
     @PostMapping("/api/v1/mail/send-mail")
     ResponseEntity<MailSuccessfullResponseDto> sendMail(@RequestBody MailSuccessfullRequestDto dto);
