@@ -139,6 +139,7 @@ services:
       - SPRING_JPA_HIBERNATE_DLL_AUTO=update
       - SPRING_JPA_SHOW_SQL=true
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+
       - SPRING_RABBITMQ_HOST=rabbitmq-service
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=user
@@ -184,7 +185,7 @@ services:
       - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
       - SPRING_DATA_REDIS_HOST=redis-hems
       - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_RABBITMQ_HOST=rabbitmq-hems
+      - SPRING_RABBITMQ_HOST=rabbitmq-service
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=user
       - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
