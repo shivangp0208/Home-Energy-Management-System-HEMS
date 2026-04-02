@@ -2,7 +2,7 @@
 FROM eclipse-temurin:17-jre
 
 # 2. Security: Create and use a non-root user
-RUN addgroup -S hemsgroup && adduser -S hemsuser -G hemsgroup
+RUN groupadd -r hemsgroup && useradd -r -g hemsgroup hemsuser
 USER hemsuser:hemsgroup
 
 # 3. Workspace: Set the directory inside the container
