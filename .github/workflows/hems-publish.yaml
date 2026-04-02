@@ -73,7 +73,7 @@ jobs:
 
       # 🔥 CRITICAL: Pre-pull base image (reduces rate-limit hits)
       - name: Pre-pull base image
-        run: docker pull ghcr.io/adoptium/temurin:17-jre-alpine
+        run: docker pull eclipse-temurin:17-jre-alpine
 
       # 🚀 Build & Push with cache
       - name: Build and push ${{ matrix.service }}
