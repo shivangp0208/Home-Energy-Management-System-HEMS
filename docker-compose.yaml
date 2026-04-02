@@ -617,5 +617,21 @@ services:
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
     platform: linux/amd64
 
+  admin-service:
+  image: your-dockerhub/admin-service:latest
+  ports:
+    - "8093:8093"
+  environment:
+    - SPRING_APPLICATION_NAME=ADMIN-SERVICE
+    - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry-hems:8091/eureka
+    - SPRING_KAFKA_BOOTSTRAP_SERVERS=apache-kafka:9092
+    - SPRING_RABBITMQ_HOST=rabbitmq-service
+    - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server-hems:8095
+    - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+  depends_on:
+    - service-registry-hems
+    - apache-kafka
+    - rabbitmq-service
+
 
 
