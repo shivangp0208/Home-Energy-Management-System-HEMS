@@ -18,11 +18,11 @@ public class KafkaConfig {
     @Value("${property.config.kafka.replica-count:1}")
     private int replicas;
 
-    @Value("${property.config.kafka.dispatch-command-topic}")
-    private String dispatchCommandTopic;
+    @Value("${property.config.kafka.dispatch-event-topic}")
+    private String dispatchEventTopic;
 
-    @Value("${property.config.kafka.dispatch-command-topic}")
-    private int dispatchCommandPartitionCount;
+    @Value("${property.config.kafka.dispatch-event-partition-count}")
+    private int dispatchEventPartitionCount;
 
 
     @Bean
@@ -37,8 +37,8 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic dispatchTopic() {
-        return TopicBuilder.name(dispatchCommandTopic)
-                .partitions(dispatchCommandPartitionCount)
+        return TopicBuilder.name(dispatchEventTopic)
+                .partitions(dispatchEventPartitionCount)
                 .replicas(replicas)
                 .build();
     }
