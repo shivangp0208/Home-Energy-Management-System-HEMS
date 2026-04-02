@@ -391,6 +391,7 @@ services:
       - SPRING_JPA_HIBERNATE_DLL_AUTO=update
       - SPRING_JPA_SHOW_SQL=true
       - "spring.kafka.producer.acks=1"
+      - "spring.kafka.bootstrap-servers=apache-kafka:9092"
       - "spring.kafka.producer.bootstrap-servers[0]=apache-kafka:9092"
       - "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer"
       - "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
@@ -435,6 +436,7 @@ services:
       - SPRING_RABBITMQ_PASSWORD=Hems#Einfochips
       - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
       - "spring.security.oauth2.resourceserver.jwt.scope[0]=email"
+      - "spring.kafka.bootstrap-servers=apache-kafka:9092"
       - "spring.kafka.producer.bootstrap-servers[0]=apache-kafka:9092"
       - "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer"
       - "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
@@ -475,7 +477,8 @@ services:
       - "spring.jpa.hibernate.ddl-auto=update"
       - "spring.jpa.show-sql=true"
       - "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
-
+      
+      - "spring.kafka.bootstrap-servers=apache-kafka:9092"
       # Kafka Producer
       - "spring.kafka.producer.bootstrap-servers=apache-kafka:9092"
       - "spring.kafka.producer.acks=all"
@@ -542,6 +545,10 @@ services:
       - "property.config.kafka.vpp-snapshots-topic=VPP_ENERGY_SNAPSHOTS"
       - "property.config.kafka.vpp-snapshots-partitions=3"
       - "property.config.kafka.replica-count=1"
+
+      - "supabase.url=https://ggrwtqtkmtmhpntdwrkx.supabase.co"
+      - "supabase.key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdncnd0cXRrbXRtaHBudGR3cmt4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDQ1ODM5OSwiZXhwIjoyMDg2MDM0Mzk5fQ.0ud0hp-4D2K3AGKXfxOWJ63ycrPRMxsQhElRbWCMtdM"
+      - "supabase.bucket=vpp_images"
 
       # Custom Kafka Topic
       - "kafka.topic.schedule-topic=dispatch-topic"
