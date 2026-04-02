@@ -2,7 +2,7 @@
 FROM public.ecr.aws/docker/library/eclipse-temurin:17-jre-alpine
 
 # 2. Security: Create and use a non-root user
-RUN groupadd -r hemsgroup && useradd -r -g hemsgroup hemsuser
+RUN addgroup -S hemsgroup && adduser -S hemsuser -G hemsgroup
 USER hemsuser:hemsgroup
 
 # 3. Workspace: Set the directory inside the container
