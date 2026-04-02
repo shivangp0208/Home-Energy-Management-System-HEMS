@@ -622,14 +622,23 @@ services:
     ports:
       - "8093:8093"
     environment:
-      - SPRING_APPLICATION_NAME=ADMIN-SERVICE
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry-hems:8091/eureka
+      - SPRING_APPLICATION_NAME=ADMIN-SERVICE  
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/admin_service
+      - SPRING_DATASOURCE_USERNAME=HEMS
+      - SPRING_DATASOURCE_PASSWORD=Hems#Einfochips
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=apache-kafka:9092
       - SPRING_RABBITMQ_HOST=rabbitmq-service
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server-hems:8095
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry-hems:8091/eureka
       - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+  
     depends_on:
       - service-registry-hems
+      - postgres-db
       - apache-kafka
       - rabbitmq-service
 
