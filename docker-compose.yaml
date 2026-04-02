@@ -645,7 +645,12 @@ services:
       - "property.config.schedule.topic.groupid=dispatch-topic-reader"
       - "property.config.schedule.topic.partitioncount=3"
       - "property.config.replica.count=1"
-
+      - "property.config.kafka.dispatch-event-group-id=dispatch-event-readers"
+      - "property.config.kafka.dispatch-event-topic=ENERGY_DISPATCH_EVENTS"
+      - "property.config.kafka.dispatch-event-dlt-topic=ENERGY_DISPATCH_EVENTS.DLT"
+      - "property.config.kafka.dispatch-event-dlt-group-id=dispatch-event-readers"
+      - "property.config.kafka.dispatch-event-partition-count=1"
+      - "property.config.kafka.replica-count=1"
 
 
 

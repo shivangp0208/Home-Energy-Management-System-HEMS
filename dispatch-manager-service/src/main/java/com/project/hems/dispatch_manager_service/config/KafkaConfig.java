@@ -16,8 +16,10 @@ import lombok.Setter;
 public class KafkaConfig {
 
     private String dispatchCommandTopic;
+    private String dispatchCommandDLTTopic;
     private Integer dispatchCommandPartitionCount;
     private String dispatchEventTopic;
+    private String dispatchEventDLTTopic;
     private Integer dispatchEventPartitionCount;
     private String vppServiceTopic;
     private Integer vppServicePartitionCount;
@@ -32,8 +34,24 @@ public class KafkaConfig {
     }
 
     @Bean
+    public NewTopic dispatchCommandDLTTopic() {
+        return TopicBuilder.name(dispatchCommandDLTTopic)
+                .partitions(dispatchCommandPartitionCount)
+                .replicas(replicaCount)
+                .build();
+    }
+
+    @Bean
     public NewTopic dispatchEventTopic() {
         return TopicBuilder.name(dispatchEventTopic)
+                .partitions(dispatchEventPartitionCount)
+                .replicas(replicaCount)
+                .build();
+    }
+
+    @Bean
+    public NewTopic dispatchEventDLTTopic() {
+        return TopicBuilder.name(dispatchEventDLTTopic)
                 .partitions(dispatchEventPartitionCount)
                 .replicas(replicaCount)
                 .build();

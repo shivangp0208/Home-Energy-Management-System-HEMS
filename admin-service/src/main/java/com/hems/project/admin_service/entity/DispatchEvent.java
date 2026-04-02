@@ -21,8 +21,8 @@ import java.util.UUID;
 public class DispatchEvent extends QuartzJobBean {
 
 
-    @Value("${property.config.schedule-topic}")
-    private String topic;
+    @Value("${property.config.kafka.dispatch-event-topic}")
+    private String dispatchEventTopic;
 
     private final KafkaTemplate<String,Object> kafkaTemplate;
 
@@ -67,7 +67,7 @@ public class DispatchEvent extends QuartzJobBean {
     private void sendDispatchCommandToKafka(DispatchEventDto dto) {
         //send dispatch command to kafka topic:- schedule-dispatch-event
         try {
-            kafkaTemplate.send(topic, dto);
+            kafkaTemplate.send(dispatchEventTopic, dto);
             log.info("dispatch event invoke and send to kafka topic");
             log.info("event is"+ dto);
         }catch (Exception ex){
