@@ -12,5 +12,14 @@ spring:
           options:
             model: gemini-2.5-flash
 
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8091/eureka
+
 server:
   port: 8094
