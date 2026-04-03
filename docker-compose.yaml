@@ -357,6 +357,9 @@ services:
     environment:
       - "spring.application.name=program-enrollment-manager"
       - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/program_enrollment"
+      - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
+      - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
+      - "spring.security.oauth2.resourceserver.jwt.scope[0]=email"
       - "spring.datasource.username=HEMS"
       - "spring.datasource.password=Hems#Einfochips"
       - "spring.datasource.driver-class-name=org.postgresql.Driver"
