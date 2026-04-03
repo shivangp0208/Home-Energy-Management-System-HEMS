@@ -17,11 +17,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
-    if: |
-      github.event.inputs.service == 'all' ||
-      contains(format(',{0},', github.event.inputs.service), format(',{0},', matrix.service))  
-
+    
     strategy:
       fail-fast: false
       max-parallel: 2
@@ -47,6 +43,12 @@ jobs:
       # 1. Checkout
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.service }}
+        if: |
+          github.event.inputs.service == 'all' ||
+          contains(format(',{0},', github.event.inputs.service), format(',{0},', matrix.service))
+        run: ./gradlew :${{ matrix.service }}:build -x test    
 
       # 2. Java Setup
       - name: Set up JDK 17
