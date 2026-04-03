@@ -10,7 +10,7 @@ on:
     inputs:
       service:
         # to run pipeline for a single service or selected service then name that service with comma seperated to run for all just write 'all' 
-        description: 'site-manager-service'
+        description: 'Service to build (use "all" for everything)'
         required: true
         default: 'all'  
 
