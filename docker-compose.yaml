@@ -689,7 +689,7 @@ services:
   
       # EUREKA
       - "eureka.client.serviceurl.defaultzone=http://service-registry-hems:8091/eureka"
-      - "eureka.instance.prefer-ip-address=true"
+
   
   
   
