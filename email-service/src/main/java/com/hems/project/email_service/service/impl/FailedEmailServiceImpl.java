@@ -1,6 +1,5 @@
 package com.hems.project.email_service.service.impl;
 
-import com.hems.project.email_service.config.AdminNotificationProps;
 import com.hems.project.email_service.config.MessagingConfig;
 import com.hems.project.email_service.entity.EmailStatus;
 import com.hems.project.email_service.entity.FailedEmail;
@@ -50,8 +49,9 @@ public class FailedEmailServiceImpl implements FailedEmailService {
         private final MailServiceImpl mailService;
         private final FailedEmailServiceImpl failedEmailService;
         private final RabbitTemplate rabbitTemplate;
-        private final FcmSenderImpl fcmSender;
-        private final AdminNotificationProps adminNotificationProps;
+        //todo:-
+        //private final FcmSenderImpl fcmSender;
+        //private final AdminNotificationProps adminNotificationProps;
 
         @RabbitListener(queues = MessagingConfig.MAIN_QUEUE,ackMode = "MANUAL")
         public void consumeMessageFromQueue(EmailEventDto dto, Channel channel, Message message) throws IOException {
@@ -106,7 +106,7 @@ public class FailedEmailServiceImpl implements FailedEmailService {
                  log.info("successfully save in the database failedEmail id {}",failed.getId());
                  //send web push notification to admin using firebase push notification
 
-                notifyAdmins(dto, failed.getId());
+                //notifyAdmins(dto, failed.getId());
 
             }catch (FailedEmailSaveException | FcmNotificationException ex) {
                 log.error("known error while processing DLQ", ex);
@@ -143,6 +143,7 @@ public class FailedEmailServiceImpl implements FailedEmailService {
             return 0;
         }
 
+        /*
         private void notifyAdmins(EmailEventDto dto, Long failedId) {
             String title = "Email failed (DLQ)";
             String body = "To: " + dto.getTo() + " | Subject: " + dto.getSubject() + " | id=" + failedId;
@@ -151,6 +152,8 @@ public class FailedEmailServiceImpl implements FailedEmailService {
                 fcmSender.send(token, title, body);
             }
         }
+
+         */
 
     }
 }
