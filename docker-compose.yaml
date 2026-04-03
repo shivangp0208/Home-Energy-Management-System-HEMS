@@ -624,7 +624,7 @@ services:
   admin-service:
     image: hemseinfochips/admin-service:latest
     ports:
-      - "8093:8093"
+      - "8094:8093"
     depends_on:
       - service-registry-hems
       - postgres-db
