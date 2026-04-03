@@ -51,7 +51,7 @@ public class ProgramController {
 
     @Operation(summary = "get all programs", description = "fetch all programs with pagination")
     @ApiResponse(responseCode = "200", description = "program list fetched successfully")
-    orize("hasAuthority('admin:read')")
+    
     @GetMapping("/programs")
     public ResponseEntity<Page<Program>> getAllPrograms(
             @RequestParam(defaultValue = "false") boolean includeSite,
@@ -74,7 +74,7 @@ public class ProgramController {
         }
     }
 
-    orize("hasAuthority('admin:read')")
+    
     @Operation(summary = "get program by id", description = "retrieve a single program using its unique programId")
     @ApiResponse(responseCode = "200", description = "program found and returned successfully")
     @ApiResponse(responseCode = "404", description = "program with given id not found")
@@ -87,7 +87,7 @@ public class ProgramController {
         return new ResponseEntity<>(programById, HttpStatus.OK);
     }
 
-    orize("hasAuthority('admin:write')")
+    
     @Operation(summary = "create new program", description = "create a new program with provided details")
     @ApiResponse(responseCode = "201", description = "program created successfully")
     @PostMapping("/create-program")
@@ -99,7 +99,7 @@ public class ProgramController {
         return new ResponseEntity<>(saveNewProgram, HttpStatus.CREATED);
     }
 
-    orize("hasAuthority('admin:write')")
+    
     @Operation(summary = "update program configuration", description = "update configuration details of an existing program")
     @ApiResponse(responseCode = "200", description = "program configuration updated successfully")
     @PutMapping("/update-program/{programId}")
@@ -113,7 +113,7 @@ public class ProgramController {
     }
 
     // here we find enroll site in particular program
-    orize("hasAuthority('admin:write')")
+    
     @Operation(summary = "enroll site in program", description = "enroll a site in a specific program")
     @ApiResponse(responseCode = "200", description = "site enrolled in program successfully")
     @PostMapping("/enroll-site-in-program")
@@ -128,7 +128,7 @@ public class ProgramController {
     }
 
     // activate program
-    orize("hasAuthority('admin:write')")
+    
     @Operation(summary = "activate program", description = "activate a program by its programId")
     @ApiResponse(responseCode = "200", description = "program activated successfully")
     @PatchMapping("/activate-program/{programId}")
@@ -141,7 +141,7 @@ public class ProgramController {
     }
 
     // deactivate program
-    orize("hasAuthority('admin:write')")
+    
     @Operation(summary = "deactivate program", description = "deactivate a program by its programId")
     @ApiResponse(responseCode = "200", description = "program deactivated successfully")
     @PatchMapping("/deactivate-program/{programId}")
@@ -159,7 +159,7 @@ public class ProgramController {
     )
     @ApiResponse(responseCode = "200", description = "programs fetched successfully")
     @ApiResponse(responseCode = "500", description = "internal server error")
-    orize("hasAuthority('admin:read')")
+    
     @GetMapping("/fetch-programs-by-site/{siteId}")
     public ResponseEntity<List<Program>> getAllProgramBySiteId(
             @PathVariable UUID siteId,
@@ -186,7 +186,7 @@ public class ProgramController {
     )
     @ApiResponse(responseCode = "200", description = "program ids fetched successfully")
     @ApiResponse(responseCode = "500", description = "internal server error")
-    orize("hasAuthority('admin:read')")
+    
     @GetMapping("/fetch-programsIds-by-site/{siteId}")
     public ResponseEntity<List<UUID>> getAllProgramIdBySiteId(
             @PathVariable UUID siteId) {
@@ -226,7 +226,7 @@ public class ProgramController {
     @Operation(summary = "bulk enroll sites", description = "bulk enroll sites into programs using excel file")
     @ApiResponse(responseCode = "200", description = "bulk enrollment completed")
     @ApiResponse(responseCode = "400", description = "invalid file data")
-    orize("hasAuthority('admin:write')")
+    
     @PostMapping("/bulk-enroll")
     public ResponseEntity<String> bulkEnroll(@RequestParam("file") MultipartFile file) {
 
