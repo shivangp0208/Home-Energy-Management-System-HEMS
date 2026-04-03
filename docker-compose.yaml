@@ -628,7 +628,7 @@ services:
   admin-service:
     image: hemseinfochips/admin-service:latest
     ports:
-      - "8094:8093"
+      - "8088:8088"
     depends_on:
       - service-registry-hems
       - postgres-db
@@ -636,6 +636,7 @@ services:
       - rabbitmq-service
     environment:
       - "spring.application.name=admin-service"
+      - "server.port=8088"
       - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/admin_service"
       - "spring.datasource.username=HEMS"
       - "spring.datasource.password=Hems#Einfochips"
@@ -647,6 +648,9 @@ services:
       - "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
       - "spring.kafka.bootstrap-servers=apache-kafka:9092"
       - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka"
       - "spring.cloud.compatibility-verifier.enabled=false"
       - "property.config.schedule.topic=dispatch-topic"
