@@ -169,7 +169,7 @@ services:
     ports:
       - "8093:8093"
     environment:
-      - "spring.application.name=auth_service_hems"
+      - "spring.application.name=auth-service-hems"
       - "spring.cloud.config.import-check.enabled=false"
       - "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-0x5bg1uy1egiz4y0.us.auth0.com/"
       - "spring.security.oauth2.resourceserver.jwt.audiences=https://api.mfa01.com"
