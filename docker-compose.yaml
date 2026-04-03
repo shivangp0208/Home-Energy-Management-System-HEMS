@@ -656,7 +656,7 @@ services:
       - "property.config.kafka.dispatch-event-partition-count=1"
       - "property.config.kafka.replica-count=1"
   email-service:
-     image: hemseinfochips/email-service:latest
+      image: hemseinfochips/email-service:latest
       container_name: email-service
       ports:
         - "8088:8088"
