@@ -19,7 +19,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./db/mysql_init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/mysql_init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./db/quartz.sql:/docker-entrypoint-initdb.d/02-quartz.sql
     platform: linux/amd64
 
   apache-kafka:
