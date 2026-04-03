@@ -16,3 +16,4 @@ EXPOSE 8089
 
 # 7. Execution: Command to run your Java application
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
