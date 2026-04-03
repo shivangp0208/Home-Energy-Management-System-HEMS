@@ -1,11 +1,10 @@
 package com.hems.project.email_service.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.springframework.security.access.prepost.PreAuthorize;
+//import org.springframework.security.access.prepost.PreAuthorize;
 import com.hems.project.email_service.dto.EmailRequest;
 import com.hems.project.email_service.dto.EmailResponse;
 import com.hems.project.email_service.entity.EmailJob;
-import com.netflix.discovery.converters.Auto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +39,7 @@ public class MailSchedulerController {
     @ApiResponse(responseCode = "200", description = "email scheduled successfully")
     @ApiResponse(responseCode = "400", description = "invalid date time")
     @ApiResponse(responseCode = "500", description = "internal server error")
-    @PreAuthorize("hasAuthority('mail:schedule')")
+    //@PreAuthorize("hasAuthority('mail:schedule')")
     @PostMapping(value = "/schedule/email",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EmailResponse> scheduleEmail(@Valid @RequestBody EmailRequest emailRequest){
 

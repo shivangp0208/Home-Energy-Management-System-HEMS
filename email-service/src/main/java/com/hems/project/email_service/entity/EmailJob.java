@@ -1,6 +1,5 @@
 package com.hems.project.email_service.entity;
 
-import com.netflix.discovery.converters.Auto;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.quartz.Job;

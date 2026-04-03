@@ -1,7 +1,89 @@
+#spring:
+#  application:
+#    name: ADMIN-SERVICE
+#
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: https://dev-0x5bg1uy1egiz4y0.us.auth0.com/
+#          audiences:
+#            - https://api.mfa01.com
+#  datasource:
+#    url: jdbc:postgresql://aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres?sslmode=require
+#    password: Hems#Einfochips
+#    hikari:
+#      maximum-pool-size: 2
+#      minimum-idle: 0
+#      connection-timeout: 60000
+#      max-lifetime: 240000
+#      idle-timeout: 30000
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#
+#  kafka:
+#    producer:
+#      bootstrap-servers:
+#        - localhost:9092
+#
+#
+#
+#  quartz:
+#    job-store-type: JDBC
+#    jdbc:
+#      initialize-schema: NEVER
+#
+#    properties:
+#      org:
+#        quartz:
+#          jobStore:
+#            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+#          threadPool:
+#            threadCount: 5
+#
+#  rabbitmq:
+#    host: localhost
+#    port: 5672
+#    username: user
+#    password: Hems#Einfochips
+#
+#
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:8091/eureka
+#server:
+#  port: 8093
+#
+#
+#property:
+#  config:
+#    schedule-topic-group-id: dispatch-topic-reader
+#    schedule-topic: dispatch-topic
+#    schedule-topic-partition-count: 3
+#
+#    replica-count: 1
+#
+#jwt:
+#  system-token: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkxjY2l6R3dZMGRNNnpvbmxYZlRrbiJ9.eyJodHRwOi8vaGVtcy5jb20vZW1haWwiOiJqaWxsc3BhdGVsMjAwNEBnbWFpbC5jb20iLCJodHRwczovL2hlbXMuZXhhbXBsZS5jb20vc2lkIjoiNDNmY2VmNWEtYWRkYy00MDY5LTllOWMtOWVlNjM0YTc0NjJhIiwiaXNzIjoiaHR0cHM6Ly9kZXYtMHg1YmcxdXkxZWdpejR5MC51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8Njk4NDU4YTFkMTM3NGNkZjQ1MWE5N2MxIiwiYXVkIjpbImh0dHBzOi8vYXBpLm1mYTAxLmNvbSIsImh0dHBzOi8vZGV2LTB4NWJnMXV5MWVnaXo0eTAudXMuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTc3MzIyOTY0NSwiZXhwIjoxNzczMzE2MDQ1LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIG9mZmxpbmVfYWNjZXNzIiwiYXpwIjoiZXNZS1lHUG5QdDdxdmtuOGdaN1F0MVdJNEljTmtFeDgiLCJwZXJtaXNzaW9ucyI6WyJ2cHA6d3JpdGUiXX0.oi7p8GtlqJwaEeKrCO5Xrm1ONZ-nxeQjBnSuC3mOuFO03BjTsIjD5PuW0kIc4_SBlZLwpRLTERPOeZ-o0uCSXIOqXPQS-3wPXYGv9NzqRWLmDeRzlXTvP7-1JgFXMZeabkWOez01nSo_UbRpVihRQkhSy7fMxE9M0BIFVA8mGJucnCqTcKT9QbqCcycGsWcysmEv9dJStj7PRWblsfUEubpixfmLCR2egczpJpJTVL1rrum7hz-R_y_UDkJTo94V8ZxMEhcL2BVxWYWp0Km4STVb__63zGA0-dTZT9lbhq7zWwhiNu5RijuPtaX4jY438afQZKYWbInD0t3ObgjPWg
+
+
+
 spring:
   application:
     name: ADMIN-SERVICE
 
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
   security:
     oauth2:
       resourceserver:
@@ -31,7 +113,10 @@ spring:
   kafka:
     producer:
       bootstrap-servers:
-        - apache-kafka:9092
+        - localhost:9092
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 
   config:
@@ -50,16 +135,21 @@ spring:
             threadCount: 5
 
   rabbitmq:
-    host: rabbitmq-service
+    host: localhost
     port: 5672
     username: user
     password: Hems#Einfochips
 
 
 eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: 192.168.232.148
   client:
+    fetch-registry: true
+    register-with-eureka: true
     service-url:
-      defaultZone: http://service-registry-hems:8091/eureka
+      defaultZone: http://localhost:8091/eureka
 
 server:
   port: 8093

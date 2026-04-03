@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +34,7 @@ public class MailController {
             description = "send a basic email using provided email event data"
     )
     @ApiResponse(responseCode = "200", description = "email sent successfully")
-    @PreAuthorize("hasAuthority('mail:send')")
+    //@PreAuthorize("hasAuthority('mail:send')")
     @PostMapping("/send-mail")
     public ResponseEntity<MailSuccessfullResponseDto> sendMail(@RequestBody EmailEventDto dto){
 
@@ -57,7 +57,7 @@ public class MailController {
             description = "send an email with html content"
     )
     @ApiResponse(responseCode = "200", description = "html email sent successfully")
-    @PreAuthorize("hasAuthority('mail:send')")
+    //@PreAuthorize("hasAuthority('mail:send')")
     @PostMapping("/send-mail-html")
     public ResponseEntity<MailSuccessfullResponseDto> sendMailWithHtml(
             @RequestBody MailSuccessfullRequestDto dto) {
