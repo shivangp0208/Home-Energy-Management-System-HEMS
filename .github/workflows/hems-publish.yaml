@@ -7,10 +7,20 @@ on:
 #      - main
 #  this is alternate button which can trigger the pipeline manually
   workflow_dispatch:
+    inputs:
+      service:
+        # to run pipeline for a single service or selected service then name that service with comma seperated to run for all just write 'all' 
+        description: 'site-manager-service'
+        required: true
+        default: 'all'  
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
+    if: |
+      github.event.inputs.service == 'all' ||
+      contains(format(',{0},', github.event.inputs.service), format(',{0},', matrix.service))  
 
     strategy:
       fail-fast: false
