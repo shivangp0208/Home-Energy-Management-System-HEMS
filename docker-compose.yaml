@@ -208,7 +208,7 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - "spring.application.name=program-enrollment-manager"
+      - "spring.application.name=chatbot-service"
       - "spring.ai.google.genai.api-key=AIzaSyBI4mQ-1c4nzlBTKXI1qsmktcI0mrysQdM"
       - "spring.ai.google.genai.api-key.chat.options.model=gemini-2.5-flash"
       - "spring.ai.model.chat=google-genai"
