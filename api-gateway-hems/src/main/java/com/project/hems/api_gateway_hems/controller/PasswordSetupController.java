@@ -19,8 +19,8 @@ public class PasswordSetupController {
 
     private final WebClient webClient;
 
-    @Value("${auth0.domain}")       // hostname only (e.g. dev-xxxx.us.auth0.com)
-    private String auth0Domain;
+    //@Value("${auth0.domain}")       // hostname only (e.g. dev-xxxx.us.auth0.com)
+    private String auth0Domain="dev-0x5bg1uy1egiz4y0.us.auth0.com";
 
     @Value("${auth0.client-id}")    // regular Application client_id (NOT mgmt client)
     private String clientId;
