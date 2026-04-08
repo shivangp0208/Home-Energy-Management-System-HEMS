@@ -1,10 +1,14 @@
 package com.project.hems.envoy_manager_service;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @SpringBootApplication
 @EnableScheduling
@@ -13,6 +17,29 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class EnvoyManagerServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EnvoyManagerServiceApplication.class, args);
+	}
+	@Bean
+	public CommandLineRunner logEndpoints(
+			@Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping handlerMapping) {
+
+		return args -> {
+			System.out.println("====== LIST OF ALL API ENDPOINTS ======");
+
+			handlerMapping.getHandlerMethods().forEach((info, method) -> {
+
+				// NEW WAY (Spring Boot 3+)
+				if (info.getPathPatternsCondition() != null) {
+					info.getPathPatternsCondition().getPatternValues().forEach(pattern -> {
+						info.getMethodsCondition().getMethods().forEach(methodType -> {
+							System.out.println(methodType + " -> " + pattern);
+						});
+					});
+				}
+
+			});
+
+			System.out.println("=======================================");
+		};
 	}
 
 	
