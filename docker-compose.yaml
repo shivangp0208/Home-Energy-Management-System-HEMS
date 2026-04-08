@@ -675,7 +675,7 @@ services:
         - apache-kafka
         - service-registry-hems
       ports:
-        - "9093:8082"
+        - "8003:8082"
       environment:
         # App Name
         - "spring.application.name=payment-service"
