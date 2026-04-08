@@ -28,6 +28,7 @@ jobs:
           - email-service
           - envoy-manager-service
           - program-enrollment-manager
+          - payment-service
           - service-registry-hems
           - simulator-service
           - site-manager-service
