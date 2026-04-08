@@ -594,7 +594,7 @@ services:
 #      - "server.port=8088"
 #    platform: linux/amd64
 
- ai-service:
+  ai-service:
    image: hemseinfochips/ai-service:latest
    ports:
      - "9011:9011"
