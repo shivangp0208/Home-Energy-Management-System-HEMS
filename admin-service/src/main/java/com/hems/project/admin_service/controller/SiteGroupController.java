@@ -37,7 +37,7 @@ public class SiteGroupController {
             description = "create a new site group with optional site inclusion"
     )
     @ApiResponse(responseCode = "200", description = "site group created successfully")
-    @PreAuthorize("hasAuthority('site:write')")
+    //  @PreAuthorize("hasAuthority('site:write')")
     @PostMapping("/create-site-group")
     public ResponseEntity<SiteGroupDto> createSiteGroup(
             @RequestHeader("Authorization") String token,
@@ -64,7 +64,7 @@ public class SiteGroupController {
             description = "fetch a site group using group id"
     )
     @ApiResponse(responseCode = "200", description = "site group fetched successfully")
-    @PreAuthorize("hasAuthority('site:read')")
+    //  @PreAuthorize("hasAuthority('site:read')")
     @GetMapping("/groups/{groupId}")
     public ResponseEntity<SiteGroupDto> getSiteGroupById(
             @PathVariable UUID groupId,
@@ -89,7 +89,7 @@ public class SiteGroupController {
             description = "fetch all site groups"
     )
     @ApiResponse(responseCode = "200", description = "site groups fetched successfully")
-    @PreAuthorize("hasAuthority('site:read')")
+    //  @PreAuthorize("hasAuthority('site:read')")
     @GetMapping("/groups")
     public ResponseEntity<List<SiteGroupDto>> getAllSiteGroups(
             @RequestParam(name = "includeSites", required = false, defaultValue = "false") boolean includeSites) {
@@ -113,7 +113,7 @@ public class SiteGroupController {
             description = "update an existing site group"
     )
     @ApiResponse(responseCode = "200", description = "site group updated successfully")
-    @PreAuthorize("hasAuthority('site:write')")
+    //  @PreAuthorize("hasAuthority('site:write')")
     @PutMapping("/groups/{groupId}")
     public ResponseEntity<SiteGroupDto> updateSiteGroup(
             @PathVariable UUID groupId,
@@ -139,7 +139,7 @@ public class SiteGroupController {
             description = "delete a site group"
     )
     @ApiResponse(responseCode = "204", description = "site group deleted successfully")
-    @PreAuthorize("hasAuthority('site:write')")
+    //  @PreAuthorize("hasAuthority('site:write')")
     @DeleteMapping("/groups/{groupId}")
     public ResponseEntity<Void> deleteSiteGroup(@PathVariable UUID groupId) {
 
@@ -162,7 +162,7 @@ public class SiteGroupController {
             description = "deactivate a site group"
     )
     @ApiResponse(responseCode = "204", description = "site group deactivated successfully")
-    @PreAuthorize("hasAuthority('site:write')")
+    //   @PreAuthorize("hasAuthority('site:write')")
     @PatchMapping("/groups/{groupId}/deactivate")
     public ResponseEntity<Void> deactivateSiteGroup(@PathVariable UUID groupId) {
 
@@ -185,7 +185,7 @@ public class SiteGroupController {
             description = "activate a site group"
     )
     @ApiResponse(responseCode = "204", description = "site group activated successfully")
-    @PreAuthorize("hasAuthority('site:write')")
+    //   @PreAuthorize("hasAuthority('site:write')")
     @PatchMapping("/groups/{groupId}/activate")
     public ResponseEntity<Void> activateSiteGroup(@PathVariable UUID groupId) {
 
@@ -218,7 +218,7 @@ public class SiteGroupController {
             description = "schedule power dispatch for a site group"
     )
     @ApiResponse(responseCode = "200", description = "dispatch scheduled successfully")
-    @PreAuthorize("hasAuthority('admin:write') or hasAuthority('vppm:write')")
+    //  @PreAuthorize("hasAuthority('admin:write') or hasAuthority('vppm:write')")
     @PostMapping("/dispatch-power-group")
     public ResponseEntity<String> dispatchPowerFromGroup(
             @RequestHeader("Authorization") String token,
@@ -242,7 +242,7 @@ public class SiteGroupController {
             description = "schedule power dispatch for a specific site"
     )
     @ApiResponse(responseCode = "200", description = "dispatch scheduled successfully")
-    @PreAuthorize("hasAuthority('admin:write') or hasAuthority('vppm:write')")
+    //  @PreAuthorize("hasAuthority('admin:write') or hasAuthority('vppm:write')")
     @PostMapping("/dispatch-power-site")
     public ResponseEntity<String> dispatchPowerFromSite(
             @RequestHeader("Authorization") String token,

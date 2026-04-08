@@ -1,8 +1,8 @@
 package com.project.hems.site_manager_service.controller;
 
-import com.hems.excel_module.service.*;
 import com.project.hems.site_manager_service.config.MessagingConfig;
 import com.project.hems.site_manager_service.dto.CursorSiteResponse;
+import com.project.hems.site_manager_service.external.ExcelServiceFeignClient;
 import com.project.hems.site_manager_service.service.impl.EmailServiceImpl;
 import com.project.hems.site_manager_service.service.impl.SiteServiceImpl;
 import com.project.hems.site_manager_service.util.EmailTemplateUtil;
@@ -42,7 +42,7 @@ public class SiteController {
     private final EmailServiceImpl emailService;
     private final RabbitTemplate rabbitTemplate;
     @Autowired
-    private ExcelExportService excelExportService;
+    private final ExcelServiceFeignClient excelServiceFeignClient;
 
     @Transactional
     @Operation(summary = "create site", description = "create a new site with site details and return the created site")
@@ -338,13 +338,11 @@ public class SiteController {
                 return map;
             }).toList();
 
-            System.out.println("DATA SIZE: " + data.size());
+            // ✅ CALL EXCEL SERVICE
+            ResponseEntity<byte[]> response =
+                    excelServiceFeignClient.export("Sites", data);
 
-            byte[] excel = excelExportService.export("Sites", data);
-
-            if (excel == null || excel.length == 0) {
-                throw new RuntimeException("Excel generation failed");
-            }
+            byte[] excel = response.getBody();
 
             return ResponseEntity.ok()
                     .header("Content-Disposition", "attachment; filename=sites.xlsx")
@@ -352,7 +350,7 @@ public class SiteController {
                     .body(excel);
 
         } catch (Exception e) {
-            e.printStackTrace(); // 🔥 VERY IMPORTANT
+            e.printStackTrace();
             throw new RuntimeException("Error while exporting Excel: " + e.getMessage());
         }
     }

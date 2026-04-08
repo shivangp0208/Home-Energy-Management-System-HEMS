@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 @EnableTransactionManagement
 @EnableFeignClients
-@Import(com.hems.excel_module.config.ExcelAutoConfiguration.class)
 public class site_manager_serviceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(site_manager_serviceApplication.class, args);

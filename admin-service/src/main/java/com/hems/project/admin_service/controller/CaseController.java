@@ -1,8 +1,8 @@
 package com.hems.project.admin_service.controller;
 
-import com.hems.excel_module.service.ExcelExportService;
 import com.hems.project.admin_service.dto.*;
 import com.hems.project.admin_service.entity.CaseEvent;
+import com.hems.project.admin_service.external.ExcelServiceFeignClientService;
 import com.hems.project.admin_service.service.CaseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,7 +30,7 @@ import java.util.UUID;
 public class CaseController {
 
     private final CaseService caseService;
-    private final ExcelExportService excelExportService;
+    private final ExcelServiceFeignClientService excelServiceFeignClientService;
 
     //raise ticket and when ticket is created
     //1.automatic using site/vpp heartbeat here we use grpc.
@@ -40,7 +40,7 @@ public class CaseController {
             description = "Creates a new case manually by admin"
     )
     @ApiResponse(responseCode = "200", description = "Case created successfully")
-    @PreAuthorize("hasAuthority('admin:write')")
+   // @PreAuthorize("hasAuthority('admin:write')")
     @PostMapping("/create-case-ticket/manual")
     public ResponseEntity<CaseCreatedResponseDto> createManualCase(
             @RequestBody CaseRaisedEventDto caseRaisedEventDto) {
@@ -64,7 +64,7 @@ public class CaseController {
             description = "Fetch current status of a case using caseId"
     )
     @ApiResponse(responseCode = "200", description = "Case status fetched successfully")
-    @PreAuthorize("hasAuthority('admin:read')")
+   // @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/{caseId}/status")
     public ResponseEntity<CaseStatus> getCaseStatus(@PathVariable UUID caseId) {
 
@@ -88,7 +88,7 @@ public class CaseController {
             description = "Fetch all cases with optional filters"
     )
     @ApiResponse(responseCode = "200", description = "Cases fetched successfully")
-    @PreAuthorize("hasAuthority('admin:read')")
+   // @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/all")
     public ResponseEntity<List<CaseCreatedResponseDto>> getAllCases(
             @RequestParam(required = false) CaseStatus status,
@@ -105,7 +105,7 @@ public class CaseController {
             description = "fetch complete timeline of a case including all status changes"
     )
     @ApiResponse(responseCode = "200", description = "case timeline fetched successfully")
-    @PreAuthorize("hasAuthority('admin:read')")
+   // @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/{caseId}/timeline")
     public ResponseEntity<List<CaseEvent>> getCaseTimeline(@PathVariable UUID caseId) {
 
@@ -130,7 +130,7 @@ public class CaseController {
             description = "update the status of a case"
     )
     @ApiResponse(responseCode = "200", description = "case status updated successfully")
-    @PreAuthorize("hasAuthority('admin:write')")
+   // @PreAuthorize("hasAuthority('admin:write')")
     @PatchMapping("/{caseId}/status")
     public ResponseEntity<CaseCreatedResponseDto> updateStatus(
             @PathVariable UUID caseId,
@@ -157,7 +157,7 @@ public class CaseController {
             description = "add a comment to a specific case"
     )
     @ApiResponse(responseCode = "200", description = "comment added successfully")
-    @PreAuthorize("hasAuthority('admin:write')")
+   // @PreAuthorize("hasAuthority('admin:write')")
     @PostMapping("/{caseId}/comment")
     public ResponseEntity<String> addComment(
             @PathVariable UUID caseId,
@@ -183,7 +183,7 @@ public class CaseController {
             description = "transfer case from one admin to another"
     )
     @ApiResponse(responseCode = "200", description = "case transferred successfully")
-    @PreAuthorize("hasAuthority('admin:write')")
+   // @PreAuthorize("hasAuthority('admin:write')")
     @PatchMapping("/{caseId}/transfer")
     public ResponseEntity<CaseCreatedResponseDto> transferCase(
             @PathVariable UUID caseId,
@@ -209,7 +209,7 @@ public class CaseController {
             description = "reopen a closed case"
     )
     @ApiResponse(responseCode = "200", description = "case reopened successfully")
-    @PreAuthorize("hasAuthority('admin:write')")
+   // @PreAuthorize("hasAuthority('admin:write')")
     @PatchMapping("/{caseId}/reopen")
     public ResponseEntity<CaseCreatedResponseDto> reopen(
             @PathVariable UUID caseId,
@@ -235,7 +235,7 @@ public class CaseController {
             description = "close a case with provided details"
     )
     @ApiResponse(responseCode = "200", description = "case closed successfully")
-    @PreAuthorize("hasAuthority('admin:write')")
+   // @PreAuthorize("hasAuthority('admin:write')")
     @PatchMapping("/{caseId}/close")
     public ResponseEntity<CaseCreatedResponseDto> close(
             @PathVariable UUID caseId,
@@ -260,7 +260,7 @@ public class CaseController {
             description = "fetch cases with filters and pagination"
     )
     @ApiResponse(responseCode = "200", description = "cases fetched successfully")
-    @PreAuthorize("hasAuthority('admin:read')")
+  //  @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/all-with-pagination")
     public ResponseEntity<Page<CaseCreatedResponseDto>> list(
             @RequestParam(required = false) CaseStatus status,
@@ -308,7 +308,7 @@ public class CaseController {
             description = "fetch cases assigned to a specific user"
     )
     @ApiResponse(responseCode = "200", description = "my cases fetched successfully")
-    @PreAuthorize("hasAuthority('admin:read')")
+   // @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/my-cases")
     public ResponseEntity<Page<CaseCreatedResponseDto>> myCases(
             @RequestParam(required = false) String assignedTo,
@@ -333,7 +333,7 @@ public class CaseController {
             description = "fetch dashboard summary of cases"
     )
     @ApiResponse(responseCode = "200", description = "dashboard summary fetched successfully")
-    @PreAuthorize("hasAuthority('admin:read')")
+   // @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/dashboard-summary")
     public ResponseEntity<CaseDashboardSummaryDto> dashboard() {
 
@@ -350,7 +350,7 @@ public class CaseController {
         }
     }
 
-    @PreAuthorize("hasAuthority('admin:read')")
+    //@PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/export-cases")
     public ResponseEntity<byte[]> exportCases() {
 
@@ -381,7 +381,10 @@ public class CaseController {
 
             log.info("CASE DATA SIZE: " + data.size());
 
-            byte[] excel = excelExportService.export("Cases", data);
+            ResponseEntity<byte[]> response =
+                    excelServiceFeignClientService.export("Cases", data);
+
+            byte[] excel = response.getBody();
 
             if (excel == null || excel.length == 0) {
                 throw new RuntimeException("Excel generation failed");
@@ -398,13 +401,13 @@ public class CaseController {
         }
     }
 
-    @PreAuthorize("hasAuthority('admin:access')")
+    //@PreAuthorize("hasAuthority('admin:access')")
     @GetMapping("/test/api1")
     public ResponseEntity<String> api1() {
         return ResponseEntity.ok("API 1 response");
     }
 
-    @PreAuthorize("hasAuthority('admin:access')")
+    //@PreAuthorize("hasAuthority('admin:access')")
     @GetMapping("/test/api2")
     public ResponseEntity<String> api2() {
         return ResponseEntity.ok("API 2 response");

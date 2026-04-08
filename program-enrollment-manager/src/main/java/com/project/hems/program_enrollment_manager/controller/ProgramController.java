@@ -1,8 +1,7 @@
 package com.project.hems.program_enrollment_manager.controller;
 
-import com.hems.excel_module.model.ExcelImportResult;
-import com.hems.excel_module.service.ExcelExportService;
-import com.hems.excel_module.service.ExcelImportService;
+import com.project.hems.hems_api_contracts.contract.Excel.ExcelImportResult;
+import com.project.hems.program_enrollment_manager.external.ExcelServiceFeignClient;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,7 +46,7 @@ public class ProgramController {
 
     private final ProgramServiceImpl programService;
     private final SiteProgramEnrollmentServiceImpl siteProgramEnrollmentService;
-    private final ExcelImportService excelImportService;
+    private final ExcelServiceFeignClient excelServiceFeignClient;
 
     @Operation(summary = "get all programs", description = "fetch all programs with pagination")
     @ApiResponse(responseCode = "200", description = "program list fetched successfully")
@@ -233,7 +232,8 @@ public class ProgramController {
         log.info("received bulk enroll request");
 
         try {
-            ExcelImportResult result = excelImportService.importFromExcel(file);
+
+            ExcelImportResult result = excelServiceFeignClient.importFile(file);
 
             if (!result.isSuccess()) {
                 log.warn("bulk enroll failed due to validation errors");
