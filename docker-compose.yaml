@@ -9,7 +9,7 @@ services:
       - "5432:5432"
     volumes:
       - ./db/pq_init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./db/quartz_postgres.sql:/docker-entrypoint-initdb.d/02-quartz.sql
+      - ./db/tables_postgres.sql:/docker-entrypoint-initdb.d/02-quartz.sql
     platform: linux/amd64
 
   mysql-db:
