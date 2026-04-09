@@ -3,7 +3,6 @@
 -- This initializes the database to pristine for Quartz, by first removing any existing Quartz tables
 -- and then recreating them from scratch.
 -- Should you only require it to create the tables, set DropDb to 0.
-\c hems_payment_db;
 
 DO $$
   DECLARE DropDb INT := 1; -- Set this to 0 to skip DROP statements, 1 to include them
