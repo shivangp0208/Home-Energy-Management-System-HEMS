@@ -137,6 +137,11 @@ services:
       - "spring.cloud.gateway.server.webflux.routes[8].uri=http://vpp-manager:8888"
       - "spring.cloud.gateway.server.webflux.routes[8].predicates[0]=Path=/**"
 
+            # ---- Route 9 ----
+      - "spring.cloud.gateway.server.webflux.routes[9].id=payment-service"
+      - "spring.cloud.gateway.server.webflux.routes[9].uri=http://payment-service:8082"
+      - "spring.cloud.gateway.server.webflux.routes[9].predicates[0]=Path=/api/v1/payment/**"
+
       - "spring.jpa.hibernate.ddl-auto=update"
       - "spring.jpa.show-sql=true"
       - "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
