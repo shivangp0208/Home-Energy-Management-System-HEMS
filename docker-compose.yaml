@@ -212,7 +212,7 @@ services:
     depends_on:
       - service-registry-hems
     ports:
-      - "8088:8082"
+      - "8010:8082"
     environment:
       - "spring.application.name=chatbot-service"
       - "spring.ai.google.genai.api-key=AIzaSyBI4mQ-1c4nzlBTKXI1qsmktcI0mrysQdM"
