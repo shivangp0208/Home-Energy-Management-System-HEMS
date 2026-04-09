@@ -732,14 +732,14 @@ services:
       - "spring.application.name=payment-service"
       - "spring.cloud.config.import-check.enabled=false"
       
-      # Payment Service Database
+      # Payment Service Database (MySQL)
       - "spring.datasource.url=jdbc:mysql://mysql-db:3306/payment_service"
       - "spring.datasource.username=root"
       - "spring.datasource.password=Hems#Einfochips"
       - "spring.jpa.hibernate.ddl-auto=update"
       - "spring.jpa.show-sql=false"
       
-      # Quartz Configuration (uses mail_quartz database)
+      # Quartz Configuration (uses MySQL mail_quartz)
       - "spring.quartz.jdbc.initialize-database=never"
       - "spring.quartz.job-store-type=jdbc"
       - "spring.quartz.datasource=quartz"
