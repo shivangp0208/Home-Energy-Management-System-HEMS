@@ -222,6 +222,9 @@ services:
       - "eureka.client.fetch-registry=true"
       - "eureka.client.register-with-eureka=true"
       - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+      - "eureka.client.initial-instance-info-replication-interval-seconds=30"
+      - "eureka.client.registry-fetch-interval-seconds=30"
+  
       - "server.port=8082"
     platform: linux/amd64
 
