@@ -692,6 +692,7 @@ services:
         - "spring.jpa.hibernate.ddl-auto=update"
         - "spring.jpa.show-sql=true"
         - "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
+        - "spring.quartz.properties.org.quartz.jobStore.driverDelegateClass=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate"
     
   
         # KAFKA (IMPORTANT: use container name)
