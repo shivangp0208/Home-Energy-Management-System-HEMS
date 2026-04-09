@@ -26,7 +26,6 @@ repositories {
 ext {
 	set('springCloudVersion', "2025.0.1")
 }
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-quartz'
@@ -38,6 +37,7 @@ dependencies {
 	implementation project(':hems-api-contracts')
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'  // ADD THIS LINE
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
