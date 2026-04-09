@@ -1,4 +1,4 @@
-package com.project.hems.Payment_Service.entity;
+package com.project.hems.payment_service.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

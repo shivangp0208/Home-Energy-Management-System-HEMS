@@ -1,6 +1,6 @@
-package com.project.hems.Payment_Service.repository;
+package com.project.hems.payment_service.repository;
 
-import com.project.hems.Payment_Service.entity.EnergyRate;
+import com.project.hems.payment_service.entity.EnergyRate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

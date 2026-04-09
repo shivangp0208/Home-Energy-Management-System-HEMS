@@ -1,4 +1,4 @@
-package com.project.hems.Payment_Service.dto;
+package com.project.hems.payment_service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

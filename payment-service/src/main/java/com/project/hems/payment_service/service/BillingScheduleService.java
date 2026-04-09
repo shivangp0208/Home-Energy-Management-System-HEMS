@@ -1,8 +1,8 @@
-package com.project.hems.Payment_Service.service;
+package com.project.hems.payment_service.service;
 
 
-import com.project.hems.Payment_Service.entity.MeterReading;
-import com.project.hems.Payment_Service.repository.MeterReadingRepository;
+import com.project.hems.payment_service.entity.MeterReading;
+import com.project.hems.payment_service.repository.MeterReadingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -23,7 +23,7 @@ public class BillingScheduleService {
     
     private final MeterReadingRepository meterReadingRepository;
     private final BillingService billingService;
-    
+
     /**
      * Scheduled task to process monthly billing
      * Runs at midnight on the 1st of each month

@@ -1,13 +1,13 @@
-package com.project.hems.Payment_Service.controller;
+package com.project.hems.payment_service.controller;
 
-import com.project.hems.Payment_Service.dto.BillingCalculationRequest;
-import com.project.hems.Payment_Service.dto.BillingCalculationResponse;
-import com.project.hems.Payment_Service.entity.Transaction;
-import com.project.hems.Payment_Service.entity.UserBilling;
-import com.project.hems.Payment_Service.repository.TransactionRepository;
-import com.project.hems.Payment_Service.repository.UserBillingRepository;
-import com.project.hems.Payment_Service.service.BillingService;
-import com.project.hems.Payment_Service.service.TransactionService;
+import com.project.hems.payment_service.dto.BillingCalculationRequest;
+import com.project.hems.payment_service.dto.BillingCalculationResponse;
+import com.project.hems.payment_service.entity.Transaction;
+import com.project.hems.payment_service.entity.UserBilling;
+import com.project.hems.payment_service.repository.TransactionRepository;
+import com.project.hems.payment_service.repository.UserBillingRepository;
+import com.project.hems.payment_service.service.BillingService;
+import com.project.hems.payment_service.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

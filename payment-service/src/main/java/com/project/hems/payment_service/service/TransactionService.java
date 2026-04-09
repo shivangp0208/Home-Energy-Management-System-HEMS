@@ -1,7 +1,7 @@
-package com.project.hems.Payment_Service.service;
+package com.project.hems.payment_service.service;
 
-import com.project.hems.Payment_Service.entity.Transaction;
-import com.project.hems.Payment_Service.repository.TransactionRepository;
+import com.project.hems.payment_service.entity.Transaction;
+import com.project.hems.payment_service.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

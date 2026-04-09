@@ -1,7 +1,7 @@
-package com.project.hems.Payment_Service.service;
+package com.project.hems.payment_service.service;
 
-import com.project.hems.Payment_Service.entity.MeterReading;
-import com.project.hems.Payment_Service.repository.MeterReadingRepository;
+import com.project.hems.payment_service.entity.MeterReading;
+import com.project.hems.payment_service.repository.MeterReadingRepository;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;

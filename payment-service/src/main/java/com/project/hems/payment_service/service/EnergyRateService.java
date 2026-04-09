@@ -1,8 +1,8 @@
-package com.project.hems.Payment_Service.service;
+package com.project.hems.payment_service.service;
 
 
-import com.project.hems.Payment_Service.entity.EnergyRate;
-import com.project.hems.Payment_Service.repository.EnergyRateRepository;
+import com.project.hems.payment_service.entity.EnergyRate;
+import com.project.hems.payment_service.repository.EnergyRateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

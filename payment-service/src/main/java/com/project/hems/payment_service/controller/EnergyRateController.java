@@ -1,7 +1,7 @@
-package com.project.hems.Payment_Service.controller;
+package com.project.hems.payment_service.controller;
 
-import com.project.hems.Payment_Service.entity.EnergyRate;
-import com.project.hems.Payment_Service.service.EnergyRateService;
+import com.project.hems.payment_service.entity.EnergyRate;
+import com.project.hems.payment_service.service.EnergyRateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
