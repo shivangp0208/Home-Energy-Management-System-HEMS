@@ -720,39 +720,49 @@ services:
   #       - "app.kafka.topics.meter-snapshots-batch=meter-snapshots-batch"
   
   #     platform: linux/amd64
-    payment-service:
-        image: hemseinfochips/payment-service:latest
-        depends_on:
-          - mysql-db
-          - service-registry-hems
-          - rabbitmq-service
-        ports:
-          - "8082:8082"
-        environment:
-          - "spring.application.name=payment-service"
-          - "spring.cloud.config.import-check.enabled=false"
-          - "spring.datasource.url=jdbc:mysql://mysql-db:3306/payment_service"
-          - "spring.datasource.username=root"
-          - "spring.datasource.password=Hems#Einfochips"
-          - "spring.jpa.hibernate.ddl-auto=update"
-          - "spring.jpa.show-sql=true"
-          
-          # QUARTZ CONFIGURATION
-          - "spring.quartz.jdbc.initialize-database=always"
-          - "spring.quartz.job-store-type=jdbc"
-          - "spring.quartz.properties.org.quartz.jobStore.driverDelegateClass=org.quartz.impl.jdbcjobstore.StdJdbcDelegate"
-          
-          - "spring.rabbitmq.host=rabbitmq-service"
-          - "spring.rabbitmq.port=5672"
-          - "spring.rabbitmq.username=user"
-          - "spring.rabbitmq.password=Hems#Einfochips"
-          - "eureka.instance.prefer-ip-address=true"
-          - "eureka.client.fetch-registry=true"
-          - "eureka.client.register-with-eureka=true"
-          - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
-          - "server.port=8082"
+  payment-service:
+    image: hemseinfochips/payment-service:latest
+    depends_on:
+      - mysql-db
+      - service-registry-hems
+      - rabbitmq-service
+    ports:
+      - "8082:8082"
+    environment:
+      - "spring.application.name=payment-service"
+      - "spring.cloud.config.import-check.enabled=false"
+      
+      # Payment Service Database
+      - "spring.datasource.url=jdbc:mysql://mysql-db:3306/payment_service"
+      - "spring.datasource.username=root"
+      - "spring.datasource.password=Hems#Einfochips"
+      - "spring.jpa.hibernate.ddl-auto=update"
+      - "spring.jpa.show-sql=false"
+      
+      # Quartz Configuration (uses mail_quartz database)
+      - "spring.quartz.jdbc.initialize-database=never"
+      - "spring.quartz.job-store-type=jdbc"
+      - "spring.quartz.datasource=quartz"
+      - "spring.datasource.quartz.url=jdbc:mysql://mysql-db:3306/mail_quartz"
+      - "spring.datasource.quartz.username=root"
+      - "spring.datasource.quartz.password=Hems#Einfochips"
+      - "spring.quartz.properties.org.quartz.jobStore.driverDelegateClass=org.quartz.impl.jdbcjobstore.StdJdbcDelegate"
+      - "spring.quartz.properties.org.quartz.dataSource.quartz.provider=hikaricp"
+      
+      # RabbitMQ
+      - "spring.rabbitmq.host=rabbitmq-service"
+      - "spring.rabbitmq.port=5672"
+      - "spring.rabbitmq.username=user"
+      - "spring.rabbitmq.password=Hems#Einfochips"
+      
+      # Eureka
+      - "eureka.instance.prefer-ip-address=true"
+      - "eureka.client.fetch-registry=true"
+      - "eureka.client.register-with-eureka=true"
+      - "eureka.client.serviceUrl.defaultZone=http://service-registry-hems:8091/eureka/"
+      
+      - "server.port=8082"
     platform: linux/amd64
-
   email-service:
       image: hemseinfochips/email-service:latest
       container_name: email-service
